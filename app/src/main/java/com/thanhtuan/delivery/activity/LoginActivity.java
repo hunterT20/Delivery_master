@@ -1,5 +1,6 @@
 package com.thanhtuan.delivery.activity;
 
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -57,6 +58,11 @@ public class LoginActivity extends AppCompatActivity {
                                         user.setLoginDate(data.getString("LoginDate"));
                                         user.setExpiredDate(data.getString("ExpiredDate"));
                                         user.setID(data.getString("ID"));
+
+                                        SharedPreferences pre=getSharedPreferences("ID", MODE_PRIVATE);
+                                        SharedPreferences.Editor edit=pre.edit();
+                                        edit.putString("ID", user.getID());
+                                        edit.apply();
                                     }
                                 } catch (JSONException e) {
                                     e.printStackTrace();
