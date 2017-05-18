@@ -1,20 +1,24 @@
 package com.thanhtuan.delivery.adapter;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
 import com.thanhtuan.delivery.R;
+import com.thanhtuan.delivery.activity.DetailActivity;
 import com.thanhtuan.delivery.model.Item;
 
 import java.util.List;
 
-/**
- * Created by Nusib on 5/18/2017.
- */
+import static android.content.Context.MODE_PRIVATE;
+
 
 public class ListSaleAdapter extends RecyclerView.Adapter<ListSaleAdapter.SaleViewHolder> {
     private static final String TAG = "ListSaleAdapter";
@@ -35,15 +39,30 @@ public class ListSaleAdapter extends RecyclerView.Adapter<ListSaleAdapter.SaleVi
     }
 
     @Override
-    public void onBindViewHolder(ListSaleAdapter.SaleViewHolder holder, int position) {
+    public void onBindViewHolder(ListSaleAdapter.SaleViewHolder holder, final int position) {
         //get song in mSong via position
-        Item item = mItem.get(position);
+        final Item item = mItem.get(position);
 
         //bind data to viewholder
         holder.txtvNameCustomer.setText(item.getCustomerName());
         holder.txtvPhone.setText(item.getPhoneNumber());
         holder.txtvAddress.setText(item.getAddress());
         holder.txtvSl.setText(String.valueOf(item.getQuantity()));
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferences mPrefs = mContext.getSharedPreferences("MyPre",MODE_PRIVATE);
+                SharedPreferences.Editor prefsEditor = mPrefs.edit();
+                Gson gson = new Gson();
+                String json = gson.toJson(item);
+                Log.e("adapter", json);
+                prefsEditor.putString("SaleItem", json);
+                prefsEditor.apply();
+
+                Intent intent = new Intent(mContext, DetailActivity.class);
+                mContext.startActivity(intent);
+            }
+        });
     }
 
     @Override
@@ -51,13 +70,13 @@ public class ListSaleAdapter extends RecyclerView.Adapter<ListSaleAdapter.SaleVi
         return mItem.size();
     }
 
-    public class SaleViewHolder extends RecyclerView.ViewHolder {
+    class SaleViewHolder extends RecyclerView.ViewHolder {
         private TextView txtvNameCustomer;
         private TextView txtvPhone;
         private TextView txtvAddress;
         private TextView txtvSl;
 
-        public SaleViewHolder(View itemView) {
+        SaleViewHolder(final View itemView) {
             super(itemView);
             txtvNameCustomer = (TextView) itemView.findViewById(R.id.txtvNameCustomer);
             txtvPhone = (TextView) itemView.findViewById(R.id.txtvPhone);

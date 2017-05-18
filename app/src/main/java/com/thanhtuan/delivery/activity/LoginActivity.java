@@ -61,7 +61,7 @@ public class LoginActivity extends AppCompatActivity {
                                         user.setLoginDate(data.getString("LoginDate"));
                                         user.setExpiredDate(data.getString("ExpiredDate"));
 
-                                        SharedPreferences pre=getSharedPreferences("ID", MODE_PRIVATE);
+                                        SharedPreferences pre=getSharedPreferences("MyPre", MODE_PRIVATE);
                                         SharedPreferences.Editor edit=pre.edit();
                                         edit.putString("ID", data.getString("Id"));
                                         edit.apply();
@@ -69,6 +69,7 @@ public class LoginActivity extends AppCompatActivity {
                                         Toast.makeText(LoginActivity.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
                                         Intent intent = new Intent(LoginActivity.this,MainActivity.class);
                                         startActivity(intent);
+                                        finish();
                                     }else {
                                         Toast.makeText(LoginActivity.this, response.getString("Message"), Toast.LENGTH_SHORT).show();
                                     }

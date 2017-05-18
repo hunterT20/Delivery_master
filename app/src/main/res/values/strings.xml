@@ -7,4 +7,24 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="quatrinh">Quá Trình:</string>
+    <string name="choxuly">Chờ xử lý</string>
+    <string name="n_h_ng">donhang</string>
+    <string name="testDonHang">#4545</string>
+    <string name="diachi">Địa Chỉ:</string>
+    <string name="testDC">HCM</string>
+    <string name="tenKH">Tên Khách Hàng:</string>
+    <string name="testTenKH">Ngô Thanh Tuấn</string>
+    <string name="sdt">Số Điện Thoại:</string>
+    <string name="testSDT">01669384803</string>
+    <string name="tongtien">Tổng Tiền Thu:</string>
+    <string name="testTongTien">10.000.000 vnđ</string>
+    <string name="note">Lưu ý:</string>
+    <string name="testNote">- Giao giờ hành chính</string>
+    <string name="giaohang">Giao Hàng</string>
+    <string name="huy">Hủy Giao Hàng</string>
+    <string name="toolbar_title">Toolbar Title</string>
 </resources>

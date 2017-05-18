@@ -1,11 +1,14 @@
 package com.thanhtuan.delivery.activity;
 
+import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -25,11 +28,12 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.BindView;
-
 public class MainActivity extends AppCompatActivity {
     private RecyclerView rcvDonHang;
     private List<Item> mItem;
+    Toolbar toolbar;
+    TextView txtvTitleToolbar;
+    ListSaleAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,8 +45,20 @@ public class MainActivity extends AppCompatActivity {
         initData();
     }
 
+    @SuppressLint("SetTextI18n")
     private void addControls() {
-        ListSaleAdapter adapter = new ListSaleAdapter(mItem, this);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        txtvTitleToolbar = (TextView) findViewById(R.id.toolbar_title);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        txtvTitleToolbar.setText("Danh sách đơn hàng");
+
+        LinearLayoutManager llm = new LinearLayoutManager(this);
+        llm.setOrientation(LinearLayoutManager.VERTICAL);
+        rcvDonHang.setLayoutManager(llm);
+        rcvDonHang.setHasFixedSize(true);
+        adapter = new ListSaleAdapter(mItem, this);
         rcvDonHang.setAdapter(adapter);
     }
 
@@ -65,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
                                 for (int i = 0; i < listItem.length(); i++){
                                     JSONObject object = (JSONObject) listItem.get(i);
                                     Item item = new Item();
+                                    item.setSaleReceiptId(object.getString("SaleReceiptId"));
                                     item.setCustomerName(object.getString("CustomerName"));
                                     item.setPhoneNumber(object.getString("PhoneNumber"));
                                     item.setAddress(object.getString("Address"));
