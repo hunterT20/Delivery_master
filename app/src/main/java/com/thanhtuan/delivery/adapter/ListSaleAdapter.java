@@ -55,7 +55,6 @@ public class ListSaleAdapter extends RecyclerView.Adapter<ListSaleAdapter.SaleVi
                 SharedPreferences.Editor prefsEditor = mPrefs.edit();
                 Gson gson = new Gson();
                 String json = gson.toJson(item);
-                Log.e("adapter", json);
                 prefsEditor.putString("SaleItem", json);
                 prefsEditor.apply();
 

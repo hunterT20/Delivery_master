@@ -28,48 +28,45 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class MainActivity extends AppCompatActivity {
-    private RecyclerView rcvDonHang;
+    @BindView(R.id.rcvDonHang) RecyclerView rcvDonHang;
+    @BindView(R.id.toolbar) Toolbar toolbar;
+    @BindView(R.id.toolbar_title) TextView txtvTitleToolbar;
     private List<Item> mItem;
-    Toolbar toolbar;
-    TextView txtvTitleToolbar;
-    ListSaleAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
 
         mItem = new ArrayList<>();
-        rcvDonHang = (RecyclerView) findViewById(R.id.rcvDonHang);
         initData();
     }
 
     @SuppressLint("SetTextI18n")
     private void addControls() {
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        txtvTitleToolbar = (TextView) findViewById(R.id.toolbar_title);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         txtvTitleToolbar.setText("Danh sách đơn hàng");
 
-        LinearLayoutManager llm = new LinearLayoutManager(this);
-        llm.setOrientation(LinearLayoutManager.VERTICAL);
-        rcvDonHang.setLayoutManager(llm);
-        rcvDonHang.setHasFixedSize(true);
-        adapter = new ListSaleAdapter(mItem, this);
+        ListSaleAdapter adapter = new ListSaleAdapter(mItem, this);
         rcvDonHang.setAdapter(adapter);
     }
 
     private void initData() {
-        SharedPreferences pre=getSharedPreferences("ID", MODE_PRIVATE);
+        SharedPreferences pre=getSharedPreferences("MyPre", MODE_PRIVATE);
         SharedPreferences.Editor edit=pre.edit();
         String ID = pre.getString("ID", null);
         edit.apply();
-        String api_listSale = ApiHelper.URL + ApiHelper.DOMAIN_LISTSALE + "key=" + ID;
+        String API_LISTSALE = ApiHelper.URL + ApiHelper.DOMAIN_LISTSALE + "key=" + ID;
+        Log.e("Main", API_LISTSALE);
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, api_listSale, null,
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, API_LISTSALE, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {

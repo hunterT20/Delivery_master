@@ -6,6 +6,17 @@
     android:layout_height="match_parent"
     tools:context="com.thanhtuan.delivery.activity.LoginActivity">
 
+    <com.victor.loading.newton.NewtonCradleLoading
+        android:id="@+id/newton_cradle_loading"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/textInputLayout"
+        android:layout_marginRight="8dp"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintLeft_toLeftOf="parent" />
+
     <android.support.design.widget.TextInputLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -59,16 +70,33 @@
         android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
         android:text="@string/login"
+        android:textStyle="bold"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textInputLayout2" />
+        app:layout_constraintTop_toBottomOf="@+id/ckbSave" />
 
     <android.support.constraint.Guideline
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/guideline"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.3"/>
+        app:layout_constraintGuide_percent="0.35"/>
+
+    <com.rey.material.widget.CheckBox
+        android:id="@+id/ckbSave"
+        style="@style/Material.Drawable.CheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:checked="false"
+        android:elevation="8dp"
+        android:gravity="center"
+        android:text="Ghi nhớ tài khoản"
+        android:textColor="@color/colorAccent"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textInputLayout2" />
 
 
 </android.support.constraint.ConstraintLayout>

@@ -12,7 +12,7 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="quatrinh">Quá Trình:</string>
     <string name="choxuly">Chờ xử lý</string>
-    <string name="n_h_ng">donhang</string>
+    <string name="donhang">Đơn Hàng</string>
     <string name="testDonHang">#4545</string>
     <string name="diachi">Địa Chỉ:</string>
     <string name="testDC">HCM</string>
@@ -27,4 +27,7 @@
     <string name="giaohang">Giao Hàng</string>
     <string name="huy">Hủy Giao Hàng</string>
     <string name="toolbar_title">Toolbar Title</string>
+    <string name="lydo">Mô tả lý do</string>
+    <string name="dialog_title">Lý do hủy:</string>
+    <string name="title_activity_maps">Map</string>
 </resources>

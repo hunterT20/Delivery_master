@@ -14,26 +14,29 @@ import android.widget.Toast;
 
 import com.thanhtuan.delivery.R;
 import com.thanhtuan.delivery.fragment.InfoFragment;
+import com.thanhtuan.delivery.fragment.MapFragment;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 
 public class DetailActivity extends AppCompatActivity {
-    BottomNavigationView bottomNavigationView;
-    Toolbar toolbar;
-    TextView txtvTitleToolbar;
+    @BindView(R.id.bottom_nav) BottomNavigationView bottomNavigationView;
+    @BindView(R.id.toolbar)    Toolbar toolbar;
+    @BindView(R.id.toolbarChildren_title)   TextView txtvTitleToolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
+        ButterKnife.bind(this);
 
         addViews();
         addControls();
     }
 
+    /*Khởi tạo Views*/
     private void addViews() {
-        bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_nav);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        txtvTitleToolbar = (TextView) findViewById(R.id.toolbar_title);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -45,23 +48,31 @@ public class DetailActivity extends AppCompatActivity {
         InfoFragment infoFragment = new InfoFragment();
         fragmentTransaction.replace(R.id.frmMain, infoFragment);
         fragmentTransaction.commit();
+        txtvTitleToolbar.setText("Thông tin");
     }
 
+    /*Khởi tạo controls*/
     private void addControls() {
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()){
                     case R.id.action_info:
+                        /*Sự kiện khi nhấn vào Nav Bottom Info*/
                         FragmentManager fm = getFragmentManager();
                         FragmentTransaction fragmentTransaction = fm.beginTransaction();
                         InfoFragment infoFragment = new InfoFragment();
                         fragmentTransaction.replace(R.id.frmMain, infoFragment);
                         fragmentTransaction.commit();
-
+                        txtvTitleToolbar.setText("Thông tin");
                         break;
                     case R.id.action_map:
-                        Toast.makeText(DetailActivity.this, "Map", Toast.LENGTH_SHORT).show();
+                        FragmentManager fm2 = getFragmentManager();
+                        FragmentTransaction fragmentTransaction2 = fm2.beginTransaction();
+                        MapFragment mapFragment = new MapFragment();
+                        fragmentTransaction2.replace(R.id.frmMain, mapFragment);
+                        fragmentTransaction2.commit();
+                        txtvTitleToolbar.setText("Bản đồ");
                         break;
                     case R.id.action_detail:
                         Toast.makeText(DetailActivity.this, "Detail", Toast.LENGTH_SHORT).show();
@@ -71,6 +82,7 @@ public class DetailActivity extends AppCompatActivity {
         });
     }
 
+    /*Khởi sự kiện button back*/
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {

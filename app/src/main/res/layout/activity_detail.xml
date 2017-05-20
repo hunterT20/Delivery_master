@@ -10,6 +10,9 @@
         android:id="@+id/bottom_nav"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
+        android:background="@color/cardview_light_background"
+        app:elevation="8dp"
         app:itemBackground="@color/colorAccent"
         app:itemIconTint="@drawable/nav_item_color_state"
         app:itemTextColor="@drawable/nav_item_color_state"
@@ -33,7 +36,7 @@
     </FrameLayout>
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintHorizontal_bias="0.0"
