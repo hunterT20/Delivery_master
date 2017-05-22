@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,7 +20,9 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.google.android.gms.common.api.Api;
 import com.google.gson.Gson;
+import com.rey.material.widget.SnackBar;
 import com.thanhtuan.delivery.R;
 import com.thanhtuan.delivery.api.ApiHelper;
 import com.thanhtuan.delivery.api.VolleySingleton;
@@ -72,64 +75,25 @@ public class InfoFragment extends Fragment {
         btnHuyGiaoHang.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                LayoutInflater layoutInflaterAndroid = LayoutInflater.from(getActivity());
-                final View mView = layoutInflaterAndroid.inflate(R.layout.dialog_huy, null);
-                final EditText edtLyDo = (EditText) mView.findViewById(R.id.edtLydo);
-                AlertDialog.Builder alertDialogBuilderUserInput = new AlertDialog.Builder(getActivity());
-                alertDialogBuilderUserInput.setView(mView);
+                eventHuyGiaoHang();
+            }
+        });
 
-                alertDialogBuilderUserInput
-                        .setCancelable(true)
-                        .setPositiveButton("Xác nhận hủy", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialogBox, int id) {
-                                SharedPreferences pre=getActivity().getSharedPreferences("ID", MODE_PRIVATE);
-                                String ID = pre.getString("ID", null);
-                                String description = null;
-                                try {
-                                    description = URLEncoder.encode(String.valueOf(edtLyDo.getText()), "utf-8");
-                                } catch (UnsupportedEncodingException e) {
-                                    e.printStackTrace();
-                                }
-                                String API_LISTSALE = ApiHelper.URL + ApiHelper.DOMAIN_HUY + "key=" + ID
-                                        + "&saleReceiptId=" + txtvDonHang.getText() + "&description=" + description;
-
-                                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, API_LISTSALE, null,
-                                        new Response.Listener<JSONObject>() {
-                                            @Override
-                                            public void onResponse(JSONObject response) {
-                                                try {
-                                                    if (response.getBoolean("Result")) {
-                                                        JSONObject jsonObject = response.getJSONObject("Data");
-                                                        setQuaTrinh(jsonObject.getInt("Status"));
-                                                        Toast.makeText(getActivity(), "Đã hủy giao hàng!", Toast.LENGTH_SHORT).show();
-                                                    } else {
-                                                        Toast.makeText(getActivity(), response.getString("Message"), Toast.LENGTH_SHORT).show();
-                                                    }
-                                                } catch (JSONException e) {
-                                                    e.printStackTrace();
-                                                }
-                                            }
-                                        }, new Response.ErrorListener() {
-                                    @Override
-                                    public void onErrorResponse(VolleyError error) {
-                                        Log.e("", "onErrorResponse: " + error.getMessage());
-                                    }
-                                });
-
-                                VolleySingleton.getInstance(getActivity()).getRequestQueue().add(jsonObjectRequest);
-                            }
-                        })
-                        .setTitle("Lý Do Hủy")
-
-                        .setNegativeButton("Cancel",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialogBox, int id) {
-                                        dialogBox.cancel();
-                                    }
-                                });
-
-                AlertDialog alertDialogAndroid = alertDialogBuilderUserInput.create();
-                alertDialogAndroid.show();
+        btnGiaoHang.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String status = btnGiaoHang.getText().toString();
+                switch (status){
+                    case "Giao Hàng":
+                        eventGiaoHang(ApiHelper.DOMAIN_START,"saleReceiptId");
+                        break;
+                    case "Kết Thúc":
+                        eventGiaoHang(ApiHelper.DOMAIN_END, "saleReceiptId");
+                        break;
+                    case "Nghiệm Thu":
+                        Toast.makeText(getActivity(), "Giao Hàng", Toast.LENGTH_SHORT).show();
+                        break;
+                }
             }
         });
     }
@@ -159,19 +123,113 @@ public class InfoFragment extends Fragment {
                 btnGiaoHang.setText("Kết Thúc");
                 break;
             case 2:
-                txtvQuaTrinh.setText("Đã giao hàng");
-                btnGiaoHang.setText("Nghiệm Thu");
+                txtvQuaTrinh.setText("Nghiệm thu");
+                btnHuyGiaoHang.setEnabled(false);
                 break;
             case 3:
                 txtvQuaTrinh.setText("Hủy giao hàng");
                 break;
             case 4:
-                txtvQuaTrinh.setText("Hoàn Thành");
+                txtvQuaTrinh.setText("Đã Giao Hàng");
+                btnGiaoHang.setText("Nghiệm Thu");
                 btnHuyGiaoHang.setEnabled(false);
                 break;
             default:
                 txtvQuaTrinh.setText("Không xác định");
                 break;
         }
+    }
+
+    private void eventGiaoHang(String domain, String param){
+        SharedPreferences pre=getActivity().getSharedPreferences("MyPre", MODE_PRIVATE);
+        String ID = pre.getString("ID", null);
+
+        String API_START = ApiHelper.URL + domain + "key=" + ID
+                + "&" + param + "=" + txtvDonHang.getText();
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, API_START, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            if (response.getBoolean("Result")) {
+                                JSONObject jsonObject = response.getJSONObject("Data");
+                                setQuaTrinh(jsonObject.getInt("Status"));
+                            } else {
+                                Toast.makeText(getActivity(), response.getString("Message"), Toast.LENGTH_SHORT).show();
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("", "onErrorResponse: " + error.getMessage());
+            }
+        });
+
+        VolleySingleton.getInstance(getActivity()).getRequestQueue().add(jsonObjectRequest);
+    }
+
+    private void eventHuyGiaoHang(){
+        LayoutInflater layoutInflaterAndroid = LayoutInflater.from(getActivity());
+        final View mView = layoutInflaterAndroid.inflate(R.layout.dialog_huy, null);
+        final EditText edtLyDo = (EditText) mView.findViewById(R.id.edtLydo);
+        AlertDialog.Builder alertDialogBuilderUserInput = new AlertDialog.Builder(getActivity());
+        alertDialogBuilderUserInput.setView(mView);
+
+        alertDialogBuilderUserInput
+                .setCancelable(true)
+                .setPositiveButton("Xác nhận hủy", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialogBox, int id) {
+                        SharedPreferences pre=getActivity().getSharedPreferences("MyPre", MODE_PRIVATE);
+                        String ID = pre.getString("ID", null);
+                        String description = null;
+                        try {
+                            description = URLEncoder.encode(String.valueOf(edtLyDo.getText()), "utf-8");
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
+                        String API_LISTSALE = ApiHelper.URL + ApiHelper.DOMAIN_HUY + "key=" + ID
+                                + "&saleReceiptId=" + txtvDonHang.getText() + "&description=" + description;
+
+                        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, API_LISTSALE, null,
+                                new Response.Listener<JSONObject>() {
+                                    @Override
+                                    public void onResponse(JSONObject response) {
+                                        try {
+                                            if (response.getBoolean("Result")) {
+                                                JSONObject jsonObject = response.getJSONObject("Data");
+                                                setQuaTrinh(jsonObject.getInt("Status"));
+                                                Toast.makeText(getActivity(), "Đã hủy giao hàng!", Toast.LENGTH_SHORT).show();
+                                            } else {
+                                                Toast.makeText(getActivity(), response.getString("Message"), Toast.LENGTH_SHORT).show();
+                                            }
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                }, new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Log.e("", "onErrorResponse: " + error.getMessage());
+                            }
+                        });
+
+                        VolleySingleton.getInstance(getActivity()).getRequestQueue().add(jsonObjectRequest);
+                    }
+                })
+                .setTitle("Lý Do Hủy")
+
+                .setNegativeButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialogBox, int id) {
+                                dialogBox.cancel();
+                            }
+                        });
+
+        AlertDialog alertDialogAndroid = alertDialogBuilderUserInput.create();
+        alertDialogAndroid.show();
     }
 }
