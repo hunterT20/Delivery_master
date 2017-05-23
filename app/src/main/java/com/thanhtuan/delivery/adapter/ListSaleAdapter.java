@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,7 +33,7 @@ public class ListSaleAdapter extends RecyclerView.Adapter<ListSaleAdapter.SaleVi
 
     @Override
     public ListSaleAdapter.SaleViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView = mLayoutInflater.inflate(R.layout.adapter_cardview, parent, false);
+        View itemView = mLayoutInflater.inflate(R.layout.adapter_cardview_main, parent, false);
         return new SaleViewHolder(itemView);
     }
 
@@ -44,22 +43,25 @@ public class ListSaleAdapter extends RecyclerView.Adapter<ListSaleAdapter.SaleVi
         final Item item = mItem.get(position);
 
         //bind data to viewholder
+        holder.txtvDonHang.setText(item.getSaleReceiptId());
         holder.txtvNameCustomer.setText(item.getCustomerName());
         holder.txtvPhone.setText(item.getPhoneNumber());
         holder.txtvAddress.setText(item.getAddress());
         holder.txtvSl.setText(String.valueOf(item.getQuantity()));
+
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SharedPreferences mPrefs = mContext.getSharedPreferences("MyPre",MODE_PRIVATE);
-                SharedPreferences.Editor prefsEditor = mPrefs.edit();
-                Gson gson = new Gson();
-                String json = gson.toJson(item);
-                prefsEditor.putString("SaleItem", json);
-                prefsEditor.apply();
+        SharedPreferences mPrefs = mContext.getSharedPreferences("MyPre",MODE_PRIVATE);
+        SharedPreferences.Editor prefsEditor = mPrefs.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(item);
+        prefsEditor.putString("SaleItem", json);
+        prefsEditor.putInt("status",item.getStatus());
+        prefsEditor.apply();
 
-                Intent intent = new Intent(mContext, DetailActivity.class);
-                mContext.startActivity(intent);
+        Intent intent = new Intent(mContext, DetailActivity.class);
+        mContext.startActivity(intent);
             }
         });
     }
@@ -74,6 +76,7 @@ public class ListSaleAdapter extends RecyclerView.Adapter<ListSaleAdapter.SaleVi
         private TextView txtvPhone;
         private TextView txtvAddress;
         private TextView txtvSl;
+        private TextView txtvDonHang;
 
         SaleViewHolder(final View itemView) {
             super(itemView);
@@ -81,6 +84,7 @@ public class ListSaleAdapter extends RecyclerView.Adapter<ListSaleAdapter.SaleVi
             txtvPhone = (TextView) itemView.findViewById(R.id.txtvPhone);
             txtvAddress = (TextView) itemView.findViewById(R.id.txtvAddress);
             txtvSl = (TextView) itemView.findViewById(R.id.txtvSL);
+            txtvDonHang = (TextView) itemView.findViewById(R.id.txtvDonHang);
         }
     }
 }

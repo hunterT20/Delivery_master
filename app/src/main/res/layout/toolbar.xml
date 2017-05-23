@@ -16,7 +16,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="@string/toolbar_title"
         android:textColor="@android:color/white"
         android:textStyle="bold" />
 </android.support.v7.widget.Toolbar>

@@ -3,6 +3,7 @@ package com.thanhtuan.delivery.fragment;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -39,10 +40,12 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.gson.Gson;
 import com.thanhtuan.delivery.R;
 import com.thanhtuan.delivery.api.ApiHelper;
 import com.thanhtuan.delivery.api.VolleySingleton;
 import com.thanhtuan.delivery.interface_delivery.Interface_Location;
+import com.thanhtuan.delivery.model.Item;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -52,6 +55,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.content.Context.MODE_PRIVATE;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -64,8 +69,7 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
     Location location;
     private List<Polyline> polylines;
     LatLng start;
-    LatLng end;
-    private static final int[] COLORS = new int[]{R.color.colorPrimaryDark,R.color.colorPrimary,R.color.colorAccent,R.color.primary_dark_material_light};
+    private static final int[] COLORS = new int[]{R.color.colorAccent};
 
     public MapFragment() {
         // Required empty public constructor
@@ -154,8 +158,11 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
         latitudeCurrent = location.getLatitude();
     }
 
-    private void getLocationSale(final Interface_Location interface_location) {
-        String address = "180 cao lỗ";
+    private void getLocationSale(final Interface_Location interface_location) {Gson gson = new Gson();
+        SharedPreferences mPrefs = getActivity().getSharedPreferences("MyPre",MODE_PRIVATE);
+        String json = mPrefs.getString("SaleItem", "");
+        Item item = gson.fromJson(json, Item.class);
+        String address = item.getAddress();
         try {
             address = URLEncoder.encode(address, "utf-8");
         } catch (UnsupportedEncodingException e) {
@@ -163,6 +170,7 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
         }
         String key = "AIzaSyCueeDritXwUW37E3jH897o9iBHyIMpseE";
         String API_MAP = ApiHelper.URL_MAP + ApiHelper.DOMAIN_MAP + "address=" + address + "&key=" + key;
+        Log.e("MAP", API_MAP);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, API_MAP, null,
                 new Response.Listener<JSONObject>() {
                     @Override
@@ -239,20 +247,19 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
 
         polylines = new ArrayList<>();
         //add route(s) to the map.
-        for (int i = 0; i <route.size(); i++) {
+        int i = 0;
+        //In case of more than 5 alternative routes
+        int colorIndex = i % COLORS.length;
 
-            //In case of more than 5 alternative routes
-            int colorIndex = i % COLORS.length;
+        PolylineOptions polyOptions = new PolylineOptions();
+        polyOptions.color(getResources().getColor(COLORS[colorIndex]));
+        polyOptions.width(10 + i * 3);
+        polyOptions.addAll(route.get(i).getPoints());
+        Polyline polyline = googleMap.addPolyline(polyOptions);
+        polylines.add(polyline);
 
-            PolylineOptions polyOptions = new PolylineOptions();
-            polyOptions.color(getResources().getColor(COLORS[colorIndex]));
-            polyOptions.width(10 + i * 3);
-            polyOptions.addAll(route.get(i).getPoints());
-            Polyline polyline = googleMap.addPolyline(polyOptions);
-            polylines.add(polyline);
-
-            Toast.makeText(getActivity(),"Route "+ (i+1) +": distance - "+ route.get(i).getDistanceValue()+": duration - "+ route.get(i).getDurationValue(),Toast.LENGTH_SHORT).show();
-        }
+        Toast.makeText(getActivity(),"Thông tin: " +"Quãng đường: "+ route.get(i).getDistanceValue()/1000
+                + "km - Thời gian: "+ route.get(i).getDurationValue()/60 + " phút",Toast.LENGTH_LONG).show();
     }
 
     @Override

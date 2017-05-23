@@ -99,6 +99,10 @@ public class LoginActivity extends AppCompatActivity {
                                         if (ckbSaveUser.isChecked()){
                                             saveUser();
                                         }
+                                        if (pre.getInt("status",0) != 1){
+                                            Intent intent = new Intent(LoginActivity.this,DetailActivity.class);
+                                            startActivity(intent);
+                                        }
                                         Intent intent = new Intent(LoginActivity.this,MainActivity.class);
                                         startActivity(intent);
                                         finish();

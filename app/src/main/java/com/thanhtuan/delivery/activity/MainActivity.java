@@ -20,6 +20,7 @@ import com.thanhtuan.delivery.adapter.ListSaleAdapter;
 import com.thanhtuan.delivery.api.ApiHelper;
 import com.thanhtuan.delivery.api.VolleySingleton;
 import com.thanhtuan.delivery.model.Item;
+import com.wang.avi.AVLoadingIndicatorView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.rcvDonHang) RecyclerView rcvDonHang;
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.toolbar_title) TextView txtvTitleToolbar;
+    @BindView(R.id.avi_loading)   AVLoadingIndicatorView avi_Loading;
     private List<Item> mItem;
 
     @Override
@@ -60,11 +62,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void initData() {
         SharedPreferences pre=getSharedPreferences("MyPre", MODE_PRIVATE);
-        SharedPreferences.Editor edit=pre.edit();
         String ID = pre.getString("ID", null);
-        edit.apply();
+
         String API_LISTSALE = ApiHelper.URL + ApiHelper.DOMAIN_LISTSALE + "key=" + ID;
-        Log.e("Main", API_LISTSALE);
+        startAnim();
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, API_LISTSALE, null,
                 new Response.Listener<JSONObject>() {
@@ -74,6 +75,8 @@ public class MainActivity extends AppCompatActivity {
                             if(response.getBoolean("Result")){
                                 JSONObject data = response.getJSONObject("Data");
                                 JSONArray listItem = data.getJSONArray("Items");
+
+                                Log.e("test", String.valueOf(listItem.length()));
 
                                 for (int i = 0; i < listItem.length(); i++){
                                     JSONObject object = (JSONObject) listItem.get(i);
@@ -95,6 +98,9 @@ public class MainActivity extends AppCompatActivity {
                                     //RecyclerView scroll vertical
                                     LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplication(), LinearLayoutManager.VERTICAL, false);
                                     rcvDonHang.setLayoutManager(linearLayoutManager);
+                                    if (i < listItem.length() - 1){
+                                        stopAnim();
+                                    }
                                 }
                             }else {
                                 Toast.makeText(MainActivity.this, response.getString("Message"), Toast.LENGTH_SHORT).show();
@@ -111,5 +117,15 @@ public class MainActivity extends AppCompatActivity {
         });
 
         VolleySingleton.getInstance(getApplication()).getRequestQueue().add(jsonObjectRequest);
+    }
+
+    private void startAnim(){
+        avi_Loading.show();
+        // or avi.smoothToShow();
+    }
+
+    private void stopAnim(){
+        avi_Loading.hide();
+        // or avi.smoothToHide();
     }
 }

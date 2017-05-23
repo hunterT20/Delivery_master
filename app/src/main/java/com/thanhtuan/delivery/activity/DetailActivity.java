@@ -3,6 +3,7 @@ package com.thanhtuan.delivery.activity;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.thanhtuan.delivery.R;
+import com.thanhtuan.delivery.fragment.DetailFragment;
 import com.thanhtuan.delivery.fragment.InfoFragment;
 import com.thanhtuan.delivery.fragment.MapFragment;
 
@@ -75,7 +77,12 @@ public class DetailActivity extends AppCompatActivity {
                         txtvTitleToolbar.setText("Bản đồ");
                         break;
                     case R.id.action_detail:
-                        Toast.makeText(DetailActivity.this, "Detail", Toast.LENGTH_SHORT).show();
+                        FragmentManager fm3 = getFragmentManager();
+                        FragmentTransaction fragmentTransaction3 = fm3.beginTransaction();
+                        DetailFragment detailFragment = new DetailFragment();
+                        fragmentTransaction3.replace(R.id.frmMain, detailFragment);
+                        fragmentTransaction3.commit();
+                        txtvTitleToolbar.setText("Danh sách sản phẩm");
                 }
                 return true;
             }
@@ -87,12 +94,16 @@ public class DetailActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                Intent intent = new Intent(DetailActivity.this, MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-                finish();
+                SharedPreferences pre = getSharedPreferences("MyPre", MODE_PRIVATE);
+                if (pre.getInt("status",0) != 0){
+                    Toast.makeText(this, "Bạn chưa hoàn thành việc giao hàng, hãy cố gắng để hoàn thành!", Toast.LENGTH_SHORT).show();
+                }else {
+                    Intent intent = new Intent(DetailActivity.this, MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                    finish();
+                }
                 return true;
-
             default:
                 return super.onOptionsItemSelected(item);
         }
