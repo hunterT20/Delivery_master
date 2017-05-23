@@ -185,6 +185,8 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
                                 LatLng end = new LatLng(latitudeSale,longitudeSale);
 
                                 interface_location.onLocation(end);
+                            }else {
+                                Toast.makeText(getActivity(), "Không tìm thấy địa chỉ!", Toast.LENGTH_SHORT).show();
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();

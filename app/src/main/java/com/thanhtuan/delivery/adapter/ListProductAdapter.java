@@ -39,25 +39,6 @@ public class ListProductAdapter extends RecyclerView.Adapter<ListProductAdapter.
         holder.txtvSKU.setText(product.getSKU());
         holder.txtvDonGia.setText(product.getPrice().toString());
         holder.txtvSoLuong.setText(String.valueOf(product.getQuantity()));
-        switch (product.getStatus()){
-            case 0:
-                holder.txtvTrangThai.setText("Chưa Nghiệm Thu");
-                break;
-            case 1:
-                holder.txtvTrangThai.setText("Chưa Nghiệm Thu");
-                break;
-            case 2:
-                holder.txtvTrangThai.setText("Chưa Nghiệm Thu");
-                break;
-            case 3:
-                holder.txtvTrangThai.setText("Chưa Nghiệm Thu");
-                break;
-            case 4:
-                holder.txtvTrangThai.setText("Chưa Nghiệm Thu");
-                break;
-            default:
-                break;
-        }
     }
 
     @Override
@@ -69,13 +50,11 @@ public class ListProductAdapter extends RecyclerView.Adapter<ListProductAdapter.
         private TextView txtvSKU;
         private TextView txtvDonGia;
         private TextView txtvSoLuong;
-        private TextView txtvTrangThai;
         ProductViewHolder(View itemView) {
             super(itemView);
             txtvSKU = (TextView) itemView.findViewById(R.id.txtvSKU);
             txtvDonGia = (TextView) itemView.findViewById(R.id.txtvDonGia);
             txtvSoLuong = (TextView) itemView.findViewById(R.id.txtvSoLuong);
-            txtvTrangThai = (TextView) itemView.findViewById(R.id.txtvTrangThai);
         }
     }
 }

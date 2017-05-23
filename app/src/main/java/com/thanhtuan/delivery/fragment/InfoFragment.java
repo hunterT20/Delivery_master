@@ -26,6 +26,7 @@ import com.google.android.gms.common.api.Api;
 import com.google.gson.Gson;
 import com.rey.material.widget.SnackBar;
 import com.thanhtuan.delivery.R;
+import com.thanhtuan.delivery.activity.DetailActivity;
 import com.thanhtuan.delivery.api.ApiHelper;
 import com.thanhtuan.delivery.api.VolleySingleton;
 import com.thanhtuan.delivery.model.Item;
@@ -93,7 +94,7 @@ public class InfoFragment extends Fragment {
                         eventGiaoHang(ApiHelper.DOMAIN_END, "saleReceiptId");
                         break;
                     case "Nghiệm Thu":
-                        Toast.makeText(getActivity(), "Giao Hàng", Toast.LENGTH_SHORT).show();
+                        ((DetailActivity)getActivity()).setLayoutNghiemThu();
                         break;
                 }
             }
@@ -116,30 +117,37 @@ public class InfoFragment extends Fragment {
     }
 
     private void setQuaTrinh(int Status){
+        SharedPreferences pre = getActivity().getSharedPreferences("MyPre", MODE_PRIVATE);
+        SharedPreferences.Editor prefsEditor = pre.edit();
         switch (Status){
             case 0:
                 txtvQuaTrinh.setText("Đang chờ giao hàng");
                 break;
             case 1:
                 txtvQuaTrinh.setText("Đang giao hàng");
+                prefsEditor.putInt("status",Status);
                 btnGiaoHang.setText("Kết Thúc");
                 break;
             case 2:
-                txtvQuaTrinh.setText("Nghiệm thu");
+                txtvQuaTrinh.setText("Hoàn tất");
+                prefsEditor.putInt("status",Status);
+                btnGiaoHang.setEnabled(false);
                 btnHuyGiaoHang.setEnabled(false);
                 break;
             case 3:
                 txtvQuaTrinh.setText("Hủy giao hàng");
+                prefsEditor.putInt("status",Status);
                 break;
             case 4:
                 txtvQuaTrinh.setText("Đã Giao Hàng");
+                prefsEditor.putInt("status",Status);
                 btnGiaoHang.setText("Nghiệm Thu");
-                btnHuyGiaoHang.setEnabled(false);
                 break;
             default:
                 txtvQuaTrinh.setText("Không xác định");
                 break;
         }
+        prefsEditor.apply();
     }
 
     private void eventGiaoHang(String domain, String param){
@@ -185,41 +193,46 @@ public class InfoFragment extends Fragment {
                 .setCancelable(true)
                 .setPositiveButton("Xác nhận hủy", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialogBox, int id) {
-                        SharedPreferences pre=getActivity().getSharedPreferences("MyPre", MODE_PRIVATE);
-                        String ID = pre.getString("ID", null);
-                        String description = null;
-                        try {
-                            description = URLEncoder.encode(String.valueOf(edtLyDo.getText()), "utf-8");
-                        } catch (UnsupportedEncodingException e) {
-                            e.printStackTrace();
+                        if (edtLyDo.getText().length() < 10){
+                            Toast.makeText(getActivity(), "Lý do quá ngắn!", Toast.LENGTH_SHORT).show();
                         }
-                        String API_LISTSALE = ApiHelper.URL + ApiHelper.DOMAIN_HUY + "key=" + ID
-                                + "&saleReceiptId=" + txtvDonHang.getText() + "&description=" + description;
-
-                        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, API_LISTSALE, null,
-                                new Response.Listener<JSONObject>() {
-                                    @Override
-                                    public void onResponse(JSONObject response) {
-                                        try {
-                                            if (response.getBoolean("Result")) {
-                                                JSONObject jsonObject = response.getJSONObject("Data");
-                                                setQuaTrinh(jsonObject.getInt("Status"));
-                                                Toast.makeText(getActivity(), "Đã hủy giao hàng!", Toast.LENGTH_SHORT).show();
-                                            } else {
-                                                Toast.makeText(getActivity(), response.getString("Message"), Toast.LENGTH_SHORT).show();
-                                            }
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                }, new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                Log.e("", "onErrorResponse: " + error.getMessage());
+                        else {
+                            SharedPreferences pre=getActivity().getSharedPreferences("MyPre", MODE_PRIVATE);
+                            String ID = pre.getString("ID", null);
+                            String description = null;
+                            try {
+                                description = URLEncoder.encode(String.valueOf(edtLyDo.getText()), "utf-8");
+                            } catch (UnsupportedEncodingException e) {
+                                e.printStackTrace();
                             }
-                        });
+                            String API_LISTSALE = ApiHelper.URL + ApiHelper.DOMAIN_HUY + "key=" + ID
+                                    + "&saleReceiptId=" + txtvDonHang.getText() + "&description=" + description;
 
-                        VolleySingleton.getInstance(getActivity()).getRequestQueue().add(jsonObjectRequest);
+                            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, API_LISTSALE, null,
+                                    new Response.Listener<JSONObject>() {
+                                        @Override
+                                        public void onResponse(JSONObject response) {
+                                            try {
+                                                if (response.getBoolean("Result")) {
+                                                    JSONObject jsonObject = response.getJSONObject("Data");
+                                                    setQuaTrinh(jsonObject.getInt("Status"));
+                                                    Toast.makeText(getActivity(), "Đã hủy giao hàng!", Toast.LENGTH_SHORT).show();
+                                                } else {
+                                                    Toast.makeText(getActivity(), response.getString("Message"), Toast.LENGTH_SHORT).show();
+                                                }
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                            }
+                                        }
+                                    }, new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+                                    Log.e("", "onErrorResponse: " + error.getMessage());
+                                }
+                            });
+
+                            VolleySingleton.getInstance(getActivity()).getRequestQueue().add(jsonObjectRequest);
+                        }
                     }
                 })
                 .setTitle("Lý Do Hủy")

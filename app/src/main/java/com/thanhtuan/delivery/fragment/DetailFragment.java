@@ -126,7 +126,6 @@ public class DetailFragment extends Fragment {
         rcvProduct.setAdapter(adapter);
     }
 
-
     private void startAnim(){
         avi_Loading.show();
         // or avi.smoothToShow();

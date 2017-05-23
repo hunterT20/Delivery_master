@@ -13,10 +13,12 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.skyfishjy.library.RippleBackground;
 import com.thanhtuan.delivery.R;
 import com.thanhtuan.delivery.fragment.DetailFragment;
 import com.thanhtuan.delivery.fragment.InfoFragment;
 import com.thanhtuan.delivery.fragment.MapFragment;
+import com.thanhtuan.delivery.fragment.NghiemThuFragment;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -107,5 +109,13 @@ public class DetailActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    public void setLayoutNghiemThu(){
+        FragmentManager fm3 = getFragmentManager();
+        FragmentTransaction fragmentTransaction3 = fm3.beginTransaction();
+        NghiemThuFragment nghiemThuFragment = new NghiemThuFragment();
+        fragmentTransaction3.replace(R.id.frmMain, nghiemThuFragment);
+        fragmentTransaction3.commit();
     }
 }
