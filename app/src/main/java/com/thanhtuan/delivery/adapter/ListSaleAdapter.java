@@ -65,7 +65,6 @@ public class ListSaleAdapter extends RecyclerView.Adapter<ListSaleAdapter.SaleVi
                 holder.txtvTrangThai.setText("Đã giao hàng");
                 break;
         }
-        holder.txtvTrangThai.setText(item.getStatus());
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override

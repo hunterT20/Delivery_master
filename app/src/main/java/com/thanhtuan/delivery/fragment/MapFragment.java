@@ -56,6 +56,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.R.attr.orientation;
 import static android.content.Context.MODE_PRIVATE;
 
 /**
@@ -116,7 +117,7 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
                 });
 
                 // For zooming automatically to the location of the marker
-                CameraPosition cameraPosition = new CameraPosition.Builder().target(start).zoom(18).build();
+                CameraPosition cameraPosition = new CameraPosition.Builder().target(start).zoom(18).bearing(orientation).tilt(75).build();
                 googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
             }
         });
@@ -156,7 +157,6 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
         location = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
         longitudeCurrent = location.getLongitude();
         latitudeCurrent = location.getLatitude();
-        Log.e("location",longitudeCurrent + " " + latitudeCurrent);
     }
 
     private void getLocationSale(final Interface_Location interface_location) {Gson gson = new Gson();
@@ -256,7 +256,7 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
 
         PolylineOptions polyOptions = new PolylineOptions();
         polyOptions.color(getResources().getColor(COLORS[colorIndex]));
-        polyOptions.width(10 + i * 3);
+        polyOptions.width(25);
         polyOptions.addAll(route.get(i).getPoints());
         Polyline polyline = googleMap.addPolyline(polyOptions);
         polylines.add(polyline);
