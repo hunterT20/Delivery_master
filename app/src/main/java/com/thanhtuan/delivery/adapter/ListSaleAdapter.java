@@ -48,6 +48,24 @@ public class ListSaleAdapter extends RecyclerView.Adapter<ListSaleAdapter.SaleVi
         holder.txtvPhone.setText(item.getPhoneNumber());
         holder.txtvAddress.setText(item.getAddress());
         holder.txtvSl.setText(String.valueOf(item.getQuantity()));
+        switch (item.getStatus()){
+            case 0:
+                holder.txtvTrangThai.setText("Đang chờ giao hàng");
+                break;
+            case 1:
+                holder.txtvTrangThai.setText("Đang giao hàng");
+                break;
+            case 2:
+                holder.txtvTrangThai.setText("Hoàn tất");
+                break;
+            case 3:
+                holder.txtvTrangThai.setText("Hủy giao hàng");
+                break;
+            case 4:
+                holder.txtvTrangThai.setText("Đã giao hàng");
+                break;
+        }
+        holder.txtvTrangThai.setText(item.getStatus());
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,6 +95,7 @@ public class ListSaleAdapter extends RecyclerView.Adapter<ListSaleAdapter.SaleVi
         private TextView txtvAddress;
         private TextView txtvSl;
         private TextView txtvDonHang;
+        private TextView txtvTrangThai;
 
         SaleViewHolder(final View itemView) {
             super(itemView);
@@ -85,6 +104,7 @@ public class ListSaleAdapter extends RecyclerView.Adapter<ListSaleAdapter.SaleVi
             txtvAddress = (TextView) itemView.findViewById(R.id.txtvAddress);
             txtvSl = (TextView) itemView.findViewById(R.id.txtvSL);
             txtvDonHang = (TextView) itemView.findViewById(R.id.txtvDonHang);
+            txtvTrangThai = (TextView) itemView.findViewById(R.id.txtvTrangThai);
         }
     }
 }

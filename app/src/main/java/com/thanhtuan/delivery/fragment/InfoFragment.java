@@ -107,7 +107,14 @@ public class InfoFragment extends Fragment {
         SharedPreferences mPrefs = getActivity().getSharedPreferences("MyPre",MODE_PRIVATE);
         String json = mPrefs.getString("SaleItem", "");
         Item item = gson.fromJson(json, Item.class);
-        setQuaTrinh(item.getStatus());
+
+        SharedPreferences pre = getActivity().getSharedPreferences("MyPre", MODE_PRIVATE);
+        int status = pre.getInt("status",0);
+        if (status == 3) {
+            setQuaTrinh(item.getStatus());
+        }else {
+            setQuaTrinh(status);
+        }
         txtvDonHang.setText(item.getSaleReceiptId());
         txtvTenKH.setText(item.getCustomerName());
         txtvAddress.setText(item.getAddress());
@@ -217,6 +224,12 @@ public class InfoFragment extends Fragment {
                                                     JSONObject jsonObject = response.getJSONObject("Data");
                                                     setQuaTrinh(jsonObject.getInt("Status"));
                                                     Toast.makeText(getActivity(), "Đã hủy giao hàng!", Toast.LENGTH_SHORT).show();
+                                                    SharedPreferences pre = getActivity().getSharedPreferences("MyPre", MODE_PRIVATE);
+                                                    SharedPreferences.Editor edit = pre.edit();
+                                                    edit.putInt("status", 3);
+                                                    edit.apply();
+
+                                                    ((DetailActivity)getActivity()).setEventHuy();
                                                 } else {
                                                     Toast.makeText(getActivity(), response.getString("Message"), Toast.LENGTH_SHORT).show();
                                                 }

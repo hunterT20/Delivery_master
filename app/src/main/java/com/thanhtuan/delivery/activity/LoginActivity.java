@@ -99,13 +99,22 @@ public class LoginActivity extends AppCompatActivity {
                                         if (ckbSaveUser.isChecked()){
                                             saveUser();
                                         }
-                                        if (pre.getInt("status",0) != 1){
-                                            Intent intent = new Intent(LoginActivity.this,DetailActivity.class);
+                                        Log.e("ádsađasadsa",String.valueOf(pre.getInt("status",0)));
+                                        if (pre.getInt("status",0) != 0) {
+                                            if (pre.getInt("status", 0) != 3) {
+                                                Intent intent = new Intent(LoginActivity.this, DetailActivity.class);
+                                                startActivity(intent);
+                                            }else {
+                                                Intent intent = new Intent(LoginActivity.this,MainActivity.class);
+                                                startActivity(intent);
+                                                finish();
+                                            }
+                                        }else {
+                                            Intent intent = new Intent(LoginActivity.this,MainActivity.class);
                                             startActivity(intent);
+                                            finish();
                                         }
-                                        Intent intent = new Intent(LoginActivity.this,MainActivity.class);
-                                        startActivity(intent);
-                                        finish();
+
                                     }else {
                                         newtonCradleLoading.stop();
                                         newtonCradleLoading.setVisibility(View.GONE);

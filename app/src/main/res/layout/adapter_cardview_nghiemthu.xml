@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
+    android:padding="2dp"
     app:cardElevation="5dp"
     app:cardUseCompatPadding="true">
 
@@ -22,7 +23,7 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
-                android:id="@+id/ibtnChooseIMG"
+                android:id="@+id/imgPhoto"
                 android:layout_width="250dp"
                 android:layout_height="100dp"
                 android:layout_weight="1"
@@ -31,10 +32,11 @@
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1">
+                android:layout_weight="1"
+                android:textColorHint="@color/colorAccent">
 
                 <EditText
-                    android:id="@+id/edtLyDo2"
+                    android:id="@+id/edtMoTa2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Mô Tả"

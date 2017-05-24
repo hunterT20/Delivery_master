@@ -2,12 +2,14 @@ package com.thanhtuan.delivery.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.thanhtuan.delivery.R;
 import com.thanhtuan.delivery.model.Photo;
@@ -32,17 +34,26 @@ public class ListNghiemThuAdapter extends RecyclerView.Adapter<ListNghiemThuAdap
 
     @Override
     public ListNghiemThuAdapter.NghiemThuViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView = mLayoutInflater.inflate(R.layout.adapter_cardview_detail, parent, false);
+        View itemView = mLayoutInflater.inflate(R.layout.adapter_cardview_nghiemthu, parent, false);
         return new ListNghiemThuAdapter.NghiemThuViewHolder(itemView);
     }
 
     @Override
-    public void onBindViewHolder(ListNghiemThuAdapter.NghiemThuViewHolder holder, int position) {
-        Photo photo = new Photo();
+    public void onBindViewHolder(final ListNghiemThuAdapter.NghiemThuViewHolder holder, final int position) {
+        final Photo photo = photos.get(position);
 
         holder.ibtnIMG.setImageBitmap(photo.getImage());
         holder.edtLydo.setText(photo.getDescription());
         holder.edtLydo.setEnabled(false);
+
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Toast.makeText(mContext, "hahaha", Toast.LENGTH_SHORT).show();
+                photos.remove(holder.getAdapterPosition());
+                return true;
+            }
+        });
     }
 
     @Override
@@ -55,8 +66,8 @@ public class ListNghiemThuAdapter extends RecyclerView.Adapter<ListNghiemThuAdap
         private EditText edtLydo;
         NghiemThuViewHolder(View itemView) {
             super(itemView);
-            ibtnIMG = (ImageView) itemView.findViewById(R.id.ibtnChooseIMG);
-            edtLydo = (EditText) itemView.findViewById(R.id.edtLyDo2);
+            ibtnIMG = (ImageView) itemView.findViewById(R.id.imgPhoto);
+            edtLydo = (EditText) itemView.findViewById(R.id.edtMoTa2);
         }
     }
 }

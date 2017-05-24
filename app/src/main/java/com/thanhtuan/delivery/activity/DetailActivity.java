@@ -9,6 +9,7 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,6 +20,7 @@ import com.thanhtuan.delivery.fragment.DetailFragment;
 import com.thanhtuan.delivery.fragment.InfoFragment;
 import com.thanhtuan.delivery.fragment.MapFragment;
 import com.thanhtuan.delivery.fragment.NghiemThuFragment;
+import com.thanhtuan.delivery.model.Item;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -45,6 +47,7 @@ public class DetailActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+
 
 
         FragmentManager fm = getFragmentManager();
@@ -106,16 +109,43 @@ public class DetailActivity extends AppCompatActivity {
                     finish();
                 }
                 return true;
+            case R.id.action_Upload:
+                Toast.makeText(this, "Upload coming soon", Toast.LENGTH_SHORT).show();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        SharedPreferences pre = getSharedPreferences("MyPre", MODE_PRIVATE);
+        if (pre.getInt("status",0) != 0) {
+            Toast.makeText(this, "Bạn chưa hoàn thành việc giao hàng, hãy cố gắng để hoàn thành!", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.toolbar_icon, menu);
+        return true;
+    }
+
     public void setLayoutNghiemThu(){
+        txtvTitleToolbar.setText("Nghiệm Thu");
         FragmentManager fm3 = getFragmentManager();
         FragmentTransaction fragmentTransaction3 = fm3.beginTransaction();
         NghiemThuFragment nghiemThuFragment = new NghiemThuFragment();
         fragmentTransaction3.replace(R.id.frmMain, nghiemThuFragment);
         fragmentTransaction3.commit();
+    }
+
+    public void setEventHuy(){
+        Intent intent = new Intent(DetailActivity.this,MainActivity.class);
+        startActivity(intent);
+        finish();
     }
 }

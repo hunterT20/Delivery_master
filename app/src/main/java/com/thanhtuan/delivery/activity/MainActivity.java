@@ -76,8 +76,6 @@ public class MainActivity extends AppCompatActivity {
                                 JSONObject data = response.getJSONObject("Data");
                                 JSONArray listItem = data.getJSONArray("Items");
 
-                                Log.e("test", String.valueOf(listItem.length()));
-
                                 for (int i = 0; i < listItem.length(); i++){
                                     JSONObject object = (JSONObject) listItem.get(i);
                                     Item item = new Item();
