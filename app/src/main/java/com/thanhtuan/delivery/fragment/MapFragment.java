@@ -153,7 +153,7 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
         if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 10, locationListener);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
         location = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
         longitudeCurrent = location.getLongitude();
         latitudeCurrent = location.getLatitude();
@@ -256,7 +256,7 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
 
         PolylineOptions polyOptions = new PolylineOptions();
         polyOptions.color(getResources().getColor(COLORS[colorIndex]));
-        polyOptions.width(25);
+        polyOptions.width(22);
         polyOptions.addAll(route.get(i).getPoints());
         Polyline polyline = googleMap.addPolyline(polyOptions);
         polylines.add(polyline);
