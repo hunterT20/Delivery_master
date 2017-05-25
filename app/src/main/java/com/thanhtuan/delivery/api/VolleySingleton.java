@@ -5,10 +5,6 @@ import android.content.Context;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 
-/**
- * Created by Nusib on 5/17/2017.
- */
-
 public class VolleySingleton {
     private static final String TAG = "VolleySingleton";
     private RequestQueue mRequestQueue;

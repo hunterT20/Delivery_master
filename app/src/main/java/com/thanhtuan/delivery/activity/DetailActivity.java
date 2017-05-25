@@ -21,6 +21,7 @@ import com.thanhtuan.delivery.fragment.InfoFragment;
 import com.thanhtuan.delivery.fragment.MapFragment;
 import com.thanhtuan.delivery.fragment.NghiemThuFragment;
 import com.thanhtuan.delivery.model.Item;
+import com.thanhtuan.delivery.sharePreference.MyShare;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -48,8 +49,6 @@ public class DetailActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-
-
         FragmentManager fm = getFragmentManager();
         FragmentTransaction fragmentTransaction = fm.beginTransaction();
         InfoFragment infoFragment = new InfoFragment();
@@ -63,32 +62,28 @@ public class DetailActivity extends AppCompatActivity {
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                FragmentManager fm = getFragmentManager();
+                FragmentTransaction fragmentTransaction = fm.beginTransaction();
+
                 switch (item.getItemId()){
                     case R.id.action_info:
                         /*Sự kiện khi nhấn vào Nav Bottom Info*/
-                        FragmentManager fm = getFragmentManager();
-                        FragmentTransaction fragmentTransaction = fm.beginTransaction();
                         InfoFragment infoFragment = new InfoFragment();
                         fragmentTransaction.replace(R.id.frmMain, infoFragment);
-                        fragmentTransaction.commit();
                         txtvTitleToolbar.setText("Thông tin");
                         break;
                     case R.id.action_map:
-                        FragmentManager fm2 = getFragmentManager();
-                        FragmentTransaction fragmentTransaction2 = fm2.beginTransaction();
                         MapFragment mapFragment = new MapFragment();
-                        fragmentTransaction2.replace(R.id.frmMain, mapFragment);
-                        fragmentTransaction2.commit();
+                        fragmentTransaction.replace(R.id.frmMain, mapFragment);
                         txtvTitleToolbar.setText("Bản đồ");
                         break;
                     case R.id.action_detail:
-                        FragmentManager fm3 = getFragmentManager();
-                        FragmentTransaction fragmentTransaction3 = fm3.beginTransaction();
                         DetailFragment detailFragment = new DetailFragment();
-                        fragmentTransaction3.replace(R.id.frmMain, detailFragment);
-                        fragmentTransaction3.commit();
+                        fragmentTransaction.replace(R.id.frmMain, detailFragment);
                         txtvTitleToolbar.setText("Danh sách sản phẩm");
                 }
+
+                fragmentTransaction.commit();
                 return true;
             }
         });
@@ -99,8 +94,10 @@ public class DetailActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                SharedPreferences pre = getSharedPreferences("MyPre", MODE_PRIVATE);
-                if (pre.getInt("status",0) != 0){
+                SharedPreferences pre = getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
+                int status = pre.getInt("status",0);
+
+                if (status != 0 && status != 2){
                     Toast.makeText(this, "Bạn chưa hoàn thành việc giao hàng, hãy cố gắng để hoàn thành!", Toast.LENGTH_SHORT).show();
                 }else {
                     Intent intent = new Intent(DetailActivity.this, MainActivity.class);
@@ -119,8 +116,9 @@ public class DetailActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        SharedPreferences pre = getSharedPreferences("MyPre", MODE_PRIVATE);
-        if (pre.getInt("status",0) != 0) {
+        SharedPreferences pre = getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
+        int status = pre.getInt("status",0);
+        if (status != 0 && status !=2) {
             Toast.makeText(this, "Bạn chưa hoàn thành việc giao hàng, hãy cố gắng để hoàn thành!", Toast.LENGTH_SHORT).show();
         }
         else {

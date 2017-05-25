@@ -30,6 +30,7 @@ import com.thanhtuan.delivery.activity.DetailActivity;
 import com.thanhtuan.delivery.api.ApiHelper;
 import com.thanhtuan.delivery.api.VolleySingleton;
 import com.thanhtuan.delivery.model.Item;
+import com.thanhtuan.delivery.sharePreference.MyShare;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -104,17 +105,17 @@ public class InfoFragment extends Fragment {
     private void addViews() {
         btnHuyGiaoHang.setEnabled(true);
         Gson gson = new Gson();
-        SharedPreferences mPrefs = getActivity().getSharedPreferences("MyPre",MODE_PRIVATE);
-        String json = mPrefs.getString("SaleItem", "");
+        SharedPreferences mPrefs = getActivity().getSharedPreferences(MyShare.NAME,MODE_PRIVATE);
+        String json = mPrefs.getString(MyShare.VALUE_SALEITEM, "");
         Item item = gson.fromJson(json, Item.class);
 
-        SharedPreferences pre = getActivity().getSharedPreferences("MyPre", MODE_PRIVATE);
-        int status = pre.getInt("status",0);
+        int status = mPrefs.getInt(MyShare.VALUE_STATUS,0);
         if (status == 3) {
             setQuaTrinh(item.getStatus());
         }else {
             setQuaTrinh(status);
         }
+
         txtvDonHang.setText(item.getSaleReceiptId());
         txtvTenKH.setText(item.getCustomerName());
         txtvAddress.setText(item.getAddress());
@@ -124,7 +125,7 @@ public class InfoFragment extends Fragment {
     }
 
     private void setQuaTrinh(int Status){
-        SharedPreferences pre = getActivity().getSharedPreferences("MyPre", MODE_PRIVATE);
+        SharedPreferences pre = getActivity().getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
         SharedPreferences.Editor prefsEditor = pre.edit();
         switch (Status){
             case 0:
@@ -132,22 +133,22 @@ public class InfoFragment extends Fragment {
                 break;
             case 1:
                 txtvQuaTrinh.setText("Đang giao hàng");
-                prefsEditor.putInt("status",Status);
+                prefsEditor.putInt(MyShare.VALUE_STATUS,Status);
                 btnGiaoHang.setText("Kết Thúc");
                 break;
             case 2:
                 txtvQuaTrinh.setText("Hoàn tất");
-                prefsEditor.putInt("status",Status);
+                prefsEditor.putInt(MyShare.VALUE_STATUS,Status);
                 btnGiaoHang.setEnabled(false);
                 btnHuyGiaoHang.setEnabled(false);
                 break;
             case 3:
                 txtvQuaTrinh.setText("Hủy giao hàng");
-                prefsEditor.putInt("status",Status);
+                prefsEditor.putInt(MyShare.VALUE_STATUS,Status);
                 break;
             case 4:
                 txtvQuaTrinh.setText("Đã Giao Hàng");
-                prefsEditor.putInt("status",Status);
+                prefsEditor.putInt(MyShare.VALUE_STATUS,Status);
                 btnGiaoHang.setText("Nghiệm Thu");
                 break;
             default:
@@ -158,8 +159,8 @@ public class InfoFragment extends Fragment {
     }
 
     private void eventGiaoHang(String domain, String param){
-        SharedPreferences pre=getActivity().getSharedPreferences("MyPre", MODE_PRIVATE);
-        String ID = pre.getString("ID", null);
+        SharedPreferences pre=getActivity().getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
+        String ID = pre.getString(MyShare.VALUE_ID, null);
 
         String API_START = ApiHelper.URL + domain + "key=" + ID
                 + "&" + param + "=" + txtvDonHang.getText();
@@ -190,6 +191,10 @@ public class InfoFragment extends Fragment {
     }
 
     private void eventHuyGiaoHang(){
+        final String PARAM1 = "key=";
+        final String PARAM2 = "&saleReceiptId=";
+        final String PARAM3 = "&description=";
+
         LayoutInflater layoutInflaterAndroid = LayoutInflater.from(getActivity());
         final View mView = layoutInflaterAndroid.inflate(R.layout.dialog_huy, null);
         final EditText edtLyDo = (EditText) mView.findViewById(R.id.edtLydo);
@@ -204,16 +209,17 @@ public class InfoFragment extends Fragment {
                             Toast.makeText(getActivity(), "Lý do quá ngắn!", Toast.LENGTH_SHORT).show();
                         }
                         else {
-                            SharedPreferences pre=getActivity().getSharedPreferences("MyPre", MODE_PRIVATE);
-                            String ID = pre.getString("ID", null);
+                            SharedPreferences pre=getActivity().getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
+                            String ID = pre.getString(MyShare.VALUE_ID, null);
                             String description = null;
                             try {
                                 description = URLEncoder.encode(String.valueOf(edtLyDo.getText()), "utf-8");
                             } catch (UnsupportedEncodingException e) {
                                 e.printStackTrace();
                             }
-                            String API_LISTSALE = ApiHelper.URL + ApiHelper.DOMAIN_HUY + "key=" + ID
-                                    + "&saleReceiptId=" + txtvDonHang.getText() + "&description=" + description;
+
+                            String API_LISTSALE = ApiHelper.URL + ApiHelper.DOMAIN_HUY + PARAM1 + ID
+                                    + PARAM2 + txtvDonHang.getText() + PARAM3 + description;
 
                             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, API_LISTSALE, null,
                                     new Response.Listener<JSONObject>() {
@@ -224,9 +230,10 @@ public class InfoFragment extends Fragment {
                                                     JSONObject jsonObject = response.getJSONObject("Data");
                                                     setQuaTrinh(jsonObject.getInt("Status"));
                                                     Toast.makeText(getActivity(), "Đã hủy giao hàng!", Toast.LENGTH_SHORT).show();
-                                                    SharedPreferences pre = getActivity().getSharedPreferences("MyPre", MODE_PRIVATE);
+
+                                                    SharedPreferences pre = getActivity().getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
                                                     SharedPreferences.Editor edit = pre.edit();
-                                                    edit.putInt("status", 3);
+                                                    edit.putInt(MyShare.VALUE_STATUS, 3);
                                                     edit.apply();
 
                                                     ((DetailActivity)getActivity()).setEventHuy();

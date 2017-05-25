@@ -155,8 +155,10 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
         }
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
         location = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
-        longitudeCurrent = location.getLongitude();
-        latitudeCurrent = location.getLatitude();
+        if (location != null){
+            longitudeCurrent = location.getLongitude();
+            latitudeCurrent = location.getLatitude();
+        }
     }
 
     private void getLocationSale(final Interface_Location interface_location) {Gson gson = new Gson();

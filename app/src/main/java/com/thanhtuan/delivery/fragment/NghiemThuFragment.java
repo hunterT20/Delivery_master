@@ -95,8 +95,8 @@ public class NghiemThuFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         Bitmap bitmap = (Bitmap) data.getExtras().get("data");
-        Log.e("phooo",String.valueOf(bitmap));
         ibtnPhoto.setImageBitmap(bitmap);
     }
 }

@@ -23,6 +23,7 @@ import com.thanhtuan.delivery.api.ApiHelper;
 import com.thanhtuan.delivery.api.VolleySingleton;
 import com.thanhtuan.delivery.model.Item;
 import com.thanhtuan.delivery.model.Product;
+import com.thanhtuan.delivery.sharePreference.MyShare;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import org.json.JSONArray;
@@ -65,16 +66,15 @@ public class DetailFragment extends Fragment {
     private void initData() {
         String PARAM1 = "key=";
         String PARAM2 = "&SaleReceiptId=";
-        SharedPreferences pre=getActivity().getSharedPreferences("MyPre", MODE_PRIVATE);
-        String ID = pre.getString("ID", null);
 
         Gson gson = new Gson();
-        SharedPreferences mPrefs = getActivity().getSharedPreferences("MyPre",MODE_PRIVATE);
-        String json = mPrefs.getString("SaleItem", "");
+        SharedPreferences pre=getActivity().getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
+        String ID = pre.getString(MyShare.VALUE_ID, null);
+
+        String json = pre.getString("SaleItem", "");
         Item item = gson.fromJson(json, Item.class);
 
         String API_LISTPRODUCT = ApiHelper.URL + ApiHelper.DOMAIN_LISTPRODUCT + PARAM1 + ID + PARAM2 + item.getSaleReceiptId();
-        Log.e("detail", API_LISTPRODUCT);
         startAnim();
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, API_LISTPRODUCT, null,
@@ -88,6 +88,7 @@ public class DetailFragment extends Fragment {
 
                                 for (int i = 0; i < listProduct.length(); i++){
                                     JSONObject object = (JSONObject) listProduct.get(i);
+
                                     Product product = new Product();
                                     product.setItemId(object.getString("ItemId"));
                                     product.setSKU(object.getString("SKU"));

@@ -16,10 +16,6 @@ import com.thanhtuan.delivery.model.Photo;
 
 import java.util.List;
 
-/**
- * Created by Nusib on 5/23/2017.
- */
-
 public class ListNghiemThuAdapter extends RecyclerView.Adapter<ListNghiemThuAdapter.NghiemThuViewHolder> {
     private static final String TAG = "ListNghiemThuAdapter";
     private List<Photo> photos;
@@ -46,12 +42,10 @@ public class ListNghiemThuAdapter extends RecyclerView.Adapter<ListNghiemThuAdap
         holder.edtLydo.setText(photo.getDescription());
         holder.edtLydo.setEnabled(false);
 
-        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onLongClick(View v) {
-                Toast.makeText(mContext, "hahaha", Toast.LENGTH_SHORT).show();
-                photos.remove(holder.getAdapterPosition());
-                return true;
+            public void onClick(View v) {
+                Toast.makeText(mContext, "Delete coming soon!!!", Toast.LENGTH_SHORT).show();
             }
         });
     }

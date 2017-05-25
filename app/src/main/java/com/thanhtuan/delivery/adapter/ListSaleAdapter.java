@@ -13,6 +13,7 @@ import com.google.gson.Gson;
 import com.thanhtuan.delivery.R;
 import com.thanhtuan.delivery.activity.DetailActivity;
 import com.thanhtuan.delivery.model.Item;
+import com.thanhtuan.delivery.sharePreference.MyShare;
 
 import java.util.List;
 
@@ -69,16 +70,17 @@ public class ListSaleAdapter extends RecyclerView.Adapter<ListSaleAdapter.SaleVi
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-        SharedPreferences mPrefs = mContext.getSharedPreferences("MyPre",MODE_PRIVATE);
-        SharedPreferences.Editor prefsEditor = mPrefs.edit();
-        Gson gson = new Gson();
-        String json = gson.toJson(item);
-        prefsEditor.putString("SaleItem", json);
-        prefsEditor.putInt("status",item.getStatus());
-        prefsEditor.apply();
+                Gson gson = new Gson();
+                SharedPreferences mPrefs = mContext.getSharedPreferences(MyShare.NAME,MODE_PRIVATE);
+                SharedPreferences.Editor prefsEditor = mPrefs.edit();
 
-        Intent intent = new Intent(mContext, DetailActivity.class);
-        mContext.startActivity(intent);
+                String json = gson.toJson(item);
+                prefsEditor.putString(MyShare.VALUE_SALEITEM, json);
+                prefsEditor.putInt(MyShare.VALUE_STATUS,item.getStatus());
+                prefsEditor.apply();
+
+                Intent intent = new Intent(mContext, DetailActivity.class);
+                mContext.startActivity(intent);
             }
         });
     }

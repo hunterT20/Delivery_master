@@ -1,6 +1,5 @@
 package com.thanhtuan.delivery.activity;
 
-import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -20,6 +19,7 @@ import com.thanhtuan.delivery.adapter.ListSaleAdapter;
 import com.thanhtuan.delivery.api.ApiHelper;
 import com.thanhtuan.delivery.api.VolleySingleton;
 import com.thanhtuan.delivery.model.Item;
+import com.thanhtuan.delivery.sharePreference.MyShare;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import org.json.JSONArray;
@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.toolbar_title) TextView txtvTitleToolbar;
     @BindView(R.id.avi_loading)   AVLoadingIndicatorView avi_Loading;
+
     private List<Item> mItem;
 
     @Override
@@ -49,7 +50,6 @@ public class MainActivity extends AppCompatActivity {
         initData();
     }
 
-    @SuppressLint("SetTextI18n")
     private void addControls() {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -61,10 +61,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initData() {
-        SharedPreferences pre=getSharedPreferences("MyPre", MODE_PRIVATE);
-        String ID = pre.getString("ID", null);
+        SharedPreferences MyPre = getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
+        String ID = MyPre.getString(MyShare.VALUE_ID, null);
 
-        String API_LISTSALE = ApiHelper.URL + ApiHelper.DOMAIN_LISTSALE + "key=" + ID;
+        String PARAM = "key=";
+        String API_LISTSALE = ApiHelper.URL + ApiHelper.DOMAIN_LISTSALE + PARAM + ID;
         startAnim();
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, API_LISTSALE, null,
@@ -78,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
 
                                 for (int i = 0; i < listItem.length(); i++){
                                     JSONObject object = (JSONObject) listItem.get(i);
+
                                     Item item = new Item();
                                     item.setSaleReceiptId(object.getString("SaleReceiptId"));
                                     item.setCustomerName(object.getString("CustomerName"));
@@ -96,6 +98,8 @@ public class MainActivity extends AppCompatActivity {
                                     //RecyclerView scroll vertical
                                     LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplication(), LinearLayoutManager.VERTICAL, false);
                                     rcvDonHang.setLayoutManager(linearLayoutManager);
+
+                                    /*Stop Animation Loading*/
                                     if (i < listItem.length() - 1){
                                         stopAnim();
                                     }

@@ -20,6 +20,7 @@ import com.thanhtuan.delivery.R;
 import com.thanhtuan.delivery.api.ApiHelper;
 import com.thanhtuan.delivery.api.VolleySingleton;
 import com.thanhtuan.delivery.model.User;
+import com.thanhtuan.delivery.sharePreference.MyShare;
 import com.victor.loading.newton.NewtonCradleLoading;
 
 import org.json.JSONException;
@@ -40,9 +41,6 @@ public class LoginActivity extends AppCompatActivity {
     private static String API_LOGIN;
     private static String PARAM1 = "username=";
     private static String PARAM2 = "&password=";
-    private static final String PREFS_NAME = "MyPre";
-    private static final String PREF_UNAME = "Username";
-    private static final String PREF_PASSWORD = "Password";
 
     private String UsernameValue;
     private String PasswordValue;
@@ -71,9 +69,10 @@ public class LoginActivity extends AppCompatActivity {
                 newtonCradleLoading.setVisibility(View.VISIBLE);
                 newtonCradleLoading.start();
                 newtonCradleLoading.setLoadingColor(Color.parseColor("#FFEB903C"));
+
                 /*API_LOGIN*/
                 API_LOGIN = ApiHelper.URL + ApiHelper.DOMAIN_LOGIN + PARAM1 + edtUserName.getText() + PARAM2 + edtPassword.getText();
-                Log.e(TAG,"API: " + API_LOGIN);
+
                 /*Bắt Json Object User*/
                 JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, API_LOGIN, null,
                         new Response.Listener<JSONObject>() {
@@ -81,34 +80,33 @@ public class LoginActivity extends AppCompatActivity {
                             public void onResponse(JSONObject response) {
                                 try {
                                     if(response.getBoolean("Result")){
-                                        User user = new User();
                                         JSONObject data = response.getJSONObject("Data");
+
+                                        User user = new User();
                                         user.setUserID(data.getInt("UserId"));
                                         user.setUserName(data.getString("UserName"));
                                         user.setLoginDate(data.getString("LoginDate"));
                                         user.setExpiredDate(data.getString("ExpiredDate"));
 
-                                        /*Gắn biến share ID chuyền ID để xác nhận xác ID khác*/
-                                        SharedPreferences pre = getSharedPreferences("MyPre", MODE_PRIVATE);
+                                        /*Gắn biến share ID chuyền ID để làm PARAM cho API khác*/
+                                        SharedPreferences pre = getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
                                         SharedPreferences.Editor edit = pre.edit();
-                                        edit.putString("ID", data.getString("Id"));
+                                        edit.putString(MyShare.VALUE_ID, data.getString("Id"));
                                         edit.apply();
 
                                         newtonCradleLoading.stop();
                                         Toast.makeText(LoginActivity.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
+
+                                        //Save username và password
                                         if (ckbSaveUser.isChecked()){
                                             saveUser();
                                         }
-                                        Log.e("ádsađasadsa",String.valueOf(pre.getInt("status",0)));
-                                        if (pre.getInt("status",0) != 0) {
-                                            if (pre.getInt("status", 0) != 3) {
-                                                Intent intent = new Intent(LoginActivity.this, DetailActivity.class);
-                                                startActivity(intent);
-                                            }else {
-                                                Intent intent = new Intent(LoginActivity.this,MainActivity.class);
-                                                startActivity(intent);
-                                                finish();
-                                            }
+
+                                        int STATUS = pre.getInt("status",0);
+                                        if (STATUS != 0 && STATUS != 3) {
+                                            Intent intent = new Intent(LoginActivity.this, DetailActivity.class);
+                                            startActivity(intent);
+                                            finish();
                                         }else {
                                             Intent intent = new Intent(LoginActivity.this,MainActivity.class);
                                             startActivity(intent);
@@ -137,30 +135,25 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void saveUser() {
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        SharedPreferences.Editor editor = settings.edit();
-
-        // Edit and commit
         UsernameValue = edtUserName.getText().toString();
         PasswordValue = edtPassword.getText().toString();
-        Log.e(TAG,"onPause save name: " + UsernameValue);
-        Log.e(TAG,"onPause save password: " + PasswordValue);
-        editor.putString(PREF_UNAME, UsernameValue);
-        editor.putString(PREF_PASSWORD, PasswordValue);
+
+        SharedPreferences MyPre = getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
+        SharedPreferences.Editor editor = MyPre.edit();
+        editor.putString(MyShare.VALUE_USERNAME, UsernameValue);
+        editor.putString(MyShare.VALUE_PASSWORD, PasswordValue);
         editor.apply();
     }
 
     private void loadUser() {
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        SharedPreferences MyPre = getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
 
-        // Get value
         String defaultUnameValue = "";
-        UsernameValue = settings.getString(PREF_UNAME, defaultUnameValue);
+        UsernameValue = MyPre.getString(MyShare.VALUE_USERNAME, defaultUnameValue);
         String defaultPasswordValue = "";
-        PasswordValue = settings.getString(PREF_PASSWORD, defaultPasswordValue);
+        PasswordValue = MyPre.getString(MyShare.VALUE_PASSWORD, defaultPasswordValue);
+
         edtUserName.setText(UsernameValue);
         edtPassword.setText(PasswordValue);
-        Log.e(TAG,"onResume load name: " + UsernameValue);
-        Log.e(TAG,"onResume load password: " + PasswordValue);
     }
 }
