@@ -45,7 +45,7 @@ public class NghiemThuActivity extends AppCompatActivity {
     @BindView(R.id.ibtnPhoto)       ImageView ibtnPhoto;
     @BindView(R.id.btnXacNhan)      Button btnXacNhan;
     @BindView(R.id.edtMoTa)         EditText edtMoTa;
-    Photo photo;
+    private Photo photo;
     private List<Photo> photoList;
     private Boolean flag_back = false;
 
