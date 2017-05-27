@@ -28,9 +28,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="7dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="0dp"
+        android:layout_marginRight="7dp"
         android:text="@string/choxuly"
         android:textStyle="bold"
         app:layout_constraintRight_toRightOf="parent"
@@ -56,7 +54,6 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
         android:layout_marginTop="5dp"
         android:text="@string/testDonHang"
         android:textSize="14sp"
@@ -80,13 +77,12 @@
 
     <TextView
         android:id="@+id/txtvAddress"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="0dp"
         android:gravity="right"
         android:text="@string/testDC"
         android:textStyle="bold"
@@ -111,11 +107,11 @@
 
     <TextView
         android:id="@+id/txtvTenKH"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginRight="12dp"
+        android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="5dp"
         android:gravity="right"
@@ -147,7 +143,6 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
         android:layout_marginTop="5dp"
         android:text="@string/testSDT"
         android:textStyle="bold"
@@ -174,7 +169,6 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
         android:layout_marginTop="5dp"
         android:text="@string/testTongTien"
         android:textStyle="bold"
@@ -201,8 +195,6 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="0dp"
         android:text="@string/testNote"
         android:textStyle="bold"
         app:layout_constraintRight_toRightOf="parent"
@@ -237,5 +229,24 @@
             android:text="@string/huy"
             android:textStyle="bold" />
     </LinearLayout>
+
+    <com.rey.material.widget.FloatingActionButton
+        android:id="@+id/fabPhone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
+        app:fab_backgroundColor="@color/colorAccent"
+        app:fab_elevation="5dp"
+        app:fab_iconSrc="@drawable/ic_phone_white_24dp"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout2"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
 
 </android.support.constraint.ConstraintLayout>

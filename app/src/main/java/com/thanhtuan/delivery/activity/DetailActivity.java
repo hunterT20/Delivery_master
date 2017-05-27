@@ -9,18 +9,14 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.skyfishjy.library.RippleBackground;
 import com.thanhtuan.delivery.R;
 import com.thanhtuan.delivery.fragment.DetailFragment;
 import com.thanhtuan.delivery.fragment.InfoFragment;
 import com.thanhtuan.delivery.fragment.MapFragment;
-import com.thanhtuan.delivery.fragment.NghiemThuFragment;
-import com.thanhtuan.delivery.model.Item;
 import com.thanhtuan.delivery.sharePreference.MyShare;
 
 import butterknife.BindView;
@@ -121,15 +117,6 @@ public class DetailActivity extends AppCompatActivity {
         else {
             super.onBackPressed();
         }
-    }
-
-    public void setLayoutNghiemThu(){
-        txtvTitleToolbar.setText("Nghiệm Thu");
-        FragmentManager fm3 = getFragmentManager();
-        FragmentTransaction fragmentTransaction3 = fm3.beginTransaction();
-        NghiemThuFragment nghiemThuFragment = new NghiemThuFragment();
-        fragmentTransaction3.replace(R.id.frmMain, nghiemThuFragment);
-        fragmentTransaction3.commit();
     }
 
     public void setEventHuy(){

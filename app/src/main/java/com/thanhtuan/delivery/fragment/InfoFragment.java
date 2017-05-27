@@ -4,6 +4,7 @@ package com.thanhtuan.delivery.fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.design.widget.Snackbar;
@@ -25,6 +26,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.android.gms.common.api.Api;
 import com.google.gson.Gson;
+import com.rey.material.widget.FloatingActionButton;
 import com.rey.material.widget.SnackBar;
 import com.thanhtuan.delivery.R;
 import com.thanhtuan.delivery.activity.DetailActivity;
@@ -59,6 +61,9 @@ public class InfoFragment extends Fragment {
     @BindView(R.id.txtvNote)     TextView txtvNote;
     @BindView(R.id.btnHuyGiaoHang)    Button btnHuyGiaoHang;
     @BindView(R.id.btnGiaoHang)  Button btnGiaoHang;
+    @BindView(R.id.fabPhone)     FloatingActionButton fabPhone;
+
+    Item item;
 
     public InfoFragment() {
         // Required empty public constructor
@@ -99,9 +104,17 @@ public class InfoFragment extends Fragment {
                     case "Nghiệm Thu":
                         Intent intent = new Intent(getActivity(), NghiemThuActivity.class);
                         startActivity(intent);
-                        /*((DetailActivity)getActivity()).setLayoutNghiemThu();*/
                         break;
                 }
+            }
+        });
+
+        fabPhone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent callIntent = new Intent(Intent.ACTION_CALL);
+                callIntent.setData(Uri.parse("tel:" + item.getPhoneNumber()));
+                startActivity(callIntent);
             }
         });
     }
@@ -111,7 +124,7 @@ public class InfoFragment extends Fragment {
         Gson gson = new Gson();
         SharedPreferences mPrefs = getActivity().getSharedPreferences(MyShare.NAME,MODE_PRIVATE);
         String json = mPrefs.getString(MyShare.VALUE_SALEITEM, "");
-        Item item = gson.fromJson(json, Item.class);
+        item = gson.fromJson(json, Item.class);
 
         int status = mPrefs.getInt(MyShare.VALUE_STATUS,0);
         if (status == 3) {

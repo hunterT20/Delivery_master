@@ -12,7 +12,6 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -24,10 +23,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rey.material.widget.FloatingActionButton;
-import com.skyfishjy.library.RippleBackground;
 import com.thanhtuan.delivery.R;
 import com.thanhtuan.delivery.adapter.ListNghiemThuAdapter;
-import com.thanhtuan.delivery.fragment.NghiemThuFragment;
 import com.thanhtuan.delivery.model.Photo;
 
 import java.util.ArrayList;
