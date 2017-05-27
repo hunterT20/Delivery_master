@@ -32,7 +32,7 @@
         android:id="@+id/linearLayout">
 
         <include
-            layout="@layout/toolbar_children"
+            layout="@layout/toolbar"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -52,5 +52,5 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout"
-        app:layout_constraintVertical_bias="1.0"></FrameLayout>
+        app:layout_constraintVertical_bias="1.0" />
 </android.support.constraint.ConstraintLayout>

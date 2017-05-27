@@ -30,7 +30,7 @@ import butterknife.ButterKnife;
 public class DetailActivity extends AppCompatActivity {
     @BindView(R.id.bottom_nav) BottomNavigationView bottomNavigationView;
     @BindView(R.id.toolbar)    Toolbar toolbar;
-    @BindView(R.id.toolbarChildren_title)   TextView txtvTitleToolbar;
+    @BindView(R.id.toolbar_title)   TextView txtvTitleToolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,9 +106,6 @@ public class DetailActivity extends AppCompatActivity {
                     finish();
                 }
                 return true;
-            case R.id.action_Upload:
-                Toast.makeText(this, "Upload coming soon", Toast.LENGTH_SHORT).show();
-                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -124,12 +121,6 @@ public class DetailActivity extends AppCompatActivity {
         else {
             super.onBackPressed();
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.toolbar_icon, menu);
-        return true;
     }
 
     public void setLayoutNghiemThu(){

@@ -5,6 +5,12 @@ import android.Manifest;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.hardware.GeomagneticField;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -58,6 +64,7 @@ import java.util.List;
 
 import static android.R.attr.orientation;
 import static android.content.Context.MODE_PRIVATE;
+import static android.content.Context.SENSOR_SERVICE;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -67,10 +74,12 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
     MapView mMapView;
     private GoogleMap googleMap;
     double longitudeCurrent, latitudeCurrent, longitudeSale, latitudeSale;
-    Location location;
+    Float heading;
+    Location locationCurrent;
     private List<Polyline> polylines;
+    private float[] mRotationMatrix = new float[16];
     LatLng start;
-    private static final int[] COLORS = new int[]{R.color.colorAccent};
+    GeomagneticField field;
 
     public MapFragment() {
         // Required empty public constructor
@@ -100,15 +109,17 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
             public void onMapReady(GoogleMap mMap) {
                 googleMap = mMap;
 
-                // For showing a move to my location button
-                if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.checkSelfPermission(getActivity(),
+                        Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                        && ActivityCompat.checkSelfPermission(getActivity(),
+                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     return;
                 }
                 googleMap.setMyLocationEnabled(true);
                 getCurrentLocation();
 
-                LatLng start = new LatLng(latitudeCurrent, longitudeCurrent);
-                /*googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker Title").snippet("Marker Description"));*/
+                final LatLng start = new LatLng(latitudeCurrent, longitudeCurrent);
+                /*googleMap.addMarker(new MarkerOptions().position(start).title("Marker Title").snippet("Marker Description"));*/
                 getLocationSale(new Interface_Location() {
                     @Override
                     public void onLocation(LatLng end) {
@@ -117,7 +128,7 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
                 });
 
                 // For zooming automatically to the location of the marker
-                CameraPosition cameraPosition = new CameraPosition.Builder().target(start).zoom(18).bearing(orientation).tilt(75).build();
+                CameraPosition cameraPosition = new CameraPosition.Builder().target(start).zoom(18).tilt(45).build();
                 googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
             }
         });
@@ -130,6 +141,18 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
         public void onLocationChanged(Location location) {
             longitudeCurrent = location.getLongitude();
             latitudeCurrent = location.getLatitude();
+
+            field = new GeomagneticField(
+                    Double.valueOf(location.getLatitude()).floatValue(),
+                    Double.valueOf(location.getLongitude()).floatValue(),
+                    Double.valueOf(location.getAltitude()).floatValue(),
+                    System.currentTimeMillis()
+            );
+
+            // getDeclination returns degrees
+            heading += field.getDeclination();
+            heading = (location.getBearing() - heading) * -1;
+            updateCamera(normalizeDegree(heading));
         }
 
         @Override
@@ -154,10 +177,10 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
             return;
         }
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-        location = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
-        if (location != null){
-            longitudeCurrent = location.getLongitude();
-            latitudeCurrent = location.getLatitude();
+        locationCurrent = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+        if (locationCurrent != null){
+            longitudeCurrent = locationCurrent.getLongitude();
+            latitudeCurrent = locationCurrent.getLatitude();
         }
     }
 
@@ -189,7 +212,9 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
 
                                 interface_location.onLocation(end);
                             }else {
-                                Toast.makeText(getActivity(), "Không tìm thấy địa chỉ!", Toast.LENGTH_SHORT).show();
+                                if (getActivity() != null){
+                                    Toast.makeText(getActivity(), "Không tìm thấy địa chỉ!", Toast.LENGTH_SHORT).show();
+                                }
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -205,8 +230,7 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
         VolleySingleton.getInstance(getActivity()).getRequestQueue().add(jsonObjectRequest);
     }
 
-    public void route()
-    {
+    public void route(){
         getCurrentLocation();
         start = new LatLng(latitudeCurrent,longitudeCurrent);
         getLocationSale(new Interface_Location() {
@@ -254,10 +278,8 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
         //add route(s) to the map.
         int i = 0;
         //In case of more than 5 alternative routes
-        int colorIndex = i % COLORS.length;
-
         PolylineOptions polyOptions = new PolylineOptions();
-        polyOptions.color(getResources().getColor(COLORS[colorIndex]));
+        polyOptions.color(Color.parseColor("#FFEB903C"));
         polyOptions.width(22);
         polyOptions.addAll(route.get(i).getPoints());
         Polyline polyline = googleMap.addPolyline(polyOptions);
@@ -285,5 +307,20 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
+    }
+
+    private void updateCamera(float bearing) {
+        CameraPosition oldPos = googleMap.getCameraPosition();
+
+        CameraPosition pos = CameraPosition.builder(oldPos).bearing(bearing).tilt(65.5f).zoom(18f).build();
+        googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(pos));
+    }
+
+    private float normalizeDegree(float value) {
+        if (value >= 0.0f && value <= 180.0f) {
+            return value;
+        } else {
+            return 180 + (180 + value);
+        }
     }
 }

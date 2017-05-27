@@ -36,8 +36,7 @@ public class ListProductAdapter extends RecyclerView.Adapter<ListProductAdapter.
         final Product product = mProduct.get(position);
 
         //bind data to viewholder
-        holder.txtvSTT.setText(String.valueOf(position + 1) + ".");
-        holder.txtvSKU.setText(product.getSKU());
+        holder.txtvSKU.setText(position + 1 + ". " + product.getSKU());
         holder.txtvDonGia.setText(product.getPrice().toString());
         holder.txtvSoLuong.setText(String.valueOf(product.getQuantity()));
     }
@@ -51,10 +50,8 @@ public class ListProductAdapter extends RecyclerView.Adapter<ListProductAdapter.
         private TextView txtvSKU;
         private TextView txtvDonGia;
         private TextView txtvSoLuong;
-        private TextView txtvSTT;
         ProductViewHolder(View itemView) {
             super(itemView);
-            txtvSTT = (TextView) itemView.findViewById(R.id.txtvSTT);
             txtvSKU = (TextView) itemView.findViewById(R.id.txtvSKU);
             txtvDonGia = (TextView) itemView.findViewById(R.id.txtvDonGia);
             txtvSoLuong = (TextView) itemView.findViewById(R.id.txtvSoLuong);

@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.thanhtuan.delivery.R;
@@ -39,8 +40,7 @@ public class ListNghiemThuAdapter extends RecyclerView.Adapter<ListNghiemThuAdap
         final Photo photo = photos.get(position);
 
         holder.ibtnIMG.setImageBitmap(photo.getImage());
-        holder.edtLydo.setText(photo.getDescription());
-        holder.edtLydo.setEnabled(false);
+        holder.txtvLydo.setText(photo.getDescription());
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -57,11 +57,11 @@ public class ListNghiemThuAdapter extends RecyclerView.Adapter<ListNghiemThuAdap
 
     class NghiemThuViewHolder extends RecyclerView.ViewHolder {
         private ImageView ibtnIMG;
-        private EditText edtLydo;
+        private TextView txtvLydo;
         NghiemThuViewHolder(View itemView) {
             super(itemView);
             ibtnIMG = (ImageView) itemView.findViewById(R.id.imgPhoto);
-            edtLydo = (EditText) itemView.findViewById(R.id.edtMoTa2);
+            txtvLydo = (TextView) itemView.findViewById(R.id.txtvMoTa2);
         }
     }
 }
