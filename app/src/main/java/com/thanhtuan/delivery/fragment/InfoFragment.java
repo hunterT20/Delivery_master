@@ -2,6 +2,7 @@ package com.thanhtuan.delivery.fragment;
 
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -27,6 +28,7 @@ import com.google.gson.Gson;
 import com.rey.material.widget.SnackBar;
 import com.thanhtuan.delivery.R;
 import com.thanhtuan.delivery.activity.DetailActivity;
+import com.thanhtuan.delivery.activity.NghiemThuActivity;
 import com.thanhtuan.delivery.api.ApiHelper;
 import com.thanhtuan.delivery.api.VolleySingleton;
 import com.thanhtuan.delivery.model.Item;
@@ -95,7 +97,9 @@ public class InfoFragment extends Fragment {
                         eventGiaoHang(ApiHelper.DOMAIN_END, "saleReceiptId");
                         break;
                     case "Nghiệm Thu":
-                        ((DetailActivity)getActivity()).setLayoutNghiemThu();
+                        Intent intent = new Intent(getActivity(), NghiemThuActivity.class);
+                        startActivity(intent);
+                        /*((DetailActivity)getActivity()).setLayoutNghiemThu();*/
                         break;
                 }
             }
