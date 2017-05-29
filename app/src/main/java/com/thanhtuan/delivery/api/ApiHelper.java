@@ -9,5 +9,5 @@ public class ApiHelper {
     public static String DOMAIN_START = "Start?";
     public static String DOMAIN_END = "End?";
     public static String URL_MAP = "https://maps.googleapis.com/maps/api/";
-    public static String DOMAIN_MAP = "geocode/json?";
+    public static String DOMAIN_MAP = "directions/json?";
 }

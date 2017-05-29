@@ -63,7 +63,7 @@ public class InfoFragment extends Fragment {
     @BindView(R.id.btnGiaoHang)  Button btnGiaoHang;
     @BindView(R.id.fabPhone)     FloatingActionButton fabPhone;
 
-    Item item;
+    private Item item;
 
     public InfoFragment() {
         // Required empty public constructor

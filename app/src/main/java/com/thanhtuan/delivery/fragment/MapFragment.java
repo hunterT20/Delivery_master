@@ -41,30 +41,34 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.maps.model.RoundCap;
 import com.google.gson.Gson;
+import com.google.maps.android.PolyUtil;
 import com.thanhtuan.delivery.R;
 import com.thanhtuan.delivery.api.ApiHelper;
 import com.thanhtuan.delivery.api.VolleySingleton;
 import com.thanhtuan.delivery.interface_delivery.Interface_Location;
 import com.thanhtuan.delivery.model.Item;
+import com.thanhtuan.delivery.model.Route_point;
+import com.thanhtuan.delivery.model.Steps;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.R.attr.orientation;
 import static android.content.Context.MODE_PRIVATE;
-import static android.content.Context.SENSOR_SERVICE;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -73,13 +77,11 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
 
     MapView mMapView;
     private GoogleMap googleMap;
-    double longitudeCurrent, latitudeCurrent, longitudeSale, latitudeSale;
-    Float heading;
-    Location locationCurrent;
+    private double longitudeCurrent, latitudeCurrent;
+    private Float heading;
     private List<Polyline> polylines;
-    private float[] mRotationMatrix = new float[16];
-    LatLng start;
-    GeomagneticField field;
+    private LatLng start;
+    private GeomagneticField field;
 
     public MapFragment() {
         // Required empty public constructor
@@ -122,17 +124,17 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
                 /*googleMap.addMarker(new MarkerOptions().position(start).title("Marker Title").snippet("Marker Description"));*/
                 getLocationSale(new Interface_Location() {
                     @Override
-                    public void onLocation(LatLng end) {
-                        googleMap.addMarker(new MarkerOptions().position(end).title("Điểm cuối").snippet("Giao hàng cho khách"));
+                    public void onLocation(Route_point route_point) {
+                        googleMap.addMarker(new MarkerOptions().position(route_point.getLatLng()).title("Điểm cuối").snippet("Giao hàng cho khách"));
                     }
                 });
 
                 // For zooming automatically to the location of the marker
                 CameraPosition cameraPosition = new CameraPosition.Builder().target(start).zoom(18).tilt(45).build();
                 googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                route();
             }
         });
-        route();
         return view;
     }
 
@@ -177,14 +179,20 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
             return;
         }
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-        locationCurrent = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+        Location locationCurrent = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
         if (locationCurrent != null){
             longitudeCurrent = locationCurrent.getLongitude();
             latitudeCurrent = locationCurrent.getLatitude();
         }
     }
 
-    private void getLocationSale(final Interface_Location interface_location) {Gson gson = new Gson();
+    private void getLocationSale(final Interface_Location interface_location) {
+        Gson gson = new Gson();
+        String PARAM1 = "origin=";
+        String PARAM2 = "&destination=";
+        String PARAM3 = "&language=";
+        String PARAM4 = "&key=";
+
         SharedPreferences mPrefs = getActivity().getSharedPreferences("MyPre",MODE_PRIVATE);
         String json = mPrefs.getString("SaleItem", "");
         Item item = gson.fromJson(json, Item.class);
@@ -194,8 +202,13 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
+
+        getCurrentLocation();
+
+
         String key = "AIzaSyCueeDritXwUW37E3jH897o9iBHyIMpseE";
-        String API_MAP = ApiHelper.URL_MAP + ApiHelper.DOMAIN_MAP + "address=" + address + "&key=" + key;
+        String API_MAP = ApiHelper.URL_MAP + ApiHelper.DOMAIN_MAP + PARAM1 + latitudeCurrent + "," + longitudeCurrent +
+                PARAM2 + address + PARAM3 + "vi" + PARAM4 + key;
         Log.e("MAP", API_MAP);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, API_MAP, null,
                 new Response.Listener<JSONObject>() {
@@ -203,14 +216,48 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
                     public void onResponse(JSONObject response) {
                         try {
                             if (response.get("status").equals("OK")) {
-                                JSONArray results = response.getJSONArray("results");
-                                JSONObject geometry = results.getJSONObject(0).getJSONObject("geometry");
-                                JSONObject location = geometry.getJSONObject("location");
-                                latitudeSale = location.getDouble("lat");
-                                longitudeSale = location.getDouble("lng");
-                                LatLng end = new LatLng(latitudeSale,longitudeSale);
+                                JSONObject routes = response.getJSONArray("routes").getJSONObject(0);
 
-                                interface_location.onLocation(end);
+                                JSONObject legs = routes.getJSONArray("legs").getJSONObject(0);
+                                JSONObject overview_polyline = routes.getJSONObject("overview_polyline");
+                                JSONObject distance = legs.getJSONObject("distance");
+                                JSONObject duration = legs.getJSONObject("duration");
+                                JSONObject end_location = legs.getJSONObject("end_location");
+                                JSONArray step_list = legs.getJSONArray("steps");
+
+                                LatLng end = new LatLng(end_location.getDouble("lat"),end_location.getDouble("lng"));
+
+                                Route_point route_point = new Route_point();
+                                route_point.setTotal_distance(distance.getString("text"));
+                                route_point.setTotal_duration(duration.getString("text"));
+                                route_point.setOverview_polyline(PolyUtil.decode(overview_polyline.getString("points")));
+                                route_point.setLatLng(end);
+
+                                ArrayList<Steps> stepsArrayList = new ArrayList<>();
+                                for (int i = 0; i < step_list.length(); i++){
+                                    LatLng latLng_start = new LatLng(step_list.getJSONObject(i).getJSONObject("start_location").getDouble("lat"),
+                                            step_list.getJSONObject(i).getJSONObject("start_location").getDouble("lng"));
+                                    LatLng latLng_end = new LatLng(step_list.getJSONObject(i).getJSONObject("start_location").getDouble("lat"),
+                                            step_list.getJSONObject(i).getJSONObject("end_location").getDouble("lng"));
+
+                                    String LINE = step_list.getJSONObject(i).getJSONObject("polyline").getString("points");
+                                    List<LatLng> decodedPath = PolyUtil.decode(LINE);
+
+
+                                    Steps steps = new Steps();
+                                    steps.setDistance(step_list.getJSONObject(i).getJSONObject("distance").getString("text"));
+                                    steps.setDuration(step_list.getJSONObject(i).getJSONObject("duration").getString("text"));
+                                    steps.setHtml_instructions(Jsoup.parse(step_list.getJSONObject(i).getString("html_instructions")).text());
+                                    steps.setPolyline(decodedPath);
+                                    steps.setStart_location(latLng_start);
+                                    steps.setEnd_location(latLng_end);
+
+                                    stepsArrayList.add(steps);
+                                }
+
+                                route_point.setStepsArrayList(stepsArrayList);
+
+                                interface_location.onLocation(route_point);
                             }else {
                                 if (getActivity() != null){
                                     Toast.makeText(getActivity(), "Không tìm thấy địa chỉ!", Toast.LENGTH_SHORT).show();
@@ -235,8 +282,8 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
         start = new LatLng(latitudeCurrent,longitudeCurrent);
         getLocationSale(new Interface_Location() {
             @Override
-            public void onLocation(LatLng end) {
-                getEnd(end);
+            public void onLocation(Route_point route_point) {
+                getEnd(route_point.getLatLng());
             }
         });
     }
@@ -274,19 +321,25 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
             }
         }
 
-        polylines = new ArrayList<>();
-        //add route(s) to the map.
-        int i = 0;
-        //In case of more than 5 alternative routes
-        PolylineOptions polyOptions = new PolylineOptions();
-        polyOptions.color(Color.parseColor("#FFEB903C"));
-        polyOptions.width(22);
-        polyOptions.addAll(route.get(i).getPoints());
-        Polyline polyline = googleMap.addPolyline(polyOptions);
-        polylines.add(polyline);
+        getLocationSale(new Interface_Location() {
+            @Override
+            public void onLocation(Route_point route_point) {
+                for (int i = 0; i < route_point.getStepsArrayList().size(); i++){
+                    PolylineOptions polyOptions = new PolylineOptions();
+                    polyOptions.color(Color.parseColor("#FFFF7700"));
+                    polyOptions.width(22);
+                    polyOptions.addAll(route_point.getOverview_polyline());
 
-        Toast.makeText(getActivity(),"Thông tin: " +"Quãng đường: "+ route.get(i).getDistanceValue()/1000
-                + "km - Thời gian: "+ route.get(i).getDurationValue()/60 + " phút",Toast.LENGTH_LONG).show();
+                    Polyline polyline = googleMap.addPolyline(polyOptions);
+                    polyline.setGeodesic(true);
+                    polyline.setStartCap(new RoundCap());
+                    polyline.setEndCap(new RoundCap());
+                    polylines.add(polyline);
+                }
+                Toast.makeText(getActivity(),"Thông tin: " +"Quãng đường: "+ route_point.getTotal_distance()
+                        + "- Thời gian: "+ route_point.getTotal_duration() ,Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     @Override
