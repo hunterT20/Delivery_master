@@ -240,7 +240,6 @@
         android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
         app:fab_backgroundColor="@color/colorAccent"
-        app:fab_elevation="5dp"
         app:fab_iconSrc="@drawable/ic_phone_white_24dp"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout2"
         app:layout_constraintHorizontal_bias="1.0"

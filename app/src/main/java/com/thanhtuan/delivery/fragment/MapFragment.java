@@ -20,9 +20,13 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
+import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -50,6 +54,9 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.RoundCap;
 import com.google.gson.Gson;
 import com.google.maps.android.PolyUtil;
+import com.roughike.swipeselector.OnSwipeItemSelectedListener;
+import com.roughike.swipeselector.SwipeItem;
+import com.roughike.swipeselector.SwipeSelector;
 import com.thanhtuan.delivery.R;
 import com.thanhtuan.delivery.api.ApiHelper;
 import com.thanhtuan.delivery.api.VolleySingleton;
@@ -68,6 +75,9 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 import static android.content.Context.MODE_PRIVATE;
 
 /**
@@ -75,7 +85,11 @@ import static android.content.Context.MODE_PRIVATE;
  */
 public class MapFragment extends Fragment implements RoutingListener, GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
 
-    MapView mMapView;
+    @BindView(R.id.mapView) MapView mMapView;
+    @BindView(R.id.Direction)    SwipeSelector swipeSelector;
+    @BindView(R.id.txtvTime)    TextView txtvTime;
+    @BindView(R.id.btnDirection)    Button btnDirection;
+    @BindView(R.id.LnLTotal)    LinearLayout linearLayout;
     private GoogleMap googleMap;
     private double longitudeCurrent, latitudeCurrent;
     private Float heading;
@@ -93,8 +107,8 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_map, container, false);
+        ButterKnife.bind(this,view);
 
-        mMapView = (MapView) view.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
         polylines = new ArrayList<>();
 
@@ -130,7 +144,7 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
                 });
 
                 // For zooming automatically to the location of the marker
-                CameraPosition cameraPosition = new CameraPosition.Builder().target(start).zoom(18).tilt(45).build();
+                CameraPosition cameraPosition = new CameraPosition.Builder().target(start).zoom(15).tilt(45).build();
                 googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
                 route();
             }
@@ -154,7 +168,7 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
             // getDeclination returns degrees
             heading += field.getDeclination();
             heading = (location.getBearing() - heading) * -1;
-            updateCamera(normalizeDegree(heading));
+            /*updateCamera(normalizeDegree(heading));*/
         }
 
         @Override
@@ -315,29 +329,45 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
 
     @Override
     public void onRoutingSuccess(ArrayList<Route> route, int shortestRouteIndex) {
-        if(polylines.size()>0) {
-            for (Polyline poly : polylines) {
-                poly.remove();
-            }
-        }
+        removePoly();
 
         getLocationSale(new Interface_Location() {
             @Override
-            public void onLocation(Route_point route_point) {
-                for (int i = 0; i < route_point.getStepsArrayList().size(); i++){
-                    PolylineOptions polyOptions = new PolylineOptions();
-                    polyOptions.color(Color.parseColor("#FFFF7700"));
-                    polyOptions.width(22);
-                    polyOptions.addAll(route_point.getOverview_polyline());
+            public void onLocation(final Route_point route_point) {
+                txtvTime.setText("Quãng đường: " + route_point.getTotal_distance() + "- Thời gian: " + route_point.getTotal_duration());
+                getPolyline("#FFFF7700",route_point.getOverview_polyline());
+                btnDirection.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        linearLayout.setVisibility(View.GONE);
+                        swipeSelector.setVisibility(View.VISIBLE);
+                        getPolyline("#BABABA",route_point.getOverview_polyline());
+                        getPolyline("#FFFF7700",route_point.getStepsArrayList().get(0).getPolyline());
+                        updateCamera(route_point.getStepsArrayList().get(0).getStart_location());
 
-                    Polyline polyline = googleMap.addPolyline(polyOptions);
-                    polyline.setGeodesic(true);
-                    polyline.setStartCap(new RoundCap());
-                    polyline.setEndCap(new RoundCap());
-                    polylines.add(polyline);
-                }
-                Toast.makeText(getActivity(),"Thông tin: " +"Quãng đường: "+ route_point.getTotal_distance()
-                        + "- Thời gian: "+ route_point.getTotal_duration() ,Toast.LENGTH_LONG).show();
+                        SwipeItem[] swipeItems = new SwipeItem[route_point.getStepsArrayList().size()];
+                        for (int i = 0; i < route_point.getStepsArrayList().size(); i++){
+                            Steps steps = route_point.getStepsArrayList().get(i);
+                            swipeItems[i] = new SwipeItem(i,steps.getDistance() + " - " + steps.getDuration(),steps.getHtml_instructions());
+                        }
+
+                        swipeSelector.setItems(
+                                swipeItems
+                        );
+
+                        swipeSelector.setOnItemSelectedListener(new OnSwipeItemSelectedListener() {
+                            @Override
+                            public void onItemSelected(SwipeItem item) {
+                                int current = (int) item.value;
+                                removePoly();
+
+                                getPolyline("#BABABA",route_point.getOverview_polyline());
+                                getPolyline("#FFFF7700",route_point.getStepsArrayList().get(current).getPolyline());
+                                updateCamera(route_point.getStepsArrayList().get(current).getStart_location());
+                            }
+                        });
+                    }
+                });
             }
         });
     }
@@ -362,10 +392,8 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
 
     }
 
-    private void updateCamera(float bearing) {
-        CameraPosition oldPos = googleMap.getCameraPosition();
-
-        CameraPosition pos = CameraPosition.builder(oldPos).bearing(bearing).tilt(65.5f).zoom(18f).build();
+    private void updateCamera(LatLng latLng) {
+        CameraPosition pos = CameraPosition.builder().target(latLng).zoom(18f).tilt(45).build();
         googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(pos));
     }
 
@@ -374,6 +402,27 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
             return value;
         } else {
             return 180 + (180 + value);
+        }
+    }
+
+    private void getPolyline(String color, List<LatLng> overview_polyline){
+        PolylineOptions polyOptions = new PolylineOptions();
+        polyOptions.color(Color.parseColor(color));
+        polyOptions.width(22);
+        polyOptions.addAll(overview_polyline);
+
+        Polyline polyline = googleMap.addPolyline(polyOptions);
+        polyline.setGeodesic(true);
+        polyline.setStartCap(new RoundCap());
+        polyline.setEndCap(new RoundCap());
+        polylines.add(polyline);
+    }
+
+    private void removePoly(){
+        if(polylines.size()>0) {
+            for (Polyline poly : polylines) {
+                poly.remove();
+            }
         }
     }
 }

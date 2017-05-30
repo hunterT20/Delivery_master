@@ -112,9 +112,9 @@ public class InfoFragment extends Fragment {
         fabPhone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent callIntent = new Intent(Intent.ACTION_CALL);
-                callIntent.setData(Uri.parse("tel:" + item.getPhoneNumber()));
-                startActivity(callIntent);
+            Intent callIntent = new Intent(Intent.ACTION_CALL);
+            callIntent.setData(Uri.parse("tel:" + item.getPhoneNumber()));
+            startActivity(callIntent);
             }
         });
     }
