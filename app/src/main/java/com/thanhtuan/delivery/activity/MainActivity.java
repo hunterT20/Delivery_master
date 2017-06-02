@@ -2,6 +2,7 @@ package com.thanhtuan.delivery.activity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -33,6 +34,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import cn.pedant.SweetAlert.SweetAlertDialog;
 
 public class MainActivity extends AppCompatActivity {
     @BindView(R.id.rcvDonHang) RecyclerView rcvDonHang;
@@ -117,7 +119,8 @@ public class MainActivity extends AppCompatActivity {
                                 rcvDonHang.setLayoutManager(linearLayoutManager);
                                 stopAnim();
                             }else {
-                                Toast.makeText(MainActivity.this, response.getString("Message"), Toast.LENGTH_SHORT).show();
+                                show_sweetDialog("Không có đơn hàng nào để giao!!!");
+                                stopAnim();
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -141,5 +144,22 @@ public class MainActivity extends AppCompatActivity {
     private void stopAnim(){
         avi_Loading.hide();
         // or avi.smoothToHide();
+    }
+
+    private void show_sweetDialog(String alert){
+        new SweetAlertDialog(this, SweetAlertDialog.WARNING_TYPE)
+                .setTitleText("Thông báo!")
+                .setContentText(alert)
+                .setConfirmText("OK")
+                .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sweetAlertDialog) {
+                        sweetAlertDialog.cancel();
+                        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                        startActivity(intent);
+                        finish();
+                    }
+                })
+                .show();
     }
 }

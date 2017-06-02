@@ -137,8 +137,11 @@ public class InfoFragment extends Fragment {
         txtvTenKH.setText(item.getCustomerName());
         txtvAddress.setText(item.getAddress());
         txtvSDT.setText(item.getPhoneNumber());
-        txtvTongTien.setText(String.valueOf(item.getPrice()));
-        txtvNote.setText(item.getNote());
+        txtvTongTien.setText(String.valueOf(item.getPrice()) + " VNĐ");
+        if (item.getNote().equals(""))
+            txtvNote.setText("Không có ghi chú!");
+        else
+            txtvNote.setText(item.getNote());
     }
 
     private void setQuaTrinh(int Status){

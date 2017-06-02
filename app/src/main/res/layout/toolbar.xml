@@ -6,9 +6,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="?attr/colorAccent"
-    android:elevation="17dp"
-    tools:targetApi="lollipop"
-    app:theme="@style/ToolbarColoredBackArrow">
+    android:elevation="4dp"
+    app:theme="@style/ToolbarColoredBackArrow"
+    tools:targetApi="lollipop">
 
     <TextView
         android:id="@+id/toolbar_title"

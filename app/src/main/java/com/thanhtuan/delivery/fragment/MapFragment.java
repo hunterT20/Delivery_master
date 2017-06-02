@@ -65,6 +65,7 @@ import com.thanhtuan.delivery.interface_delivery.Interface_Location;
 import com.thanhtuan.delivery.model.Item;
 import com.thanhtuan.delivery.model.Route_point;
 import com.thanhtuan.delivery.model.Steps;
+import com.thanhtuan.delivery.sharePreference.MyShare;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -95,7 +96,6 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
     final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
     private GoogleMap googleMap;
     private double longitudeCurrent, latitudeCurrent;
-    private Float heading;
     private List<Polyline> polylines;
     private LatLng start;
 
@@ -113,6 +113,11 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
 
         mMapView.onCreate(savedInstanceState);
         polylines = new ArrayList<>();
+        SharedPreferences mPrefs = getActivity().getSharedPreferences(MyShare.NAME,MODE_PRIVATE);
+        int status = mPrefs.getInt(MyShare.VALUE_STATUS,0);
+        if(status ==0 || status ==3){
+            value_current(-1);
+        }
 
         mMapView.onResume(); // needed to get the map to display immediately
 
@@ -126,7 +131,7 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
             @Override
             public void onMapReady(GoogleMap mMap) {
                 googleMap = mMap;
-
+                if(getActivity() == null) return;
                 if (ActivityCompat.checkSelfPermission(getActivity(),
                         Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                         && ActivityCompat.checkSelfPermission(getActivity(),
@@ -142,7 +147,6 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
                 getCurrentLocation();
 
                 final LatLng start = new LatLng(latitudeCurrent, longitudeCurrent);
-                /*googleMap.addMarker(new MarkerOptions().position(start).title("Marker Title").snippet("Marker Description"));*/
                 getLocationSale(new Interface_Location() {
                     @Override
                     public void onLocation(Route_point route_point) {
@@ -150,7 +154,6 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
                     }
                 });
 
-                // For zooming automatically to the location of the marker
                 CameraPosition cameraPosition = new CameraPosition.Builder().target(start).zoom(15).tilt(45).build();
                 googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
                 route();
@@ -164,18 +167,6 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
         public void onLocationChanged(Location location) {
             longitudeCurrent = location.getLongitude();
             latitudeCurrent = location.getLatitude();
-
-            GeomagneticField field = new GeomagneticField(
-                    Double.valueOf(location.getLatitude()).floatValue(),
-                    Double.valueOf(location.getLongitude()).floatValue(),
-                    Double.valueOf(location.getAltitude()).floatValue(),
-                    System.currentTimeMillis()
-            );
-
-            // getDeclination returns degrees
-            heading += field.getDeclination();
-            heading = (location.getBearing() - heading) * -1;
-            /*updateCamera(normalizeDegree(heading));*/
         }
 
         @Override
@@ -195,6 +186,9 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
     };
 
     private void getCurrentLocation() {
+        if(getActivity() == null){
+            return;
+        }
         LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
@@ -214,6 +208,9 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
         String PARAM3 = "&language=";
         String PARAM4 = "&key=";
 
+        if(getActivity() == null){
+            return;
+        }
         SharedPreferences mPrefs = getActivity().getSharedPreferences("MyPre",MODE_PRIVATE);
         String json = mPrefs.getString("SaleItem", "");
         Item item = gson.fromJson(json, Item.class);
@@ -323,6 +320,7 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
     @Override
     public void onRoutingFailure(RouteException e) {
         // The Routing request failed
+        if(getActivity() == null) return;
         if(e != null) {
             Toast.makeText(getActivity(), "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }else {
@@ -342,40 +340,42 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
         getLocationSale(new Interface_Location() {
             @Override
             public void onLocation(final Route_point route_point) {
-                txtvTime.setText("Quãng đường: " + route_point.getTotal_distance() + "- Thời gian: " + route_point.getTotal_duration());
-                getPolyline("#FFFF7700",route_point.getOverview_polyline());
-                btnDirection.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        linearLayout.setVisibility(View.GONE);
-                        swipeSelector.setVisibility(View.VISIBLE);
-                        getPolyline("#BABABA",route_point.getOverview_polyline());
-                        getPolyline("#FFFF7700",route_point.getStepsArrayList().get(0).getPolyline());
-                        updateCamera(route_point.getStepsArrayList().get(0).getStart_location());
+                SharedPreferences mPrefs = getActivity().getSharedPreferences(MyShare.NAME,MODE_PRIVATE);
+                int current = mPrefs.getInt(MyShare.VALUE_DIRECTION, -1);
 
-                        SwipeItem[] swipeItems = new SwipeItem[route_point.getStepsArrayList().size()];
-                        for (int i = 0; i < route_point.getStepsArrayList().size(); i++){
-                            Steps steps = route_point.getStepsArrayList().get(i);
-                            swipeItems[i] = new SwipeItem(i,steps.getDistance() + " - " + steps.getDuration(),steps.getHtml_instructions());
+                init_SwipeItem(route_point, current);
+
+                Log.e("current", current + "");
+
+                if (current == -1){
+                    /*set textview tổng quãng đường và thời gian cần đi*/
+                    txtvTime.setText("Quãng đường: " + route_point.getTotal_distance() + "- Thời gian: " + route_point.getTotal_duration());
+                    /*set color cho cả đoạn đường*/
+                    getPolyline("#FFFF7700",route_point.getOverview_polyline());
+                    /*event khi click vào button Direction*/
+                    btnDirection.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            /*set visibility cho view direction*/
+                            linearLayout.setVisibility(View.GONE);
+                            swipeSelector.setVisibility(View.VISIBLE);
+
+                            /*set color cho đoạn đường đầu tiên đươc load lên*/
+                            getPolyline("#BABABA",route_point.getOverview_polyline());
+                            getPolyline("#FFFF7700",route_point.getStepsArrayList().get(0).getPolyline());
+                            updateCamera(route_point.getStepsArrayList().get(0).getStart_location());
                         }
+                    });
+                }else {
+                    /*set visibility cho view direction*/
+                    linearLayout.setVisibility(View.GONE);
+                    swipeSelector.setVisibility(View.VISIBLE);
 
-                        swipeSelector.setItems(
-                                swipeItems
-                        );
-
-                        swipeSelector.setOnItemSelectedListener(new OnSwipeItemSelectedListener() {
-                            @Override
-                            public void onItemSelected(SwipeItem item) {
-                                int current = (int) item.value;
-                                removePoly();
-
-                                getPolyline("#BABABA",route_point.getOverview_polyline());
-                                getPolyline("#FFFF7700",route_point.getStepsArrayList().get(current).getPolyline());
-                                updateCamera(route_point.getStepsArrayList().get(current).getStart_location());
-                            }
-                        });
-                    }
-                });
+                    /*set color cho đoạn đường đầu tiên đươc load lên*/
+                    getPolyline("#BABABA",route_point.getOverview_polyline());
+                    getPolyline("#FFFF7700",route_point.getStepsArrayList().get(current).getPolyline());
+                    updateCamera(route_point.getStepsArrayList().get(current).getStart_location());
+                }
             }
         });
     }
@@ -405,14 +405,6 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
         googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(pos));
     }
 
-    private float normalizeDegree(float value) {
-        if (value >= 0.0f && value <= 180.0f) {
-            return value;
-        } else {
-            return 180 + (180 + value);
-        }
-    }
-
     private void getPolyline(String color, List<LatLng> overview_polyline){
         PolylineOptions polyOptions = new PolylineOptions();
         polyOptions.color(Color.parseColor(color));
@@ -432,5 +424,45 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
                 poly.remove();
             }
         }
+    }
+
+    private void init_SwipeItem(final Route_point route_point, int current){
+        /*danh sách các direction*/
+        SwipeItem[] swipeItems = new SwipeItem[route_point.getStepsArrayList().size()];
+        for (int i = 0; i < route_point.getStepsArrayList().size(); i++){
+            Steps steps = route_point.getStepsArrayList().get(i);
+            swipeItems[i] = new SwipeItem(i,steps.getDistance() + " - " + steps.getDuration(),steps.getHtml_instructions());
+        }
+        /*Khởi tạo swipe Direction*/
+        swipeSelector.setItems(
+                swipeItems
+        );
+
+        if (current != -1){
+            swipeSelector.selectItemAt(current);
+        }
+
+        /*set Item selected của swipe*/
+        swipeSelector.setOnItemSelectedListener(new OnSwipeItemSelectedListener() {
+            @Override
+            public void onItemSelected(SwipeItem item) {
+                int current = (int) item.value;
+                removePoly();
+
+                getPolyline("#BABABA",route_point.getOverview_polyline());
+                getPolyline("#FFFF7700",route_point.getStepsArrayList().get(current).getPolyline());
+                updateCamera(route_point.getStepsArrayList().get(current).getStart_location());
+
+                value_current(current);
+            }
+        });
+    }
+
+    public void value_current(int current){
+        /*Biến Share giữ vị trí đang chỉ đường*/
+        SharedPreferences mPrefs = getActivity().getSharedPreferences(MyShare.NAME,MODE_PRIVATE);
+        SharedPreferences.Editor prefsEditor = mPrefs.edit();
+        prefsEditor.putInt(MyShare.VALUE_DIRECTION, current);
+        prefsEditor.apply();
     }
 }

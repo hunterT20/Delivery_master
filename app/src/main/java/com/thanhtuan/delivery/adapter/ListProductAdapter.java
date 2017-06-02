@@ -37,7 +37,7 @@ public class ListProductAdapter extends RecyclerView.Adapter<ListProductAdapter.
 
         //bind data to viewholder
         holder.txtvSKU.setText(position + 1 + ". " + product.getSKU());
-        holder.txtvDonGia.setText(product.getPrice().toString());
+        holder.txtvDonGia.setText(product.getPrice().toString() + " VNĐ");
         holder.txtvSoLuong.setText(String.valueOf(product.getQuantity()));
     }
 

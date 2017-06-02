@@ -102,16 +102,10 @@ public class LoginActivity extends AppCompatActivity {
                                             saveUser();
                                         }
 
-                                        int STATUS = pre.getInt("status",0);
-                                        if (STATUS != 0 && STATUS != 3) {
-                                            Intent intent = new Intent(LoginActivity.this, DetailActivity.class);
-                                            startActivity(intent);
-                                            finish();
-                                        }else {
-                                            Intent intent = new Intent(LoginActivity.this,MainActivity.class);
-                                            startActivity(intent);
-                                            finish();
-                                        }
+                                        Intent intent = new Intent(LoginActivity.this,MainActivity.class);
+                                        startActivity(intent);
+                                        finish();
+
 
                                     }else {
                                         newtonCradleLoading.stop();
@@ -147,11 +141,8 @@ public class LoginActivity extends AppCompatActivity {
 
     private void loadUser() {
         SharedPreferences MyPre = getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
-
-        String defaultUnameValue = "";
-        UsernameValue = MyPre.getString(MyShare.VALUE_USERNAME, defaultUnameValue);
-        String defaultPasswordValue = "";
-        PasswordValue = MyPre.getString(MyShare.VALUE_PASSWORD, defaultPasswordValue);
+        UsernameValue = MyPre.getString(MyShare.VALUE_USERNAME, "");
+        PasswordValue = MyPre.getString(MyShare.VALUE_PASSWORD, "");
 
         edtUserName.setText(UsernameValue);
         edtPassword.setText(PasswordValue);

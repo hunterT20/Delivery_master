@@ -36,7 +36,7 @@ public class ListNghiemThuAdapter extends RecyclerView.Adapter<ListNghiemThuAdap
     }
 
     @Override
-    public void onBindViewHolder(final ListNghiemThuAdapter.NghiemThuViewHolder holder, final int position) {
+    public void onBindViewHolder(final ListNghiemThuAdapter.NghiemThuViewHolder holder, int position) {
         final Photo photo = photos.get(position);
 
         holder.ibtnIMG.setImageBitmap(photo.getImage());
@@ -45,7 +45,7 @@ public class ListNghiemThuAdapter extends RecyclerView.Adapter<ListNghiemThuAdap
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(mContext, "Delete coming soon!!!", Toast.LENGTH_SHORT).show();
+                photos.remove(holder.getAdapterPosition());
             }
         });
     }

@@ -9,4 +9,5 @@ public class MyShare {
     public static String VALUE_PASSWORD = "Password";
     public static String VALUE_SALEITEM = "SaleItem";
     public static String VALUE_STATUS = "status";
+    public static String VALUE_DIRECTION = "Direction";
 }

@@ -121,6 +121,7 @@ public class DetailFragment extends Fragment {
         VolleySingleton.getInstance(getActivity()).getRequestQueue().add(jsonObjectRequest);
     }
     private void addControls() {
+        if(getActivity() == null) return;
         ListProductAdapter adapter = new ListProductAdapter(mProduct, getActivity());
         rcvProduct.setAdapter(adapter);
     }

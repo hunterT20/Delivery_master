@@ -6,6 +6,8 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.provider.MediaStore;
+import android.support.constraint.ConstraintLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -52,6 +54,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import cn.pedant.SweetAlert.SweetAlertDialog;
 
 public class NghiemThuActivity extends AppCompatActivity {
     @BindView(R.id.fab)             FloatingActionButton fab;
@@ -62,6 +65,7 @@ public class NghiemThuActivity extends AppCompatActivity {
     @BindView(R.id.ibtnPhoto)       ImageView ibtnPhoto;
     @BindView(R.id.btnXacNhan)      Button btnXacNhan;
     @BindView(R.id.edtMoTa)         EditText edtMoTa;
+    @BindView(R.id.RootLayout)      ConstraintLayout Root;
 
     private final static int CODE_PHOTO = 2002;
     private List<Photo> photoList;
@@ -200,6 +204,10 @@ public class NghiemThuActivity extends AppCompatActivity {
                 }
                 return true;
             case R.id.action_Upload:
+                if (photoList.size() != 0){
+                    show_sweetDialog_Warning("Vui làm nghiệm thu trước khi update!");
+                    return false;
+                }
                 Gson gson = new Gson();
                 SharedPreferences pre = getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
                 String json = pre.getString("SaleItem", "");
@@ -226,7 +234,15 @@ public class NghiemThuActivity extends AppCompatActivity {
                                 try {
                                     if (response.getBoolean("Result")){
                                         JSONObject jsonObject = response.getJSONObject("Data");
+                                        int status = jsonObject.getInt("Status");
+                                        SharedPreferences mPrefs = getSharedPreferences(MyShare.NAME,MODE_PRIVATE);
+                                        SharedPreferences.Editor prefsEditor = mPrefs.edit();
+                                        prefsEditor.putInt(MyShare.VALUE_STATUS,status);
+                                        prefsEditor.apply();
+                                        show_sweetDialog_Success("Nghiệm thu thành công!");
                                     }else {
+                                        Snackbar snackbar = Snackbar.make(Root,String.valueOf(response.getBoolean("Sản phẩm đã được nghiệm thu!")),Snackbar.LENGTH_LONG);
+                                        snackbar.show();
                                     }
                                 } catch (JSONException e) {
                                     e.printStackTrace();
@@ -331,11 +347,32 @@ public class NghiemThuActivity extends AppCompatActivity {
         VolleySingleton.getInstance(this).getRequestQueue().add(request_json);
     }
 
-    public static String encodeToBase64(Bitmap image, Bitmap.CompressFormat compressFormat, int quality)
-    {
+    private static String encodeToBase64(Bitmap image, Bitmap.CompressFormat compressFormat, int quality){
         ByteArrayOutputStream byteArrayOS = new ByteArrayOutputStream();
         image.compress(compressFormat, quality, byteArrayOS);
         return Base64.encodeToString(byteArrayOS.toByteArray(), Base64.DEFAULT);
     }
 
+    private void show_sweetDialog_Success(String alert){
+        new SweetAlertDialog(this, SweetAlertDialog.SUCCESS_TYPE)
+                .setTitleText("Thành công!")
+                .setContentText(alert)
+                .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sweetAlertDialog) {
+                        sweetAlertDialog.cancel();
+                        Intent intent = new Intent(NghiemThuActivity.this,MainActivity.class);
+                        startActivity(intent);
+                        finish();
+                    }
+                })
+                .show();
+    }
+
+    private void show_sweetDialog_Warning(String alert){
+        new SweetAlertDialog(this, SweetAlertDialog.WARNING_TYPE)
+                .setTitleText("Cảnh báo!")
+                .setContentText(alert)
+                .show();
+    }
 }
