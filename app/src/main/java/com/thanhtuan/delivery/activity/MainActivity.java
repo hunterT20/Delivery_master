@@ -1,5 +1,6 @@
 package com.thanhtuan.delivery.activity;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.google.gson.Gson;
 import com.thanhtuan.delivery.R;
 import com.thanhtuan.delivery.adapter.ListSaleAdapter;
 import com.thanhtuan.delivery.api.ApiHelper;
@@ -92,18 +94,28 @@ public class MainActivity extends AppCompatActivity {
                                     item.setNote(object.getString("Note"));
                                     item.setStatus(object.getInt("Status"));
 
-                                    mItem.add(item);
-                                    addControls();
+                                    if (item.getStatus() != 0 && item.getStatus() !=3){
+                                        Gson gson = new Gson();
+                                        SharedPreferences mPrefs = getSharedPreferences(MyShare.NAME,MODE_PRIVATE);
+                                        SharedPreferences.Editor prefsEditor = mPrefs.edit();
 
-                                    //RecyclerView scroll vertical
-                                    LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplication(), LinearLayoutManager.VERTICAL, false);
-                                    rcvDonHang.setLayoutManager(linearLayoutManager);
+                                        String json = gson.toJson(item);
+                                        prefsEditor.putString(MyShare.VALUE_SALEITEM, json);
+                                        prefsEditor.putInt(MyShare.VALUE_STATUS,item.getStatus());
+                                        prefsEditor.apply();
 
-                                    /*Stop Animation Loading*/
-                                    if (i < listItem.length() - 1){
-                                        stopAnim();
+                                        Intent intent = new Intent(MainActivity.this, DetailActivity.class);
+                                        startActivity(intent);
+                                        finish();
                                     }
+                                    mItem.add(item);
                                 }
+
+                                addControls();
+                                //RecyclerView scroll vertical
+                                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplication(), LinearLayoutManager.VERTICAL, false);
+                                rcvDonHang.setLayoutManager(linearLayoutManager);
+                                stopAnim();
                             }else {
                                 Toast.makeText(MainActivity.this, response.getString("Message"), Toast.LENGTH_SHORT).show();
                             }

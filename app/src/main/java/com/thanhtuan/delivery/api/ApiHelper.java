@@ -8,6 +8,8 @@ public class ApiHelper {
     public static String DOMAIN_HUY = "Abort?";
     public static String DOMAIN_START = "Start?";
     public static String DOMAIN_END = "End?";
+    public static String DOMAIN_UPLOADIMG = "UploadPhoto/";
+    public static String DOMAIN_NGHIEMTHU = "Done/";
     public static String URL_MAP = "https://maps.googleapis.com/maps/api/";
     public static String DOMAIN_MAP = "directions/json?";
 }

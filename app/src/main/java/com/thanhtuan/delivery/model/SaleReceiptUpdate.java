@@ -8,15 +8,11 @@ import java.util.List;
 
 public class SaleReceiptUpdate {
     private String SaleReceiptId;
-    private String Description;
-    private List<Photo> photo;
-    private int Status;
+    private List<URL_PhotoUpload> Photos;
 
-    public SaleReceiptUpdate(String saleReceiptId, String description, List<Photo> photo, int status) {
+    public SaleReceiptUpdate(String saleReceiptId, List<URL_PhotoUpload> url) {
         SaleReceiptId = saleReceiptId;
-        Description = description;
-        this.photo = photo;
-        Status = status;
+        this.Photos = url;
     }
 
     public SaleReceiptUpdate() {
@@ -30,27 +26,11 @@ public class SaleReceiptUpdate {
         SaleReceiptId = saleReceiptId;
     }
 
-    public String getDescription() {
-        return Description;
+    public List<URL_PhotoUpload> getUrl() {
+        return Photos;
     }
 
-    public void setDescription(String description) {
-        Description = description;
-    }
-
-    public List<Photo> getPhoto() {
-        return photo;
-    }
-
-    public void setPhoto(List<Photo> photo) {
-        this.photo = photo;
-    }
-
-    public int getStatus() {
-        return Status;
-    }
-
-    public void setStatus(int status) {
-        Status = status;
+    public void setUrl(List<URL_PhotoUpload> url) {
+        this.Photos = url;
     }
 }

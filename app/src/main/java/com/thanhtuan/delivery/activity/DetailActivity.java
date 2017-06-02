@@ -115,6 +115,8 @@ public class DetailActivity extends AppCompatActivity {
             Toast.makeText(this, "Bạn chưa hoàn thành việc giao hàng, hãy cố gắng để hoàn thành!", Toast.LENGTH_SHORT).show();
         }
         else {
+            Intent intent = new Intent(DetailActivity.this,MainActivity.class);
+            startActivity(intent);
             super.onBackPressed();
         }
     }

@@ -97,15 +97,13 @@ public class DetailFragment extends Fragment {
                                     product.setStatus(object.getInt("Status"));
 
                                     mProduct.add(product);
-                                    addControls();
-
-                                    //RecyclerView scroll vertical
-                                    LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
-                                    rcvProduct.setLayoutManager(linearLayoutManager);
-                                    if (i == listProduct.length() - 1){
-                                        stopAnim();
-                                    }
                                 }
+                                addControls();
+
+                                //RecyclerView scroll vertical
+                                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
+                                rcvProduct.setLayoutManager(linearLayoutManager);
+                                stopAnim();
                             }else {
                                 Toast.makeText(getActivity(), response.getString("Message"), Toast.LENGTH_SHORT).show();
                             }
@@ -129,11 +127,9 @@ public class DetailFragment extends Fragment {
 
     private void startAnim(){
         avi_Loading.show();
-        // or avi.smoothToShow();
     }
 
     private void stopAnim(){
         avi_Loading.hide();
-        // or avi.smoothToHide();
     }
 }

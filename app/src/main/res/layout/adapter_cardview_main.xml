@@ -23,25 +23,24 @@
             android:layout_marginTop="8dp"
             android:text="Đơn Hàng:"
             android:textColor="@color/colorAccent"
-            android:textSize="24sp"
+            android:textSize="18sp"
             android:textStyle="bold"
             card_view:layout_constraintLeft_toLeftOf="parent"
             card_view:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/txtvNameCustomer"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
+            android:layout_marginRight="10dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="-1dp"
+            android:layout_marginTop="7dp"
             android:elevation="0dp"
             android:text="Name Customer"
-            android:textSize="14sp"
+            android:textSize="18sp"
             android:textStyle="bold"
-            card_view:layout_constraintHorizontal_bias="1.0"
             card_view:layout_constraintLeft_toLeftOf="parent"
             card_view:layout_constraintRight_toRightOf="parent"
             card_view:layout_constraintTop_toBottomOf="@+id/textView7" />
@@ -51,29 +50,30 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="-22dp"
+            android:layout_marginRight="10dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="-1dp"
             android:text="PhoneNumber"
+            android:textSize="18sp"
             android:textStyle="bold"
-            card_view:layout_constraintHorizontal_bias="1.0"
-            card_view:layout_constraintLeft_toLeftOf="parent"
             card_view:layout_constraintRight_toRightOf="parent"
-            card_view:layout_constraintTop_toBottomOf="@+id/textView10" />
+            android:layout_marginTop="8dp"
+            card_view:layout_constraintTop_toBottomOf="@+id/txtvNameCustomer"
+            card_view:layout_constraintLeft_toRightOf="@+id/textView10"
+            android:layout_marginLeft="8dp"
+            card_view:layout_constraintHorizontal_bias="0.963" />
 
         <TextView
             android:id="@+id/txtvAddress"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_marginLeft="8dp"
-            android:layout_marginRight="7dp"
+            android:layout_marginRight="10dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="-1dp"
+            android:layout_marginTop="7dp"
             android:text="Address"
+            android:textSize="18sp"
             android:textStyle="bold"
-            card_view:layout_constraintHorizontal_bias="1.0"
             card_view:layout_constraintLeft_toLeftOf="parent"
             card_view:layout_constraintRight_toRightOf="parent"
             card_view:layout_constraintTop_toBottomOf="@+id/textView11" />
@@ -82,32 +82,35 @@
             android:id="@+id/txtvSL"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginLeft="8dp"
-            android:layout_marginRight="7dp"
+            android:layout_marginRight="10dp"
             android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
             android:text="Quantity"
+            android:textSize="18sp"
             android:textStyle="bold"
-            card_view:layout_constraintHorizontal_bias="1.0"
-            card_view:layout_constraintLeft_toLeftOf="parent"
-            card_view:layout_constraintRight_toRightOf="parent"
-            card_view:layout_constraintTop_toBottomOf="@+id/textView12"
             card_view:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginBottom="8dp" />
+            card_view:layout_constraintHorizontal_bias="0.973"
+            card_view:layout_constraintLeft_toRightOf="@+id/textView12"
+            card_view:layout_constraintRight_toRightOf="parent"
+            card_view:layout_constraintTop_toBottomOf="@+id/txtvAddress"
+            card_view:layout_constraintVertical_bias="1.0" />
 
         <TextView
             android:id="@+id/textView7"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="13dp"
+            android:layout_marginLeft="16dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="0dp"
             android:text="Tên Khách Hàng:"
             android:textColor="@color/colorAccent"
             android:textSize="18sp"
             android:textStyle="bold"
             card_view:layout_constraintLeft_toLeftOf="parent"
-            card_view:layout_constraintTop_toBottomOf="@+id/txtvTrangThai" />
+            android:layout_marginTop="8dp"
+            card_view:layout_constraintTop_toBottomOf="@+id/textview56" />
 
         <TextView
             android:id="@+id/textView10"
@@ -127,26 +130,30 @@
             android:id="@+id/textView11"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
+            android:layout_marginLeft="16dp"
             android:layout_marginStart="8dp"
             android:text="Địa Chỉ:"
             android:textColor="@color/colorAccent"
             android:textSize="18sp"
             android:textStyle="bold"
             card_view:layout_constraintLeft_toLeftOf="parent"
-            card_view:layout_constraintTop_toBottomOf="@+id/txtvPhone" />
+            android:layout_marginTop="8dp"
+            card_view:layout_constraintTop_toBottomOf="@+id/textView10" />
 
         <TextView
             android:id="@+id/textView12"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
+            android:layout_marginLeft="13dp"
             android:layout_marginStart="8dp"
             android:text="Số Lượng:"
             android:textColor="@color/colorAccent"
             android:textSize="18sp"
             android:textStyle="bold"
             card_view:layout_constraintLeft_toLeftOf="parent"
+            card_view:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp"
             card_view:layout_constraintTop_toBottomOf="@+id/txtvAddress" />
 
         <TextView
@@ -155,43 +162,44 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
+            android:layout_marginRight="10dp"
             android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
             android:text="Đơn Hàng"
             android:textSize="18sp"
             android:textStyle="bold"
-            card_view:layout_constraintHorizontal_bias="1.0"
-            card_view:layout_constraintLeft_toLeftOf="parent"
+            card_view:layout_constraintHorizontal_bias="0.978"
+            card_view:layout_constraintLeft_toRightOf="@+id/textView2"
             card_view:layout_constraintRight_toRightOf="parent"
-            android:layout_marginTop="8dp"
-            card_view:layout_constraintTop_toBottomOf="@+id/textView2" />
+            card_view:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/textview56"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
-            android:layout_marginTop="0dp"
             android:text="Trạng Thái:"
             android:textColor="@color/colorAccent"
             android:textSize="18sp"
             android:textStyle="bold"
             card_view:layout_constraintLeft_toLeftOf="parent"
-            card_view:layout_constraintTop_toBottomOf="@+id/txtvDonHang" />
+            android:layout_marginTop="8dp"
+            card_view:layout_constraintTop_toBottomOf="@+id/textView2" />
 
         <TextView
             android:id="@+id/txtvTrangThai"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Trạng Thái"
-            android:textStyle="bold"
-            android:layout_marginTop="8dp"
-            card_view:layout_constraintTop_toBottomOf="@+id/textview56"
-            android:layout_marginRight="8dp"
-            card_view:layout_constraintRight_toRightOf="parent"
             android:layout_marginLeft="8dp"
-            card_view:layout_constraintLeft_toLeftOf="parent"
-            card_view:layout_constraintHorizontal_bias="0.99" />
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="7dp"
+            android:text="Trạng thái"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            card_view:layout_constraintHorizontal_bias="0.97"
+            card_view:layout_constraintLeft_toRightOf="@+id/textview56"
+            card_view:layout_constraintRight_toRightOf="parent"
+            card_view:layout_constraintTop_toBottomOf="@+id/txtvDonHang" />
 
     </android.support.constraint.ConstraintLayout>
 </android.support.v7.widget.CardView>

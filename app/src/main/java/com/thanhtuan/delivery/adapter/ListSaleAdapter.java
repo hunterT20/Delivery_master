@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 import com.thanhtuan.delivery.R;
 import com.thanhtuan.delivery.activity.DetailActivity;
+import com.thanhtuan.delivery.activity.MainActivity;
 import com.thanhtuan.delivery.model.Item;
 import com.thanhtuan.delivery.sharePreference.MyShare;
 
@@ -57,7 +58,7 @@ public class ListSaleAdapter extends RecyclerView.Adapter<ListSaleAdapter.SaleVi
                 holder.txtvTrangThai.setText("Đang giao hàng");
                 break;
             case 2:
-                holder.txtvTrangThai.setText("Hoàn tất");
+                holder.txtvTrangThai.setText("Hoàn tất giao hàng");
                 break;
             case 3:
                 holder.txtvTrangThai.setText("Hủy giao hàng");
@@ -81,6 +82,7 @@ public class ListSaleAdapter extends RecyclerView.Adapter<ListSaleAdapter.SaleVi
 
                 Intent intent = new Intent(mContext, DetailActivity.class);
                 mContext.startActivity(intent);
+                ((MainActivity) mContext).finish();
             }
         });
     }

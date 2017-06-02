@@ -154,7 +154,7 @@ public class InfoFragment extends Fragment {
                 btnGiaoHang.setText("Kết Thúc");
                 break;
             case 2:
-                txtvQuaTrinh.setText("Hoàn tất");
+                txtvQuaTrinh.setText("Hoàn tất giao hàng");
                 prefsEditor.putInt(MyShare.VALUE_STATUS,Status);
                 btnGiaoHang.setEnabled(false);
                 btnHuyGiaoHang.setEnabled(false);

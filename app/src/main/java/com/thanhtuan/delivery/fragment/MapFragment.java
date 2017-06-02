@@ -14,6 +14,7 @@ import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.annotation.NonNull;
@@ -90,12 +91,13 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
     @BindView(R.id.txtvTime)    TextView txtvTime;
     @BindView(R.id.btnDirection)    Button btnDirection;
     @BindView(R.id.LnLTotal)    LinearLayout linearLayout;
+
+    final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
     private GoogleMap googleMap;
     private double longitudeCurrent, latitudeCurrent;
     private Float heading;
     private List<Polyline> polylines;
     private LatLng start;
-    private GeomagneticField field;
 
     public MapFragment() {
         // Required empty public constructor
@@ -129,7 +131,12 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
                         Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                         && ActivityCompat.checkSelfPermission(getActivity(),
                         Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    return;
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION},
+                                REQUEST_CODE_ASK_PERMISSIONS);
+                        return;
+                    }
                 }
                 googleMap.setMyLocationEnabled(true);
                 getCurrentLocation();
@@ -158,7 +165,7 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
             longitudeCurrent = location.getLongitude();
             latitudeCurrent = location.getLatitude();
 
-            field = new GeomagneticField(
+            GeomagneticField field = new GeomagneticField(
                     Double.valueOf(location.getLatitude()).floatValue(),
                     Double.valueOf(location.getLongitude()).floatValue(),
                     Double.valueOf(location.getAltitude()).floatValue(),
@@ -274,7 +281,8 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
                                 interface_location.onLocation(route_point);
                             }else {
                                 if (getActivity() != null){
-                                    Toast.makeText(getActivity(), "Không tìm thấy địa chỉ!", Toast.LENGTH_SHORT).show();
+                                    txtvTime.setText("Không Tìm thấy địa chỉ!");
+                                    btnDirection.setVisibility(View.GONE);
                                 }
                             }
                         } catch (JSONException e) {
