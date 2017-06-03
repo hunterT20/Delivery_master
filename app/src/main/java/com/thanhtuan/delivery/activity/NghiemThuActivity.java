@@ -1,5 +1,6 @@
 package com.thanhtuan.delivery.activity;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -22,6 +23,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -55,6 +57,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.pedant.SweetAlert.SweetAlertDialog;
+import co.dift.ui.SwipeToAction;
 
 public class NghiemThuActivity extends AppCompatActivity {
     @BindView(R.id.fab)             FloatingActionButton fab;
@@ -69,10 +72,12 @@ public class NghiemThuActivity extends AppCompatActivity {
 
     private final static int CODE_PHOTO = 2002;
     private List<Photo> photoList;
+    private ListNghiemThuAdapter adapter;
     public List<URL_PhotoUpload> url_photoUploads;
     private Boolean flag_back = false;
     private SaleReceiptUpdate saleReceiptUpdate;
     private Bitmap photo_taked;
+    private SwipeToAction swipeToAction;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,7 +86,6 @@ public class NghiemThuActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         addViews();
-        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         addEvents();
     }
 
@@ -105,11 +109,25 @@ public class NghiemThuActivity extends AppCompatActivity {
         btnXacNhan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                /*Hide keyboard*/
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(edtMoTa.getWindowToken(), 0);
+
                 if (((BitmapDrawable)ibtnPhoto.getDrawable()).getBitmap() == bitmap_old){
-                    Toast.makeText(NghiemThuActivity.this, "Bạn chưa có hình để nghiệm thu!", Toast.LENGTH_SHORT).show();
+                    Snackbar snackbar = Snackbar.make(Root,"Bạn chưa có hình để nghiệm thu!",Snackbar.LENGTH_LONG).setAction("OK", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                        }
+                    });
+                    snackbar.show();
                 }else {
                     if (edtMoTa.getText().toString().length() < 15){
-                        Toast.makeText(NghiemThuActivity.this, "Mô tả quá ngắn!", Toast.LENGTH_SHORT).show();
+                        Snackbar snackbar = Snackbar.make(Root,"Mô tả quá ngắn!",Snackbar.LENGTH_LONG).setAction("OK", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                            }
+                        });
+                        snackbar.show();
                     }else {
                         String Description = edtMoTa.getText().toString();
 
@@ -119,9 +137,6 @@ public class NghiemThuActivity extends AppCompatActivity {
                         photoList.add(photo);
                         addControls();
 
-                        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplication(), LinearLayoutManager.VERTICAL, false);
-                        rcvNghiemThu.setLayoutManager(linearLayoutManager);
-
                         getPhoto_url(photo_taked, Description);
 
                         edtMoTa.setText("");
@@ -129,6 +144,30 @@ public class NghiemThuActivity extends AppCompatActivity {
                         cvNghiemThuGONE();
                     }
                 }
+            }
+        });
+
+        swipeToAction = new SwipeToAction(rcvNghiemThu, new SwipeToAction.SwipeListener<Photo>() {
+
+            @Override
+            public boolean swipeLeft(Photo itemData) {
+                remove_NghiemThu(itemData);
+                return true;
+            }
+
+            @Override
+            public boolean swipeRight(Photo itemData) {
+                return false;
+            }
+
+            @Override
+            public void onClick(Photo itemData) {
+
+            }
+
+            @Override
+            public void onLongClick(Photo itemData) {
+
             }
         });
     }
@@ -146,9 +185,12 @@ public class NghiemThuActivity extends AppCompatActivity {
     }
 
     private void addControls() {
-        ListNghiemThuAdapter adapter = new ListNghiemThuAdapter(photoList, this);
+        adapter = new ListNghiemThuAdapter(photoList, this);
         rcvNghiemThu.setAdapter(adapter);
         adapter.notifyDataSetChanged();
+
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplication(), LinearLayoutManager.VERTICAL, false);
+        rcvNghiemThu.setLayoutManager(linearLayoutManager);
     }
 
     private void cvNghiemThuDisplay(){
@@ -204,7 +246,7 @@ public class NghiemThuActivity extends AppCompatActivity {
                 }
                 return true;
             case R.id.action_Upload:
-                if (photoList.size() != 0){
+                if (photoList.size() == 0){
                     show_sweetDialog_Warning("Vui làm nghiệm thu trước khi update!");
                     return false;
                 }
@@ -223,9 +265,6 @@ public class NghiemThuActivity extends AppCompatActivity {
                 HashMap<String, String> params = new HashMap<>();
                 params.put("key", ID);
                 params.put("saleReceipt", SaleReceiptUpdate);
-
-                Log.e("params", String.valueOf(params));
-                Log.e("SAle", SaleReceiptUpdate);
 
                 JsonObjectRequest request_json = new JsonObjectRequest(API_URL, new JSONObject(params),
                         new Response.Listener<JSONObject>() {
@@ -374,5 +413,11 @@ public class NghiemThuActivity extends AppCompatActivity {
                 .setTitleText("Cảnh báo!")
                 .setContentText(alert)
                 .show();
+    }
+
+    private void remove_NghiemThu(Photo photo){
+        int pos = photoList.indexOf(photo);
+        photoList.remove(pos);
+        adapter.notifyItemRemoved(pos);
     }
 }

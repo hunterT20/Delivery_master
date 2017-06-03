@@ -17,6 +17,8 @@ import com.thanhtuan.delivery.model.Photo;
 
 import java.util.List;
 
+import co.dift.ui.SwipeToAction;
+
 public class ListNghiemThuAdapter extends RecyclerView.Adapter<ListNghiemThuAdapter.NghiemThuViewHolder> {
     private static final String TAG = "ListNghiemThuAdapter";
     private List<Photo> photos;
@@ -41,13 +43,7 @@ public class ListNghiemThuAdapter extends RecyclerView.Adapter<ListNghiemThuAdap
 
         holder.ibtnIMG.setImageBitmap(photo.getImage());
         holder.txtvLydo.setText(photo.getDescription());
-
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                photos.remove(holder.getAdapterPosition());
-            }
-        });
+        holder.data = photo;
     }
 
     @Override
@@ -55,7 +51,7 @@ public class ListNghiemThuAdapter extends RecyclerView.Adapter<ListNghiemThuAdap
         return photos.size();
     }
 
-    class NghiemThuViewHolder extends RecyclerView.ViewHolder {
+    class NghiemThuViewHolder extends SwipeToAction.ViewHolder<Photo> {
         private ImageView ibtnIMG;
         private TextView txtvLydo;
         NghiemThuViewHolder(View itemView) {

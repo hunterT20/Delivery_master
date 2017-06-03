@@ -64,6 +64,7 @@ public class InfoFragment extends Fragment {
     @BindView(R.id.fabPhone)     FloatingActionButton fabPhone;
 
     private Item item;
+    private int status;
 
     public InfoFragment() {
         // Required empty public constructor
@@ -193,6 +194,7 @@ public class InfoFragment extends Fragment {
                             if (response.getBoolean("Result")) {
                                 JSONObject jsonObject = response.getJSONObject("Data");
                                 setQuaTrinh(jsonObject.getInt("Status"));
+                                status = jsonObject.getInt("Status");
                             } else {
                                 Toast.makeText(getActivity(), response.getString("Message"), Toast.LENGTH_SHORT).show();
                             }

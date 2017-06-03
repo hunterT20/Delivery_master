@@ -105,8 +105,6 @@ public class LoginActivity extends AppCompatActivity {
                                         Intent intent = new Intent(LoginActivity.this,MainActivity.class);
                                         startActivity(intent);
                                         finish();
-
-
                                     }else {
                                         newtonCradleLoading.stop();
                                         newtonCradleLoading.setVisibility(View.GONE);
