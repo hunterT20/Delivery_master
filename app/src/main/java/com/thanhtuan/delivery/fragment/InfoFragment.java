@@ -1,13 +1,20 @@
 package com.thanhtuan.delivery.fragment;
 
 
+import android.Manifest;
+import android.annotation.TargetApi;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -45,6 +52,7 @@ import java.net.URLEncoder;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import cn.pedant.SweetAlert.SweetAlertDialog;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -64,6 +72,7 @@ public class InfoFragment extends Fragment {
     @BindView(R.id.fabPhone)     FloatingActionButton fabPhone;
 
     private Item item;
+    final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
     private int status;
 
     public InfoFragment() {
@@ -111,11 +120,10 @@ public class InfoFragment extends Fragment {
         });
 
         fabPhone.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onClick(View v) {
-            Intent callIntent = new Intent(Intent.ACTION_CALL);
-            callIntent.setData(Uri.parse("tel:" + item.getPhoneNumber()));
-            startActivity(callIntent);
+                call_Phone();
             }
         });
     }
@@ -288,5 +296,61 @@ public class InfoFragment extends Fragment {
 
         AlertDialog alertDialogAndroid = alertDialogBuilderUserInput.create();
         alertDialogAndroid.show();
+    }
+
+    @TargetApi(Build.VERSION_CODES.M)
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_CODE_ASK_PERMISSIONS:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permission Granted
+                    call_Phone();
+                } else {
+                    // Permission Denied
+                    if (getActivity() == null) return;
+                    Toast.makeText(getActivity(), "Quyền gọi điện đã bị từ chối!", Toast.LENGTH_SHORT)
+                            .show();
+                }
+                break;
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void call_Phone(){
+        if (ActivityCompat.checkSelfPermission(getActivity(),
+                Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            if (!shouldShowRequestPermissionRationale(Manifest.permission.CALL_PHONE)) {
+                new SweetAlertDialog(getActivity(), SweetAlertDialog.WARNING_TYPE)
+                        .setTitleText("Yêu cầu")
+                        .setContentText("Bạn cần cấp quyền truy gọi điện để chức năng hoạt động!")
+                        .setConfirmText("Bật quyền gọi điện")
+                        .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                            @Override
+                            public void onClick(SweetAlertDialog sweetAlertDialog) {
+                                requestPermissions(new String[] {Manifest.permission.CALL_PHONE},
+                                        REQUEST_CODE_ASK_PERMISSIONS);
+                                sweetAlertDialog.dismiss();
+                            }
+                        })
+                        .setCancelText("Không")
+                        .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                            @Override
+                            public void onClick(SweetAlertDialog sweetAlertDialog) {
+                                sweetAlertDialog.dismiss();
+                            }
+                        })
+                        .show();
+                return;
+            }
+            requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_CODE_ASK_PERMISSIONS);
+            return;
+        }
+        Intent callIntent = new Intent(Intent.ACTION_CALL);
+        callIntent.setData(Uri.parse("tel:" + item.getPhoneNumber()));
+        startActivity(callIntent);
     }
 }

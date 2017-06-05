@@ -64,11 +64,12 @@ public class NghiemThuActivity extends AppCompatActivity {
     @BindView(R.id.cvNghiemThu)     CardView cvNghiemThu;
     @BindView(R.id.rcvNghiemThu)    RecyclerView rcvNghiemThu;
     @BindView(R.id.toolbar)         Toolbar toolbar;
-    @BindView(R.id.toolbarChildren_title)    TextView txtvTitle;
+    @BindView(R.id.toolbar_title)    TextView txtvTitle;
     @BindView(R.id.ibtnPhoto)       ImageView ibtnPhoto;
     @BindView(R.id.btnXacNhan)      Button btnXacNhan;
     @BindView(R.id.edtMoTa)         EditText edtMoTa;
     @BindView(R.id.RootLayout)      ConstraintLayout Root;
+    @BindView(R.id.btnUpload)       Button btnUpload;
 
     private final static int CODE_PHOTO = 2002;
     private List<Photo> photoList;
@@ -77,7 +78,6 @@ public class NghiemThuActivity extends AppCompatActivity {
     private Boolean flag_back = false;
     private SaleReceiptUpdate saleReceiptUpdate;
     private Bitmap photo_taked;
-    private SwipeToAction swipeToAction;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -147,7 +147,7 @@ public class NghiemThuActivity extends AppCompatActivity {
             }
         });
 
-        swipeToAction = new SwipeToAction(rcvNghiemThu, new SwipeToAction.SwipeListener<Photo>() {
+        SwipeToAction swipeToAction = new SwipeToAction(rcvNghiemThu, new SwipeToAction.SwipeListener<Photo>() {
 
             @Override
             public boolean swipeLeft(Photo itemData) {
@@ -168,6 +168,60 @@ public class NghiemThuActivity extends AppCompatActivity {
             @Override
             public void onLongClick(Photo itemData) {
 
+            }
+        });
+
+        btnUpload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (photoList.size() == 0){
+                    show_sweetDialog_Warning("Vui làm nghiệm thu trước khi update!");
+                    return;
+                }
+                Gson gson = new Gson();
+                SharedPreferences pre = getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
+                String json = pre.getString("SaleItem", "");
+                Item item1 = gson.fromJson(json, Item.class);
+
+                saleReceiptUpdate.setSaleReceiptId(item1.getSaleReceiptId());
+                String ID = pre.getString(MyShare.VALUE_ID, null);
+                saleReceiptUpdate.setUrl(url_photoUploads);
+
+                String SaleReceiptUpdate = gson.toJson(saleReceiptUpdate);
+                String API_URL = ApiHelper.URL + ApiHelper.DOMAIN_NGHIEMTHU;
+
+                HashMap<String, String> params = new HashMap<>();
+                params.put("key", ID);
+                params.put("saleReceipt", SaleReceiptUpdate);
+
+                JsonObjectRequest request_json = new JsonObjectRequest(API_URL, new JSONObject(params),
+                        new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject response) {
+                                try {
+                                    if (response.getBoolean("Result")){
+                                        JSONObject jsonObject = response.getJSONObject("Data");
+                                        int status = jsonObject.getInt("Status");
+                                        SharedPreferences mPrefs = getSharedPreferences(MyShare.NAME,MODE_PRIVATE);
+                                        SharedPreferences.Editor prefsEditor = mPrefs.edit();
+                                        prefsEditor.putInt(MyShare.VALUE_STATUS,status);
+                                        prefsEditor.apply();
+                                        show_sweetDialog_Success("Nghiệm thu thành công!");
+                                    }else {
+                                        Snackbar snackbar = Snackbar.make(Root,String.valueOf(response.getBoolean("Sản phẩm đã được nghiệm thu!")),Snackbar.LENGTH_LONG);
+                                        snackbar.show();
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        VolleyLog.e("Error: ", error.getMessage());
+                    }
+                });
+                VolleySingleton.getInstance(getApplication()).getRequestQueue().add(request_json);
             }
         });
     }
@@ -223,13 +277,6 @@ public class NghiemThuActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.toolbar_icon, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
@@ -244,56 +291,6 @@ public class NghiemThuActivity extends AppCompatActivity {
                         finish();
                     }
                 }
-                return true;
-            case R.id.action_Upload:
-                if (photoList.size() == 0){
-                    show_sweetDialog_Warning("Vui làm nghiệm thu trước khi update!");
-                    return false;
-                }
-                Gson gson = new Gson();
-                SharedPreferences pre = getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
-                String json = pre.getString("SaleItem", "");
-                Item item1 = gson.fromJson(json, Item.class);
-
-                saleReceiptUpdate.setSaleReceiptId(item1.getSaleReceiptId());
-                String ID = pre.getString(MyShare.VALUE_ID, null);
-                saleReceiptUpdate.setUrl(url_photoUploads);
-
-                String SaleReceiptUpdate = gson.toJson(saleReceiptUpdate);
-                String API_URL = ApiHelper.URL + ApiHelper.DOMAIN_NGHIEMTHU;
-
-                HashMap<String, String> params = new HashMap<>();
-                params.put("key", ID);
-                params.put("saleReceipt", SaleReceiptUpdate);
-
-                JsonObjectRequest request_json = new JsonObjectRequest(API_URL, new JSONObject(params),
-                        new Response.Listener<JSONObject>() {
-                            @Override
-                            public void onResponse(JSONObject response) {
-                                try {
-                                    if (response.getBoolean("Result")){
-                                        JSONObject jsonObject = response.getJSONObject("Data");
-                                        int status = jsonObject.getInt("Status");
-                                        SharedPreferences mPrefs = getSharedPreferences(MyShare.NAME,MODE_PRIVATE);
-                                        SharedPreferences.Editor prefsEditor = mPrefs.edit();
-                                        prefsEditor.putInt(MyShare.VALUE_STATUS,status);
-                                        prefsEditor.apply();
-                                        show_sweetDialog_Success("Nghiệm thu thành công!");
-                                    }else {
-                                        Snackbar snackbar = Snackbar.make(Root,String.valueOf(response.getBoolean("Sản phẩm đã được nghiệm thu!")),Snackbar.LENGTH_LONG);
-                                        snackbar.show();
-                                    }
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        VolleyLog.e("Error: ", error.getMessage());
-                    }
-                });
-                VolleySingleton.getInstance(this).getRequestQueue().add(request_json);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

@@ -2,15 +2,11 @@ package com.thanhtuan.delivery.fragment;
 
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.hardware.GeomagneticField;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -19,9 +15,9 @@ import android.os.Bundle;
 import android.app.Fragment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
-import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,7 +42,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -79,6 +74,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import cn.pedant.SweetAlert.SweetAlertDialog;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -104,6 +100,7 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -127,38 +124,8 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
             e.printStackTrace();
         }
 
-        mMapView.getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(GoogleMap mMap) {
-                googleMap = mMap;
-                if(getActivity() == null) return;
-                if (ActivityCompat.checkSelfPermission(getActivity(),
-                        Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                        && ActivityCompat.checkSelfPermission(getActivity(),
-                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        initGoogleMap();
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION},
-                                REQUEST_CODE_ASK_PERMISSIONS);
-                        return;
-                    }
-                }
-                googleMap.setMyLocationEnabled(true);
-                getCurrentLocation();
-
-                final LatLng start = new LatLng(latitudeCurrent, longitudeCurrent);
-                getLocationSale(new Interface_Location() {
-                    @Override
-                    public void onLocation(Route_point route_point) {
-                        googleMap.addMarker(new MarkerOptions().position(route_point.getLatLng()).title("Điểm cuối").snippet("Giao hàng cho khách"));
-                    }
-                });
-
-                CameraPosition cameraPosition = new CameraPosition.Builder().target(start).zoom(15).tilt(45).build();
-                googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-                route();
-            }
-        });
         return view;
     }
 
@@ -464,5 +431,82 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
         SharedPreferences.Editor prefsEditor = mPrefs.edit();
         prefsEditor.putInt(MyShare.VALUE_DIRECTION, current);
         prefsEditor.apply();
+    }
+
+    @TargetApi(Build.VERSION_CODES.M)
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_CODE_ASK_PERMISSIONS:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permission Granted
+                    initGoogleMap();
+                } else {
+                    // Permission Denied
+                    if (getActivity() == null) return;
+                    Toast.makeText(getActivity(), "Quyền truy cập vị trí đã bị từ chối!", Toast.LENGTH_SHORT)
+                            .show();
+                }
+                break;
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void initGoogleMap(){
+        mMapView.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(GoogleMap mMap) {
+                if(getActivity() == null) return;
+                if (ActivityCompat.checkSelfPermission(getActivity(),
+                        Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                        && ActivityCompat.checkSelfPermission(getActivity(),
+                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+                        if (!shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
+                            new SweetAlertDialog(getActivity(), SweetAlertDialog.WARNING_TYPE)
+                                    .setTitleText("Yêu cầu")
+                                    .setContentText("Bạn cần cấp quyền truy cập vị trí để map có thể hoạt động!")
+                                    .setConfirmText("Bật quyền truy cập")
+                                    .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                                        @Override
+                                        public void onClick(SweetAlertDialog sweetAlertDialog) {
+                                            requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION},
+                                                    REQUEST_CODE_ASK_PERMISSIONS);
+                                            sweetAlertDialog.dismiss();
+                                        }
+                                    })
+                                    .setCancelText("Không")
+                                    .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                                        @Override
+                                        public void onClick(SweetAlertDialog sweetAlertDialog) {
+                                            sweetAlertDialog.dismiss();
+                                        }
+                                    })
+                                    .show();
+                            return;
+                        }
+                        requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION},
+                                REQUEST_CODE_ASK_PERMISSIONS);
+                        return;
+                }
+                googleMap = mMap;
+                googleMap.setMyLocationEnabled(true);
+                getCurrentLocation();
+
+                final LatLng start = new LatLng(latitudeCurrent, longitudeCurrent);
+                getLocationSale(new Interface_Location() {
+                    @Override
+                    public void onLocation(Route_point route_point) {
+                        googleMap.addMarker(new MarkerOptions().position(route_point.getLatLng()).title("Điểm cuối").snippet("Giao hàng cho khách"));
+                    }
+                });
+
+                CameraPosition cameraPosition = new CameraPosition.Builder().target(start).zoom(15).tilt(45).build();
+                googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                route();
+            }
+        });
     }
 }

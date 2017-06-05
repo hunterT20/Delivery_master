@@ -1,8 +1,11 @@
 package com.thanhtuan.delivery.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,6 +28,9 @@ import com.victor.loading.newton.NewtonCradleLoading;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -65,6 +71,11 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                /*Check connect internet*/
+                if (!isConnected()){
+                    Toast.makeText(LoginActivity.this, "Bạn chưa kết nối internet", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 /*Set view cho NewtonCradleLoading*/
                 newtonCradleLoading.setVisibility(View.VISIBLE);
                 newtonCradleLoading.start();
@@ -144,5 +155,12 @@ public class LoginActivity extends AppCompatActivity {
 
         edtUserName.setText(UsernameValue);
         edtPassword.setText(PasswordValue);
+    }
+
+    public boolean isConnected() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 }
