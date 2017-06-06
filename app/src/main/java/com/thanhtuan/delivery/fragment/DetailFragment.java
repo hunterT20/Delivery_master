@@ -45,6 +45,7 @@ public class DetailFragment extends Fragment {
     @BindView(R.id.rcvProduct)    RecyclerView rcvProduct;
     @BindView(R.id.avi_loading)   AVLoadingIndicatorView avi_Loading;
     private List<Product> mProduct;
+    private static Toast toast;
 
     public DetailFragment() {
         // Required empty public constructor
@@ -105,7 +106,10 @@ public class DetailFragment extends Fragment {
                                 rcvProduct.setLayoutManager(linearLayoutManager);
                                 stopAnim();
                             }else {
-                                Toast.makeText(getActivity(), response.getString("Message"), Toast.LENGTH_SHORT).show();
+                                if (toast != null)
+                                    toast.cancel();
+                                toast = Toast.makeText(getActivity(), response.getString("Message"), Toast.LENGTH_SHORT);
+                                toast.show();
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
