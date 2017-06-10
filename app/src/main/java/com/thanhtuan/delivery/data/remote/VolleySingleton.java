@@ -1,4 +1,4 @@
-package com.thanhtuan.delivery.api;
+package com.thanhtuan.delivery.data.remote;
 
 import android.content.Context;
 

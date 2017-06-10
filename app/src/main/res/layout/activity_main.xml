@@ -6,25 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/cardview_shadow_end_color"
     android:orientation="vertical"
-    tools:context="com.thanhtuan.delivery.activity.MainActivity">
-
-    <com.wang.avi.AVLoadingIndicatorView
-        android:id="@+id/avi_loading"
-        style="@style/AVLoadingIndicatorView"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        app:indicatorColor="@color/colorAccent"
-        app:indicatorName="BallScaleMultipleIndicator"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/rcvDonHang" />
+    tools:context=".view.activity.MainActivity">
 
     <LinearLayout
         android:id="@+id/linearLayout3"
@@ -34,25 +16,42 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent">
+            <include
+                layout="@layout/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <include
-            layout="@layout/toolbar"
+        <android.support.design.widget.TabLayout
+            android:id="@+id/tabs"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:layout_height="wrap_content"
+            android:elevation="5dp"
+            android:theme='@style/ThemeOverlay.AppCompat.Dark.ActionBar'
+            app:tabBackground="@color/colorAccent"
+            app:tabIndicatorColor="@color/book_loading_book"
+            app:tabIndicatorHeight="3dp"
+            app:tabTextAppearance="@style/TagText"
+            app:tabMode="fixed"
+            app:tabSelectedTextColor="@color/cardview_light_background"
+            app:tabTextColor="@color/cardview_dark_background" />
     </LinearLayout>
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/rcvDonHang"
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewpager"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:paddingBottom="60dp"
-        app:layout_constraintHorizontal_bias="0.0"
+        android:layout_height="0dp"
+        android:layout_marginBottom="0dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginTop="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout3" />
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout3"
+        app:layout_constraintVertical_bias="0.506" />
 
 </android.support.constraint.ConstraintLayout>

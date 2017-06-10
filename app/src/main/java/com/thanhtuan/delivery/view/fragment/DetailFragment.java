@@ -1,4 +1,4 @@
-package com.thanhtuan.delivery.fragment;
+package com.thanhtuan.delivery.view.fragment;
 
 
 import android.content.SharedPreferences;
@@ -18,10 +18,10 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.gson.Gson;
 import com.thanhtuan.delivery.R;
-import com.thanhtuan.delivery.adapter.ListProductAdapter;
-import com.thanhtuan.delivery.api.ApiHelper;
-import com.thanhtuan.delivery.api.VolleySingleton;
-import com.thanhtuan.delivery.model.Item;
+import com.thanhtuan.delivery.view.adapter.ListProductAdapter;
+import com.thanhtuan.delivery.data.remote.ApiHelper;
+import com.thanhtuan.delivery.data.remote.VolleySingleton;
+import com.thanhtuan.delivery.model.Item_ChuaGiao;
 import com.thanhtuan.delivery.model.Product;
 import com.thanhtuan.delivery.sharePreference.MyShare;
 import com.wang.avi.AVLoadingIndicatorView;
@@ -73,9 +73,9 @@ public class DetailFragment extends Fragment {
         String ID = pre.getString(MyShare.VALUE_ID, null);
 
         String json = pre.getString("SaleItem", "");
-        Item item = gson.fromJson(json, Item.class);
+        Item_ChuaGiao itemChuaGiao = gson.fromJson(json, Item_ChuaGiao.class);
 
-        String API_LISTPRODUCT = ApiHelper.URL + ApiHelper.DOMAIN_LISTPRODUCT + PARAM1 + ID + PARAM2 + item.getSaleReceiptId();
+        String API_LISTPRODUCT = ApiHelper.URL + ApiHelper.DOMAIN_LISTPRODUCT + PARAM1 + ID + PARAM2 + itemChuaGiao.getSaleReceiptId();
         startAnim();
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, API_LISTPRODUCT, null,

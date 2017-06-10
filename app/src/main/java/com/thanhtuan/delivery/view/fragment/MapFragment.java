@@ -1,4 +1,4 @@
-package com.thanhtuan.delivery.fragment;
+package com.thanhtuan.delivery.view.fragment;
 
 
 import android.Manifest;
@@ -54,10 +54,10 @@ import com.roughike.swipeselector.OnSwipeItemSelectedListener;
 import com.roughike.swipeselector.SwipeItem;
 import com.roughike.swipeselector.SwipeSelector;
 import com.thanhtuan.delivery.R;
-import com.thanhtuan.delivery.api.ApiHelper;
-import com.thanhtuan.delivery.api.VolleySingleton;
+import com.thanhtuan.delivery.data.remote.ApiHelper;
+import com.thanhtuan.delivery.data.remote.VolleySingleton;
 import com.thanhtuan.delivery.interface_delivery.Interface_Location;
-import com.thanhtuan.delivery.model.Item;
+import com.thanhtuan.delivery.model.Item_ChuaGiao;
 import com.thanhtuan.delivery.model.Route_point;
 import com.thanhtuan.delivery.model.Steps;
 import com.thanhtuan.delivery.sharePreference.MyShare;
@@ -112,11 +112,13 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
         polylines = new ArrayList<>();
         SharedPreferences mPrefs = getActivity().getSharedPreferences(MyShare.NAME,MODE_PRIVATE);
         int status = mPrefs.getInt(MyShare.VALUE_STATUS,0);
-        if(status ==0 || status ==3){
+        /*Nếu status == 0 (Đơn hàng đang chờ giao) thì vị trí map direction trở về ban đầu
+        * */
+        if(status ==0){
             value_current(-1);
         }
 
-        mMapView.onResume(); // needed to get the map to display immediately
+        mMapView.onResume();
 
         try {
             MapsInitializer.initialize(getActivity().getApplicationContext());
@@ -180,8 +182,8 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
         }
         SharedPreferences mPrefs = getActivity().getSharedPreferences("MyPre",MODE_PRIVATE);
         String json = mPrefs.getString("SaleItem", "");
-        Item item = gson.fromJson(json, Item.class);
-        String address = item.getAddress();
+        Item_ChuaGiao itemChuaGiao = gson.fromJson(json, Item_ChuaGiao.class);
+        String address = itemChuaGiao.getAddress();
         try {
             address = URLEncoder.encode(address, "utf-8");
         } catch (UnsupportedEncodingException e) {

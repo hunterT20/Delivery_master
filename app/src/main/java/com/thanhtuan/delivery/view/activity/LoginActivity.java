@@ -1,4 +1,4 @@
-package com.thanhtuan.delivery.activity;
+package com.thanhtuan.delivery.view.activity;
 
 import android.content.Context;
 import android.content.Intent;
@@ -20,17 +20,14 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.rey.material.widget.CheckBox;
 import com.thanhtuan.delivery.R;
-import com.thanhtuan.delivery.api.ApiHelper;
-import com.thanhtuan.delivery.api.VolleySingleton;
+import com.thanhtuan.delivery.data.remote.ApiHelper;
+import com.thanhtuan.delivery.data.remote.VolleySingleton;
 import com.thanhtuan.delivery.model.User;
 import com.thanhtuan.delivery.sharePreference.MyShare;
 import com.victor.loading.newton.NewtonCradleLoading;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.net.HttpURLConnection;
-import java.net.URL;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -65,9 +62,7 @@ public class LoginActivity extends AppCompatActivity {
         loadUser();
     }
 
-    /*Khởi tạo Events*/
     private void addEvents() {
-        /*Sự kiện click button Login*/
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -81,10 +76,8 @@ public class LoginActivity extends AppCompatActivity {
                 newtonCradleLoading.start();
                 newtonCradleLoading.setLoadingColor(Color.parseColor("#FFEB903C"));
 
-                /*API_LOGIN*/
                 API_LOGIN = ApiHelper.URL + ApiHelper.DOMAIN_LOGIN + PARAM1 + edtUserName.getText() + PARAM2 + edtPassword.getText();
 
-                /*Bắt Json Object User*/
                 JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, API_LOGIN, null,
                         new Response.Listener<JSONObject>() {
                             @Override
@@ -96,13 +89,13 @@ public class LoginActivity extends AppCompatActivity {
                                         User user = new User();
                                         user.setUserID(data.getInt("UserId"));
                                         user.setUserName(data.getString("UserName"));
-                                        user.setLoginDate(data.getString("LoginDate"));
-                                        user.setExpiredDate(data.getString("ExpiredDate"));
+                                        user.setToken("Bearer " + data.getString("Token"));
 
                                         /*Gắn biến share ID chuyền ID để làm PARAM cho API khác*/
                                         SharedPreferences pre = getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
                                         SharedPreferences.Editor edit = pre.edit();
                                         edit.putString(MyShare.VALUE_ID, data.getString("Id"));
+                                        edit.putString(MyShare.VALUE_TOKEN, "Bearer " + data.getString("Token"));
                                         edit.apply();
 
                                         newtonCradleLoading.stop();

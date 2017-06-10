@@ -5,7 +5,7 @@
     android:id="@+id/RootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.thanhtuan.delivery.activity.NghiemThuActivity">
+    tools:context=".view.activity.NghiemThuActivity">
 
     <LinearLayout
         android:id="@+id/linearLayout3"
@@ -32,6 +32,7 @@
         android:layout_height="0dp"
         android:layout_marginBottom="8dp"
         android:paddingBottom="40dp"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -43,6 +44,7 @@
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
@@ -51,22 +53,18 @@
         app:fab_backgroundColor="@color/colorAccent"
         app:fab_elevation="5dp"
         app:fab_iconSrc="@drawable/ic_add_a_photo_white_24dp"
+        app:layout_constraintBottom_toTopOf="@+id/btnUpload"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/btnUpload"
         app:layout_constraintVertical_bias="1.0" />
 
     <Button
         android:id="@+id/btnUpload"
         style="@style/Widget.AppCompat.Button.Colored"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="0dp"
-        android:layout_marginLeft="0dp"
-        android:layout_marginRight="0dp"
         android:text="Upload"
         android:textSize="18sp"
         android:textStyle="bold"
@@ -109,14 +107,13 @@
 
                 <ImageView
                     android:id="@+id/ibtnPhoto"
-                    android:layout_width="100dp"
+                    android:layout_width="110dp"
                     android:layout_height="100dp"
-                    android:layout_weight="1"
                     android:background="@color/colorAccent"
-                    android:scaleType="centerCrop"
+                    android:scaleType="fitXY"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/ic_add_a_photo_white_24dp" />
+                    app:srcCompat="@drawable/ic_add_a_photo_white_48dp" />
 
                 <android.support.design.widget.TextInputLayout
                     android:layout_width="wrap_content"

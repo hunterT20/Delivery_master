@@ -1,4 +1,4 @@
-package com.thanhtuan.delivery.activity;
+package com.thanhtuan.delivery.view.activity;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -18,17 +18,13 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Base64;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -37,10 +33,10 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.gson.Gson;
 import com.rey.material.widget.FloatingActionButton;
 import com.thanhtuan.delivery.R;
-import com.thanhtuan.delivery.adapter.ListNghiemThuAdapter;
-import com.thanhtuan.delivery.api.ApiHelper;
-import com.thanhtuan.delivery.api.VolleySingleton;
-import com.thanhtuan.delivery.model.Item;
+import com.thanhtuan.delivery.view.adapter.ListNghiemThuAdapter;
+import com.thanhtuan.delivery.data.remote.ApiHelper;
+import com.thanhtuan.delivery.data.remote.VolleySingleton;
+import com.thanhtuan.delivery.model.Item_ChuaGiao;
 import com.thanhtuan.delivery.model.Photo;
 import com.thanhtuan.delivery.model.SaleReceiptUpdate;
 import com.thanhtuan.delivery.model.URL_PhotoUpload;
@@ -147,7 +143,7 @@ public class NghiemThuActivity extends AppCompatActivity {
             }
         });
 
-        SwipeToAction swipeToAction = new SwipeToAction(rcvNghiemThu, new SwipeToAction.SwipeListener<Photo>() {
+        new SwipeToAction(rcvNghiemThu, new SwipeToAction.SwipeListener<Photo>() {
 
             @Override
             public boolean swipeLeft(Photo itemData) {
@@ -181,9 +177,9 @@ public class NghiemThuActivity extends AppCompatActivity {
                 Gson gson = new Gson();
                 SharedPreferences pre = getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
                 String json = pre.getString("SaleItem", "");
-                Item item1 = gson.fromJson(json, Item.class);
+                Item_ChuaGiao itemChuaGiao1 = gson.fromJson(json, Item_ChuaGiao.class);
 
-                saleReceiptUpdate.setSaleReceiptId(item1.getSaleReceiptId());
+                saleReceiptUpdate.setSaleReceiptId(itemChuaGiao1.getSaleReceiptId());
                 String ID = pre.getString(MyShare.VALUE_ID, null);
                 saleReceiptUpdate.setUrl(url_photoUploads);
 
@@ -346,7 +342,7 @@ public class NghiemThuActivity extends AppCompatActivity {
         Gson gson = new Gson();
         SharedPreferences pre = getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
         String json = pre.getString("SaleItem", "");
-        Item item = gson.fromJson(json, Item.class);
+        Item_ChuaGiao itemChuaGiao = gson.fromJson(json, Item_ChuaGiao.class);
 
         String ID = pre.getString(MyShare.VALUE_ID, null);
 
@@ -354,7 +350,7 @@ public class NghiemThuActivity extends AppCompatActivity {
 
         HashMap<String, String> params = new HashMap<>();
         params.put("base64Photo", base64Photo);
-        params.put("sku", item.getSaleReceiptId());
+        params.put("sku", itemChuaGiao.getSaleReceiptId());
         params.put("key", ID);
 
         JsonObjectRequest request_json = new JsonObjectRequest(API_PHOTO, new JSONObject(params),

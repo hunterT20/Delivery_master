@@ -1,4 +1,4 @@
-package com.thanhtuan.delivery.activity;
+package com.thanhtuan.delivery.view.activity;
 
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
@@ -14,9 +14,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.thanhtuan.delivery.R;
-import com.thanhtuan.delivery.fragment.DetailFragment;
-import com.thanhtuan.delivery.fragment.InfoFragment;
-import com.thanhtuan.delivery.fragment.MapFragment;
+import com.thanhtuan.delivery.view.fragment.DetailFragment;
+import com.thanhtuan.delivery.view.fragment.InfoFragment;
+import com.thanhtuan.delivery.view.fragment.MapFragment;
 import com.thanhtuan.delivery.sharePreference.MyShare;
 
 import butterknife.BindView;
@@ -24,9 +24,12 @@ import butterknife.ButterKnife;
 
 
 public class DetailActivity extends AppCompatActivity {
-    @BindView(R.id.bottom_nav) BottomNavigationView bottomNavigationView;
-    @BindView(R.id.toolbar)    Toolbar toolbar;
+    @BindView(R.id.bottom_nav)      BottomNavigationView bottomNavigationView;
+    @BindView(R.id.toolbar)         Toolbar toolbar;
     @BindView(R.id.toolbar_title)   TextView txtvTitleToolbar;
+
+    private Toast toast;
+    private int status;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,26 +37,26 @@ public class DetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_detail);
         ButterKnife.bind(this);
 
+        SharedPreferences pre = getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
+        status = pre.getInt("status",0);
+
         addViews();
         addControls();
     }
 
-    /*Khởi tạo Views*/
     private void addViews() {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        FragmentManager fm = getFragmentManager();
-        FragmentTransaction fragmentTransaction = fm.beginTransaction();
-        InfoFragment infoFragment = new InfoFragment();
-        fragmentTransaction.replace(R.id.frmMain, infoFragment);
-        fragmentTransaction.commit();
+        getFragmentManager()
+                .beginTransaction()
+                .replace(R.id.frmMain, new InfoFragment())
+                .commit();
         txtvTitleToolbar.setText("Thông tin");
     }
 
-    /*Khởi tạo controls*/
     private void addControls() {
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -63,19 +66,15 @@ public class DetailActivity extends AppCompatActivity {
 
                 switch (item.getItemId()){
                     case R.id.action_info:
-                        /*Sự kiện khi nhấn vào Nav Bottom Info*/
-                        InfoFragment infoFragment = new InfoFragment();
-                        fragmentTransaction.replace(R.id.frmMain, infoFragment);
+                        fragmentTransaction.replace(R.id.frmMain, new InfoFragment());
                         txtvTitleToolbar.setText("Thông tin");
                         break;
                     case R.id.action_map:
-                        MapFragment mapFragment = new MapFragment();
-                        fragmentTransaction.replace(R.id.frmMain, mapFragment);
+                        fragmentTransaction.replace(R.id.frmMain, new MapFragment());
                         txtvTitleToolbar.setText("Bản đồ");
                         break;
                     case R.id.action_detail:
-                        DetailFragment detailFragment = new DetailFragment();
-                        fragmentTransaction.replace(R.id.frmMain, detailFragment);
+                        fragmentTransaction.replace(R.id.frmMain, new DetailFragment());
                         txtvTitleToolbar.setText("Danh sách sản phẩm");
                 }
 
@@ -85,16 +84,12 @@ public class DetailActivity extends AppCompatActivity {
         });
     }
 
-    /*Khởi sự kiện button back*/
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                SharedPreferences pre = getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
-                int status = pre.getInt("status",0);
-
-                if (status != 0 && status != 2){
-                    Toast.makeText(this, "Bạn chưa hoàn thành việc giao hàng, hãy cố gắng để hoàn thành!", Toast.LENGTH_SHORT).show();
+                if (status != 0){
+                    setToast_back();
                 }else {
                     Intent intent = new Intent(DetailActivity.this, MainActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -109,10 +104,8 @@ public class DetailActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        SharedPreferences pre = getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
-        int status = pre.getInt("status",0);
-        if (status != 0 && status !=2) {
-            Toast.makeText(this, "Bạn chưa hoàn thành việc giao hàng, hãy cố gắng để hoàn thành!", Toast.LENGTH_SHORT).show();
+        if (status != 0) {
+            setToast_back();
         }
         else {
             Intent intent = new Intent(DetailActivity.this,MainActivity.class);
@@ -125,5 +118,13 @@ public class DetailActivity extends AppCompatActivity {
         Intent intent = new Intent(DetailActivity.this,MainActivity.class);
         startActivity(intent);
         finish();
+    }
+
+    private void setToast_back(){
+        if (toast != null){
+            toast.cancel();
+        }
+        toast = Toast.makeText(this, "Bạn chưa hoàn thành việc giao hàng, hãy cố gắng để hoàn thành!", Toast.LENGTH_SHORT);
+        toast.show();
     }
 }

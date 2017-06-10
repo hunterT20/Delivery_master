@@ -4,7 +4,7 @@ package com.thanhtuan.delivery.model;
  * Created by Nusib on 5/17/2017.
  */
 
-public class Item {
+public class Item_ChuaGiao {
     private String SaleReceiptId;
     private String CustomerName;
     private String PhoneNumber;
@@ -16,11 +16,11 @@ public class Item {
     private String Note;
     private int Status;
 
-    public Item() {
+    public Item_ChuaGiao() {
     }
 
-    public Item(String saleReceiptId, String customerName, String phoneNumber, String address, String province, String district,
-                int quantity, Double price, String note, int status) {
+    public Item_ChuaGiao(String saleReceiptId, String customerName, String phoneNumber, String address, String province, String district,
+                         int quantity, Double price, String note, int status) {
         SaleReceiptId = saleReceiptId;
         CustomerName = customerName;
         PhoneNumber = phoneNumber;

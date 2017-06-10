@@ -9,17 +9,15 @@ import java.util.Date;
 public class User {
     private int userID;
     private String userName;
-    private String LoginDate;
-    private String ExpiredDate;
+    private String token;
 
-    public User() {
-    }
-
-    public User(int userID, String userName, String loginDate, String expiredDate) {
+    public User(int userID, String userName, String token) {
         this.userID = userID;
         this.userName = userName;
-        LoginDate = loginDate;
-        ExpiredDate = expiredDate;
+        this.token = token;
+    }
+
+    public User() {
     }
 
     public int getUserID() {
@@ -38,19 +36,11 @@ public class User {
         this.userName = userName;
     }
 
-    public String getLoginDate() {
-        return LoginDate;
+    public String getToken() {
+        return token;
     }
 
-    public void setLoginDate(String loginDate) {
-        LoginDate = loginDate;
-    }
-
-    public String getExpiredDate() {
-        return ExpiredDate;
-    }
-
-    public void setExpiredDate(String expiredDate) {
-        ExpiredDate = expiredDate;
+    public void setToken(String token) {
+        this.token = token;
     }
 }

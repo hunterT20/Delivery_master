@@ -1,4 +1,4 @@
-package com.thanhtuan.delivery.adapter;
+package com.thanhtuan.delivery.view.adapter;
 
 import android.content.Context;
 import android.content.Intent;
@@ -11,9 +11,9 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.thanhtuan.delivery.R;
-import com.thanhtuan.delivery.activity.DetailActivity;
-import com.thanhtuan.delivery.activity.MainActivity;
-import com.thanhtuan.delivery.model.Item;
+import com.thanhtuan.delivery.view.activity.DetailActivity;
+import com.thanhtuan.delivery.view.activity.MainActivity;
+import com.thanhtuan.delivery.model.Item_ChuaGiao;
 import com.thanhtuan.delivery.sharePreference.MyShare;
 
 import java.util.List;
@@ -23,12 +23,12 @@ import static android.content.Context.MODE_PRIVATE;
 
 public class ListSaleAdapter extends RecyclerView.Adapter<ListSaleAdapter.SaleViewHolder> {
     private static final String TAG = "ListSaleAdapter";
-    private List<Item> mItem;
+    private List<Item_ChuaGiao> mItemChuaGiao;
     private Context mContext;
     private LayoutInflater mLayoutInflater;
 
-    public ListSaleAdapter(List<Item> mItem, Context mContext) {
-        this.mItem = mItem;
+    public ListSaleAdapter(List<Item_ChuaGiao> mItemChuaGiao, Context mContext) {
+        this.mItemChuaGiao = mItemChuaGiao;
         this.mContext = mContext;
         this.mLayoutInflater = LayoutInflater.from(mContext);
     }
@@ -42,15 +42,15 @@ public class ListSaleAdapter extends RecyclerView.Adapter<ListSaleAdapter.SaleVi
     @Override
     public void onBindViewHolder(ListSaleAdapter.SaleViewHolder holder, final int position) {
         //get song in mSong via position
-        final Item item = mItem.get(position);
+        final Item_ChuaGiao itemChuaGiao = mItemChuaGiao.get(position);
 
         //bind data to viewholder
-        holder.txtvDonHang.setText(item.getSaleReceiptId());
-        holder.txtvNameCustomer.setText(item.getCustomerName());
-        holder.txtvPhone.setText(item.getPhoneNumber());
-        holder.txtvAddress.setText(item.getAddress());
-        holder.txtvSl.setText(String.valueOf(item.getQuantity()));
-        switch (item.getStatus()){
+        holder.txtvDonHang.setText(itemChuaGiao.getSaleReceiptId());
+        holder.txtvNameCustomer.setText(itemChuaGiao.getCustomerName());
+        holder.txtvPhone.setText(itemChuaGiao.getPhoneNumber());
+        holder.txtvAddress.setText(itemChuaGiao.getAddress());
+        holder.txtvSl.setText(String.valueOf(itemChuaGiao.getQuantity()));
+        switch (itemChuaGiao.getStatus()){
             case 0:
                 holder.txtvTrangThai.setText("Đang chờ giao hàng");
                 break;
@@ -75,9 +75,9 @@ public class ListSaleAdapter extends RecyclerView.Adapter<ListSaleAdapter.SaleVi
                 SharedPreferences mPrefs = mContext.getSharedPreferences(MyShare.NAME,MODE_PRIVATE);
                 SharedPreferences.Editor prefsEditor = mPrefs.edit();
 
-                String json = gson.toJson(item);
+                String json = gson.toJson(itemChuaGiao);
                 prefsEditor.putString(MyShare.VALUE_SALEITEM, json);
-                prefsEditor.putInt(MyShare.VALUE_STATUS,item.getStatus());
+                prefsEditor.putInt(MyShare.VALUE_STATUS, itemChuaGiao.getStatus());
                 prefsEditor.apply();
 
                 Intent intent = new Intent(mContext, DetailActivity.class);
@@ -89,7 +89,7 @@ public class ListSaleAdapter extends RecyclerView.Adapter<ListSaleAdapter.SaleVi
 
     @Override
     public int getItemCount() {
-        return mItem.size();
+        return mItemChuaGiao.size();
     }
 
     class SaleViewHolder extends RecyclerView.ViewHolder {

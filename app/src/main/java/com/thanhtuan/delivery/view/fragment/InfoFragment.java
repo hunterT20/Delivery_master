@@ -1,4 +1,4 @@
-package com.thanhtuan.delivery.fragment;
+package com.thanhtuan.delivery.view.fragment;
 
 
 import android.Manifest;
@@ -13,13 +13,10 @@ import android.os.Bundle;
 import android.app.Fragment;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -31,23 +28,20 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.google.android.gms.common.api.Api;
 import com.google.gson.Gson;
 import com.rey.material.widget.FloatingActionButton;
-import com.rey.material.widget.SnackBar;
 import com.thanhtuan.delivery.R;
-import com.thanhtuan.delivery.activity.DetailActivity;
-import com.thanhtuan.delivery.activity.NghiemThuActivity;
-import com.thanhtuan.delivery.api.ApiHelper;
-import com.thanhtuan.delivery.api.VolleySingleton;
-import com.thanhtuan.delivery.model.Item;
+import com.thanhtuan.delivery.model.Item_ChuaGiao;
+import com.thanhtuan.delivery.view.activity.DetailActivity;
+import com.thanhtuan.delivery.view.activity.NghiemThuActivity;
+import com.thanhtuan.delivery.data.remote.ApiHelper;
+import com.thanhtuan.delivery.data.remote.VolleySingleton;
 import com.thanhtuan.delivery.sharePreference.MyShare;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 
 import butterknife.BindView;
@@ -71,7 +65,7 @@ public class InfoFragment extends Fragment {
     @BindView(R.id.btnGiaoHang)  Button btnGiaoHang;
     @BindView(R.id.fabPhone)     FloatingActionButton fabPhone;
 
-    private Item item;
+    private Item_ChuaGiao itemChuaGiao;
     final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
     private int status;
 
@@ -133,24 +127,24 @@ public class InfoFragment extends Fragment {
         Gson gson = new Gson();
         SharedPreferences mPrefs = getActivity().getSharedPreferences(MyShare.NAME,MODE_PRIVATE);
         String json = mPrefs.getString(MyShare.VALUE_SALEITEM, "");
-        item = gson.fromJson(json, Item.class);
+        itemChuaGiao = gson.fromJson(json, Item_ChuaGiao.class);
 
         int status = mPrefs.getInt(MyShare.VALUE_STATUS,0);
         if (status == 3) {
-            setQuaTrinh(item.getStatus());
+            setQuaTrinh(itemChuaGiao.getStatus());
         }else {
             setQuaTrinh(status);
         }
 
-        txtvDonHang.setText(item.getSaleReceiptId());
-        txtvTenKH.setText(item.getCustomerName());
-        txtvAddress.setText(item.getAddress());
-        txtvSDT.setText(item.getPhoneNumber());
-        txtvTongTien.setText(String.valueOf(item.getPrice()) + " VNĐ");
-        if (item.getNote().equals(""))
+        txtvDonHang.setText(itemChuaGiao.getSaleReceiptId());
+        txtvTenKH.setText(itemChuaGiao.getCustomerName());
+        txtvAddress.setText(itemChuaGiao.getAddress());
+        txtvSDT.setText(itemChuaGiao.getPhoneNumber());
+        txtvTongTien.setText(String.valueOf(itemChuaGiao.getPrice()) + " VNĐ");
+        if (itemChuaGiao.getNote().equals(""))
             txtvNote.setText("Không có ghi chú!");
         else
-            txtvNote.setText(item.getNote());
+            txtvNote.setText(itemChuaGiao.getNote());
     }
 
     private void setQuaTrinh(int Status){
@@ -261,11 +255,6 @@ public class InfoFragment extends Fragment {
                                                     setQuaTrinh(jsonObject.getInt("Status"));
                                                     Toast.makeText(getActivity(), "Đã hủy giao hàng!", Toast.LENGTH_SHORT).show();
 
-                                                    SharedPreferences pre = getActivity().getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
-                                                    SharedPreferences.Editor edit = pre.edit();
-                                                    edit.putInt(MyShare.VALUE_STATUS, 3);
-                                                    edit.apply();
-
                                                     ((DetailActivity)getActivity()).setEventHuy();
                                                 } else {
                                                     Toast.makeText(getActivity(), response.getString("Message"), Toast.LENGTH_SHORT).show();
@@ -350,7 +339,7 @@ public class InfoFragment extends Fragment {
             return;
         }
         Intent callIntent = new Intent(Intent.ACTION_CALL);
-        callIntent.setData(Uri.parse("tel:" + item.getPhoneNumber()));
+        callIntent.setData(Uri.parse("tel:" + itemChuaGiao.getPhoneNumber()));
         startActivity(callIntent);
     }
 }
