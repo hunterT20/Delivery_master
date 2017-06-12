@@ -29,7 +29,7 @@ public class ListDaGiaoAdapter extends RecyclerView.Adapter<ListDaGiaoAdapter.Da
     }
     @Override
     public ListDaGiaoAdapter.DaGiaoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView = mLayoutInflater.inflate(R.layout.adapter_cardview_dagiao, parent, false);
+        View itemView = mLayoutInflater.inflate(R.layout.item_dagiao, parent, false);
         return new DaGiaoViewHolder(itemView);
     }
 

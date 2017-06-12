@@ -29,7 +29,7 @@ public class ListNghiemThuAdapter extends RecyclerView.Adapter<ListNghiemThuAdap
 
     @Override
     public ListNghiemThuAdapter.NghiemThuViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView = mLayoutInflater.inflate(R.layout.adapter_cardview_nghiemthu, parent, false);
+        View itemView = mLayoutInflater.inflate(R.layout.item_nghiemthu, parent, false);
         return new ListNghiemThuAdapter.NghiemThuViewHolder(itemView);
     }
 

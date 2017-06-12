@@ -35,7 +35,7 @@ public class ListSaleAdapter extends RecyclerView.Adapter<ListSaleAdapter.SaleVi
 
     @Override
     public ListSaleAdapter.SaleViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView = mLayoutInflater.inflate(R.layout.adapter_cardview_main, parent, false);
+        View itemView = mLayoutInflater.inflate(R.layout.item_main, parent, false);
         return new SaleViewHolder(itemView);
     }
 

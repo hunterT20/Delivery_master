@@ -26,7 +26,7 @@ public class ListProductAdapter extends RecyclerView.Adapter<ListProductAdapter.
 
     @Override
     public ListProductAdapter.ProductViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView = mLayoutInflater.inflate(R.layout.adapter_cardview_detail, parent, false);
+        View itemView = mLayoutInflater.inflate(R.layout.item_detail, parent, false);
         return new ProductViewHolder(itemView);
     }
 
