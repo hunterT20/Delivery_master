@@ -58,6 +58,7 @@ public class DaGiaoFragment extends Fragment implements DatePickerDialog.OnDateS
     private Button btnBegin, btnEnd;
 
     private List<Item_DaGiao> mItemDaGiao;
+
     private int Flag_Time;
 
     public DaGiaoFragment() {
@@ -73,6 +74,7 @@ public class DaGiaoFragment extends Fragment implements DatePickerDialog.OnDateS
         ButterKnife.bind(this,view);
 
         mItemDaGiao = new ArrayList<>();
+        initReCyclerView();
         initData(getCurrentDate(),getCurrentDate());
         addEvents();
         return view;
@@ -160,9 +162,9 @@ public class DaGiaoFragment extends Fragment implements DatePickerDialog.OnDateS
     private String getCurrentDate(){
         final Calendar c = Calendar.getInstance();
         int year = c.get(Calendar.YEAR);
-        int month = c.get(Calendar.MONTH);
+        int month = c.get(Calendar.MONTH) + 1;
         int day = c.get(Calendar.DAY_OF_MONTH);
-        return day + "/" + month + "/" + year;
+        return  month + "/" + day + "/" + year;
     }
 
     private void initData(String timeBegin, String timeEnd) {
@@ -175,6 +177,8 @@ public class DaGiaoFragment extends Fragment implements DatePickerDialog.OnDateS
         String PARAM4 = "&endDate=";
         String API_LISTSALE = ApiHelper.URL2 + ApiHelper.DOMAIN_DAGIAO + PARAM1 + 1 + PARAM2 + 10 + PARAM3 + timeBegin + PARAM4 +
                 timeEnd;
+
+        Log.e("API", API_LISTSALE);
 
         txtvNoItem.setVisibility(View.GONE);
         startAnim();
@@ -204,9 +208,6 @@ public class DaGiaoFragment extends Fragment implements DatePickerDialog.OnDateS
                                 }
 
                                 addControls();
-                                //RecyclerView scroll vertical
-                                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
-                                rcvDonHang.setLayoutManager(linearLayoutManager);
                                 stopAnim();
                             }else {
                                 txtvNoItem.setVisibility(View.VISIBLE);
@@ -235,6 +236,12 @@ public class DaGiaoFragment extends Fragment implements DatePickerDialog.OnDateS
         VolleySingleton.getInstance(getActivity()).getRequestQueue().add(jsonObjectRequest);
     }
 
+    private void initReCyclerView(){
+        rcvDonHang.setAdapter(new ListDaGiaoAdapter(mItemDaGiao,getActivity()));
+        rcvDonHang.setLayoutManager(new LinearLayoutManager(getActivity()));
+        rcvDonHang.setHasFixedSize(true);
+    }
+
     private void startAnim(){
         Log.e(TAG, "startAnim: ");
         //avi_Loading.show();
@@ -251,9 +258,9 @@ public class DaGiaoFragment extends Fragment implements DatePickerDialog.OnDateS
     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
         month = month + 1;
         if (Flag_Time ==0){
-            btnBegin.setText(dayOfMonth + "/" + month + "/" + year);
+            btnBegin.setText(month + "/" + dayOfMonth + "/" + year);
         }else {
-            btnEnd.setText(dayOfMonth + "/" + month + "/" + year);
+            btnEnd.setText(month + "/" + dayOfMonth + "/" + year);
         }
     }
 }

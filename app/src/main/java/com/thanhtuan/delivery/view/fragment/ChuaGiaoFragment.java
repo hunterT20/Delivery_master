@@ -46,6 +46,7 @@ public class ChuaGiaoFragment extends Fragment {
     @BindView(R.id.txtvNoItem_ChuaGiao)    TextView txtvNoItem;
 
     private List<Item_ChuaGiao> mItemChuaGiao;
+    private ListSaleAdapter adapter;
 
     public ChuaGiaoFragment() {
         // Required empty public constructor
@@ -60,13 +61,14 @@ public class ChuaGiaoFragment extends Fragment {
         ButterKnife.bind(this,view);
 
         mItemChuaGiao = new ArrayList<>();
+        initReCyclerView();
 
         initData();
         return view;
     }
 
     private void addControls() {
-        ListSaleAdapter adapter = new ListSaleAdapter(mItemChuaGiao, getActivity());
+        adapter = new ListSaleAdapter(mItemChuaGiao, getActivity());
         rcvDonHang.setAdapter(adapter);
     }
 
@@ -118,10 +120,8 @@ public class ChuaGiaoFragment extends Fragment {
                                     mItemChuaGiao.add(itemChuaGiao);
                                 }
 
-                                addControls();
                                 //RecyclerView scroll vertical
-                                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
-                                rcvDonHang.setLayoutManager(linearLayoutManager);
+                                addControls();
                                 stopAnim();
                             }else {
                                 txtvNoItem.setVisibility(View.VISIBLE);
@@ -139,6 +139,12 @@ public class ChuaGiaoFragment extends Fragment {
         });
 
         VolleySingleton.getInstance(getActivity()).getRequestQueue().add(jsonObjectRequest);
+    }
+
+    private void initReCyclerView(){
+        rcvDonHang.setAdapter(new ListSaleAdapter(mItemChuaGiao,getActivity()));
+        rcvDonHang.setLayoutManager(new LinearLayoutManager(getActivity()));
+        rcvDonHang.setHasFixedSize(true);
     }
 
     private void startAnim(){

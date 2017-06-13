@@ -60,6 +60,7 @@ public class DetailFragment extends Fragment {
         ButterKnife.bind(this, view);
 
         mProduct = new ArrayList<>();
+        initReCyclerView();
         initData();
         return view;
     }
@@ -128,6 +129,12 @@ public class DetailFragment extends Fragment {
         if(getActivity() == null) return;
         ListProductAdapter adapter = new ListProductAdapter(mProduct, getActivity());
         rcvProduct.setAdapter(adapter);
+    }
+
+    private void initReCyclerView(){
+        rcvProduct.setAdapter(new ListProductAdapter(mProduct,getActivity()));
+        rcvProduct.setLayoutManager(new LinearLayoutManager(getActivity()));
+        rcvProduct.setHasFixedSize(true);
     }
 
     private void startAnim(){
