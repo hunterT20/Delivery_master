@@ -37,9 +37,6 @@ public class DetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_detail);
         ButterKnife.bind(this);
 
-        SharedPreferences pre = getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
-        status = pre.getInt("status",0);
-
         addViews();
         addControls();
     }
@@ -88,6 +85,7 @@ public class DetailActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
+                getStatus();
                 if (status != 0){
                     setToast_back();
                 }else {
@@ -104,6 +102,7 @@ public class DetailActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        getStatus();
         if (status != 0) {
             setToast_back();
         }
@@ -126,5 +125,10 @@ public class DetailActivity extends AppCompatActivity {
         }
         toast = Toast.makeText(this, "Bạn chưa hoàn thành việc giao hàng, hãy cố gắng để hoàn thành!", Toast.LENGTH_SHORT);
         toast.show();
+    }
+
+    private void getStatus(){
+        SharedPreferences pre = getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
+        status = pre.getInt("status",0);
     }
 }

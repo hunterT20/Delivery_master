@@ -182,7 +182,7 @@ public class InfoFragment extends Fragment {
     }
 
     private void eventGiaoHang(String domain, String param){
-        SharedPreferences pre=getActivity().getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
+        final SharedPreferences pre=getActivity().getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
         String ID = pre.getString(MyShare.VALUE_ID, null);
 
         String API_START = ApiHelper.URL + domain + "key=" + ID
@@ -197,6 +197,10 @@ public class InfoFragment extends Fragment {
                                 JSONObject jsonObject = response.getJSONObject("Data");
                                 setQuaTrinh(jsonObject.getInt("Status"));
                                 status = jsonObject.getInt("Status");
+
+                                SharedPreferences.Editor edit = pre.edit();
+                                edit.putInt(MyShare.VALUE_STATUS, status);
+                                edit.apply();
                             } else {
                                 Toast.makeText(getActivity(), response.getString("Message"), Toast.LENGTH_SHORT).show();
                             }

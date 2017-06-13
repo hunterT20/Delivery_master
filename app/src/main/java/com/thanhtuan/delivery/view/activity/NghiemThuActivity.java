@@ -246,6 +246,7 @@ public class NghiemThuActivity extends AppCompatActivity {
     private void cvNghiemThuDisplay(){
         rcvNghiemThu.setVisibility(View.GONE);
         fab.setVisibility(View.GONE);
+        btnUpload.setVisibility(View.GONE);
         cvNghiemThu.setVisibility(View.VISIBLE);
         flag_back = true;
     }
@@ -253,6 +254,7 @@ public class NghiemThuActivity extends AppCompatActivity {
     private void cvNghiemThuGONE(){
         rcvNghiemThu.setVisibility(View.VISIBLE);
         fab.setVisibility(View.VISIBLE);
+        btnUpload.setVisibility(View.VISIBLE);
         cvNghiemThu.setVisibility(View.GONE);
         flag_back = false;
     }
