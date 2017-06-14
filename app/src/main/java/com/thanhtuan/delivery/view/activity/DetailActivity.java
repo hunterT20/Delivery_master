@@ -17,7 +17,7 @@ import com.thanhtuan.delivery.R;
 import com.thanhtuan.delivery.view.fragment.DetailFragment;
 import com.thanhtuan.delivery.view.fragment.InfoFragment;
 import com.thanhtuan.delivery.view.fragment.MapFragment;
-import com.thanhtuan.delivery.sharePreference.MyShare;
+import com.thanhtuan.delivery.SharePreference.MyShare;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

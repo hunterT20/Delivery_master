@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
         viewPager.setAdapter(adapter);
     }
 
-    public void Intent_Detail(){
+    public void intentDetail(){
         Intent intent = new Intent(MainActivity.this, DetailActivity.class);
         startActivity(intent);
         finish();

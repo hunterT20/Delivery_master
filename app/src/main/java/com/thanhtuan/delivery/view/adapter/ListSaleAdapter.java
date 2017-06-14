@@ -14,7 +14,7 @@ import com.thanhtuan.delivery.R;
 import com.thanhtuan.delivery.view.activity.DetailActivity;
 import com.thanhtuan.delivery.view.activity.MainActivity;
 import com.thanhtuan.delivery.model.Item_ChuaGiao;
-import com.thanhtuan.delivery.sharePreference.MyShare;
+import com.thanhtuan.delivery.SharePreference.MyShare;
 
 import java.util.List;
 

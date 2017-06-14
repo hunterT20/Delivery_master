@@ -24,7 +24,7 @@ import com.thanhtuan.delivery.data.remote.ApiHelper;
 import com.thanhtuan.delivery.data.remote.VolleySingleton;
 import com.thanhtuan.delivery.model.Item_ChuaGiao;
 import com.thanhtuan.delivery.model.Product;
-import com.thanhtuan.delivery.sharePreference.MyShare;
+import com.thanhtuan.delivery.SharePreference.MyShare;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import org.json.JSONArray;

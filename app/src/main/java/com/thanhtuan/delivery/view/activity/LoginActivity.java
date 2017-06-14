@@ -19,7 +19,7 @@ import com.thanhtuan.delivery.R;
 import com.thanhtuan.delivery.data.remote.ApiHelper;
 import com.thanhtuan.delivery.data.remote.VolleySingleton;
 import com.thanhtuan.delivery.model.User;
-import com.thanhtuan.delivery.sharePreference.MyShare;
+import com.thanhtuan.delivery.SharePreference.MyShare;
 import com.thanhtuan.delivery.util.DataUtils;
 import com.thanhtuan.delivery.util.NewtonLoadingUtil;
 import com.victor.loading.newton.NewtonCradleLoading;

@@ -60,7 +60,7 @@ import com.thanhtuan.delivery.interface_delivery.Interface_Location;
 import com.thanhtuan.delivery.model.Item_ChuaGiao;
 import com.thanhtuan.delivery.model.Route_point;
 import com.thanhtuan.delivery.model.Steps;
-import com.thanhtuan.delivery.sharePreference.MyShare;
+import com.thanhtuan.delivery.SharePreference.MyShare;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -115,7 +115,7 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
         /*Nếu status == 0 (Đơn hàng đang chờ giao) thì vị trí map direction trở về ban đầu
         * */
         if(status ==0){
-            value_current(-1);
+            valueCurrent(-1);
         }
 
         mMapView.onResume();
@@ -422,12 +422,12 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
                 getPolyline("#FFFF7700",route_point.getStepsArrayList().get(current).getPolyline());
                 updateCamera(route_point.getStepsArrayList().get(current).getStartLocation());
 
-                value_current(current);
+                valueCurrent(current);
             }
         });
     }
 
-    public void value_current(int current){
+    public void valueCurrent(int current){
         /*Biến Share giữ vị trí đang chỉ đường*/
         SharedPreferences mPrefs = getActivity().getSharedPreferences(MyShare.NAME,MODE_PRIVATE);
         SharedPreferences.Editor prefsEditor = mPrefs.edit();
