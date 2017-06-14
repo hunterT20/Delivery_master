@@ -19,14 +19,6 @@ public class Route_point {
     public Route_point() {
     }
 
-    public Route_point(String total_distance, String total_duration, LatLng latLng, List<LatLng> overview_polyline, ArrayList<Steps> stepsArrayList) {
-        this.total_distance = total_distance;
-        this.total_duration = total_duration;
-        this.latLng = latLng;
-        this.overview_polyline = overview_polyline;
-        this.stepsArrayList = stepsArrayList;
-    }
-
     public List<LatLng> getOverview_polyline() {
         return overview_polyline;
     }

@@ -43,6 +43,7 @@ public class DetailActivity extends AppCompatActivity {
 
     private void addViews() {
         setSupportActionBar(toolbar);
+        if (getSupportActionBar() == null) return;
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -73,6 +74,7 @@ public class DetailActivity extends AppCompatActivity {
                     case R.id.action_detail:
                         fragmentTransaction.replace(R.id.frmMain, new DetailFragment());
                         txtvTitleToolbar.setText("Danh sách sản phẩm");
+                        break;
                 }
 
                 fragmentTransaction.commit();

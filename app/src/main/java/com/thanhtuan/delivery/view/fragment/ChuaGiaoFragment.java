@@ -21,6 +21,7 @@ import com.thanhtuan.delivery.data.remote.ApiHelper;
 import com.thanhtuan.delivery.data.remote.VolleySingleton;
 import com.thanhtuan.delivery.model.Item_ChuaGiao;
 import com.thanhtuan.delivery.sharePreference.MyShare;
+import com.thanhtuan.delivery.util.AVLoadingUtil;
 import com.thanhtuan.delivery.view.activity.MainActivity;
 import com.thanhtuan.delivery.view.adapter.ListSaleAdapter;
 import com.wang.avi.AVLoadingIndicatorView;
@@ -46,7 +47,6 @@ public class ChuaGiaoFragment extends Fragment {
     @BindView(R.id.txtvNoItem_ChuaGiao)    TextView txtvNoItem;
 
     private List<Item_ChuaGiao> mItemChuaGiao;
-    private ListSaleAdapter adapter;
 
     public ChuaGiaoFragment() {
         // Required empty public constructor
@@ -68,7 +68,7 @@ public class ChuaGiaoFragment extends Fragment {
     }
 
     private void addControls() {
-        adapter = new ListSaleAdapter(mItemChuaGiao, getActivity());
+        ListSaleAdapter adapter = new ListSaleAdapter(mItemChuaGiao, getActivity());
         rcvDonHang.setAdapter(adapter);
     }
 
@@ -78,7 +78,7 @@ public class ChuaGiaoFragment extends Fragment {
 
         String PARAM = "key=";
         String API_LISTSALE = ApiHelper.URL + ApiHelper.DOMAIN_LISTSALE + PARAM + ID;
-        startAnim();
+        AVLoadingUtil.startAnim(avi_Loading);
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, API_LISTSALE, null,
                 new Response.Listener<JSONObject>() {
@@ -120,12 +120,11 @@ public class ChuaGiaoFragment extends Fragment {
                                     mItemChuaGiao.add(itemChuaGiao);
                                 }
 
-                                //RecyclerView scroll vertical
                                 addControls();
-                                stopAnim();
+                                AVLoadingUtil.stopAnim(avi_Loading);
                             }else {
                                 txtvNoItem.setVisibility(View.VISIBLE);
-                                stopAnim();
+                                AVLoadingUtil.stopAnim(avi_Loading);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -145,15 +144,5 @@ public class ChuaGiaoFragment extends Fragment {
         rcvDonHang.setAdapter(new ListSaleAdapter(mItemChuaGiao,getActivity()));
         rcvDonHang.setLayoutManager(new LinearLayoutManager(getActivity()));
         rcvDonHang.setHasFixedSize(true);
-    }
-
-    private void startAnim(){
-        avi_Loading.show();
-        // or avi.smoothToShow();
-    }
-
-    private void stopAnim(){
-        avi_Loading.hide();
-        // or avi.smoothToHide();
     }
 }

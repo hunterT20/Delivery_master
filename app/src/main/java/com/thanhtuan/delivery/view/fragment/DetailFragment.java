@@ -18,6 +18,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.gson.Gson;
 import com.thanhtuan.delivery.R;
+import com.thanhtuan.delivery.util.AVLoadingUtil;
 import com.thanhtuan.delivery.view.adapter.ListProductAdapter;
 import com.thanhtuan.delivery.data.remote.ApiHelper;
 import com.thanhtuan.delivery.data.remote.VolleySingleton;
@@ -45,7 +46,6 @@ public class DetailFragment extends Fragment {
     @BindView(R.id.rcvProduct)    RecyclerView rcvProduct;
     @BindView(R.id.avi_loading)   AVLoadingIndicatorView avi_Loading;
     private List<Product> mProduct;
-    private static Toast toast;
 
     public DetailFragment() {
         // Required empty public constructor
@@ -77,7 +77,7 @@ public class DetailFragment extends Fragment {
         Item_ChuaGiao itemChuaGiao = gson.fromJson(json, Item_ChuaGiao.class);
 
         String API_LISTPRODUCT = ApiHelper.URL + ApiHelper.DOMAIN_LISTPRODUCT + PARAM1 + ID + PARAM2 + itemChuaGiao.getSaleReceiptId();
-        startAnim();
+        AVLoadingUtil.startAnim(avi_Loading);
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, API_LISTPRODUCT, null,
                 new Response.Listener<JSONObject>() {
@@ -105,12 +105,10 @@ public class DetailFragment extends Fragment {
                                 //RecyclerView scroll vertical
                                 LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
                                 rcvProduct.setLayoutManager(linearLayoutManager);
-                                stopAnim();
+                                AVLoadingUtil.stopAnim(avi_Loading);
                             }else {
-                                if (toast != null)
-                                    toast.cancel();
-                                toast = Toast.makeText(getActivity(), response.getString("Message"), Toast.LENGTH_SHORT);
-                                toast.show();
+                                Toast.makeText(getActivity(), response.getString("Message"), Toast.LENGTH_SHORT).show();
+                                AVLoadingUtil.stopAnim(avi_Loading);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -135,13 +133,5 @@ public class DetailFragment extends Fragment {
         rcvProduct.setAdapter(new ListProductAdapter(mProduct,getActivity()));
         rcvProduct.setLayoutManager(new LinearLayoutManager(getActivity()));
         rcvProduct.setHasFixedSize(true);
-    }
-
-    private void startAnim(){
-        avi_Loading.show();
-    }
-
-    private void stopAnim(){
-        avi_Loading.hide();
     }
 }

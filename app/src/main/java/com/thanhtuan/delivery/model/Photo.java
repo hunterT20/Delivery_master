@@ -10,11 +10,6 @@ public class Photo {
     private Bitmap Image;
     private String Description;
 
-    public Photo(Bitmap image, String description) {
-        Image = image;
-        Description = description;
-    }
-
     public Photo() {
     }
 

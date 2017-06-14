@@ -30,6 +30,7 @@ import com.thanhtuan.delivery.interface_delivery.EndlessRecyclerViewScrollListen
 import com.thanhtuan.delivery.interface_delivery.onGetList;
 import com.thanhtuan.delivery.model.Item_DaGiao;
 import com.thanhtuan.delivery.sharePreference.MyShare;
+import com.thanhtuan.delivery.util.AVLoadingUtil;
 import com.thanhtuan.delivery.view.adapter.ListDaGiaoAdapter;
 import com.wang.avi.AVLoadingIndicatorView;
 
@@ -46,7 +47,6 @@ import java.util.Map;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static android.content.ContentValues.TAG;
 import static android.content.Context.MODE_PRIVATE;
 
 /**
@@ -197,7 +197,7 @@ public class DaGiaoFragment extends Fragment implements DatePickerDialog.OnDateS
         Log.e("API", API_LISTSALE);
 
         txtvNoItem.setVisibility(View.GONE);
-        startAnim();
+        AVLoadingUtil.startAnim(avi_Loading);
     }
 
     private void getData(final String Token, String API_LISTSALE, final List<Item_DaGiao> list, final onGetList onGetList){
@@ -221,7 +221,7 @@ public class DaGiaoFragment extends Fragment implements DatePickerDialog.OnDateS
                                     list.add(itemChuaGiao);
                                 }
                                 onGetList.getList(list);
-                                stopAnim();
+                                AVLoadingUtil.stopAnim(avi_Loading);
                             }else {
                                 if (mItemDaGiao.size() > 0){
                                     txtvNoItem.setVisibility(View.GONE);
@@ -229,7 +229,7 @@ public class DaGiaoFragment extends Fragment implements DatePickerDialog.OnDateS
                                     txtvNoItem.setVisibility(View.VISIBLE);
                                 }
                                 list.clear();
-                                stopAnim();
+                                AVLoadingUtil.stopAnim(avi_Loading);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -285,21 +285,9 @@ public class DaGiaoFragment extends Fragment implements DatePickerDialog.OnDateS
         rcvDonHang.addOnScrollListener(scrollListener);
     }
 
-    private void startAnim(){
-        Log.e(TAG, "startAnim: ");
-        //avi_Loading.show();
-        avi_Loading.smoothToShow();
-    }
-
-    private void stopAnim(){
-        Log.e(TAG, "stopAnim: ");
-        //avi_Loading.hide();
-        avi_Loading.smoothToHide();
-    }
-
     @Override
     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-        month = month + 1;
+        month += 1;
         if (Flag_Time ==0){
             btnBegin.setText(month + "/" + dayOfMonth + "/" + year);
         }else {

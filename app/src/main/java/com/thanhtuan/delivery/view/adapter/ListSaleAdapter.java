@@ -22,7 +22,6 @@ import static android.content.Context.MODE_PRIVATE;
 
 
 public class ListSaleAdapter extends RecyclerView.Adapter<ListSaleAdapter.SaleViewHolder> {
-    private static final String TAG = "ListSaleAdapter";
     private List<Item_ChuaGiao> mItemChuaGiao;
     private Context mContext;
     private LayoutInflater mLayoutInflater;
@@ -93,12 +92,7 @@ public class ListSaleAdapter extends RecyclerView.Adapter<ListSaleAdapter.SaleVi
     }
 
     class SaleViewHolder extends RecyclerView.ViewHolder {
-        private TextView txtvNameCustomer;
-        private TextView txtvPhone;
-        private TextView txtvAddress;
-        private TextView txtvSl;
-        private TextView txtvDonHang;
-        private TextView txtvTrangThai;
+        private TextView txtvNameCustomer, txtvPhone, txtvAddress, txtvSl, txtvDonHang, txtvTrangThai;
 
         SaleViewHolder(final View itemView) {
             super(itemView);

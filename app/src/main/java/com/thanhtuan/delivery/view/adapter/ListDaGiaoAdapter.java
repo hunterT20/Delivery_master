@@ -19,12 +19,10 @@ import java.util.List;
 public class ListDaGiaoAdapter extends RecyclerView.Adapter<ListDaGiaoAdapter.DaGiaoViewHolder> {
     private static final String TAG = "ListSaleAdapter";
     private List<Item_DaGiao> mItemDaGiao;
-    private Context mContext;
     private LayoutInflater mLayoutInflater;
 
     public ListDaGiaoAdapter(List<Item_DaGiao> mItemDaGiao, Context mContext) {
         this.mItemDaGiao = mItemDaGiao;
-        this.mContext = mContext;
         this.mLayoutInflater = LayoutInflater.from(mContext);
     }
     @Override

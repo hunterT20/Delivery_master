@@ -10,11 +10,6 @@ public class SaleReceiptUpdate {
     private String SaleReceiptId;
     private List<URL_PhotoUpload> Photos;
 
-    public SaleReceiptUpdate(String saleReceiptId, List<URL_PhotoUpload> url) {
-        SaleReceiptId = saleReceiptId;
-        this.Photos = url;
-    }
-
     public SaleReceiptUpdate() {
     }
 

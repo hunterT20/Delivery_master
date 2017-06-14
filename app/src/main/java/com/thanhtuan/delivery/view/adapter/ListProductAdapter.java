@@ -13,14 +13,11 @@ import com.thanhtuan.delivery.model.Product;
 import java.util.List;
 
 public class ListProductAdapter extends RecyclerView.Adapter<ListProductAdapter.ProductViewHolder> {
-    private static final String TAG = "ListProductAdapter";
     private List<Product> mProduct;
-    private Context mContext;
     private LayoutInflater mLayoutInflater;
 
     public ListProductAdapter(List<Product> mProduct, Context mContext) {
         this.mProduct = mProduct;
-        this.mContext = mContext;
         this.mLayoutInflater = LayoutInflater.from(mContext);
     }
 

@@ -1,11 +1,7 @@
 package com.thanhtuan.delivery.view.activity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,6 +20,8 @@ import com.thanhtuan.delivery.data.remote.ApiHelper;
 import com.thanhtuan.delivery.data.remote.VolleySingleton;
 import com.thanhtuan.delivery.model.User;
 import com.thanhtuan.delivery.sharePreference.MyShare;
+import com.thanhtuan.delivery.util.DataUtils;
+import com.thanhtuan.delivery.util.NewtonLoadingUtil;
 import com.victor.loading.newton.NewtonCradleLoading;
 
 import org.json.JSONException;
@@ -40,7 +38,6 @@ public class LoginActivity extends AppCompatActivity {
     @BindView(R.id.newton_cradle_loading)  NewtonCradleLoading newtonCradleLoading;
     @BindView(R.id.ckbSave)     CheckBox ckbSaveUser;
 
-    private static final String TAG = "LoginAcivity";
     private static String API_LOGIN;
     private static String PARAM1 = "username=";
     private static String PARAM2 = "&password=";
@@ -67,14 +64,12 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 /*Check connect internet*/
-                if (!isConnected()){
-                    Toast.makeText(LoginActivity.this, "Bạn chưa kết nối internet", Toast.LENGTH_SHORT).show();
-                    return;
+                if (!DataUtils.isNetworkAvailable(getApplication())){
+                    Toast.makeText(LoginActivity.this, "Bạn chưa bật kết nối mạng!", Toast.LENGTH_SHORT).show();
                 }
-                /*Set view cho NewtonCradleLoading*/
-                newtonCradleLoading.setVisibility(View.VISIBLE);
-                newtonCradleLoading.start();
-                newtonCradleLoading.setLoadingColor(Color.parseColor("#FFEB903C"));
+                /*Set view cho NewtonLoadingUtil*/
+                final NewtonLoadingUtil newtonLoadingUtil = new NewtonLoadingUtil(newtonCradleLoading);
+                newtonLoadingUtil.show();
 
                 API_LOGIN = ApiHelper.URL + ApiHelper.DOMAIN_LOGIN + PARAM1 + edtUserName.getText() + PARAM2 + edtPassword.getText();
 
@@ -98,7 +93,7 @@ public class LoginActivity extends AppCompatActivity {
                                         edit.putString(MyShare.VALUE_TOKEN, "Bearer " + data.getString("Token"));
                                         edit.apply();
 
-                                        newtonCradleLoading.stop();
+                                        newtonLoadingUtil.dismiss();
                                         Toast.makeText(LoginActivity.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
 
                                         //Save username và password
@@ -110,8 +105,7 @@ public class LoginActivity extends AppCompatActivity {
                                         startActivity(intent);
                                         finish();
                                     }else {
-                                        newtonCradleLoading.stop();
-                                        newtonCradleLoading.setVisibility(View.GONE);
+                                        newtonLoadingUtil.dismiss();
                                         Toast.makeText(LoginActivity.this, response.getString("Message"), Toast.LENGTH_SHORT).show();
                                     }
                                 } catch (JSONException e) {
@@ -148,12 +142,5 @@ public class LoginActivity extends AppCompatActivity {
 
         edtUserName.setText(UsernameValue);
         edtPassword.setText(PasswordValue);
-    }
-
-    public boolean isConnected() {
-        ConnectivityManager cm =
-                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 }

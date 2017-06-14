@@ -11,14 +11,6 @@ public class Product {
     private Double Price;
     private int Status;
 
-    public Product(String itemId, String SKU, int quantity, Double price, int status) {
-        ItemId = itemId;
-        this.SKU = SKU;
-        Quantity = quantity;
-        Price = price;
-        Status = status;
-    }
-
     public Product() {
     }
 

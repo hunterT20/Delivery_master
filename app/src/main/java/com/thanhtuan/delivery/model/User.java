@@ -11,12 +11,6 @@ public class User {
     private String userName;
     private String token;
 
-    public User(int userID, String userName, String token) {
-        this.userID = userID;
-        this.userName = userName;
-        this.token = token;
-    }
-
     public User() {
     }
 

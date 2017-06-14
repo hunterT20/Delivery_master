@@ -19,20 +19,6 @@ public class Item_ChuaGiao {
     public Item_ChuaGiao() {
     }
 
-    public Item_ChuaGiao(String saleReceiptId, String customerName, String phoneNumber, String address, String province, String district,
-                         int quantity, Double price, String note, int status) {
-        SaleReceiptId = saleReceiptId;
-        CustomerName = customerName;
-        PhoneNumber = phoneNumber;
-        Address = address;
-        Province = province;
-        District = district;
-        Quantity = quantity;
-        Price = price;
-        Note = note;
-        Status = status;
-    }
-
     public String getSaleReceiptId() {
         return SaleReceiptId;
     }

@@ -16,15 +16,6 @@ public class Steps {
     private LatLng end_location;
     private List<LatLng> polyline;
 
-    public Steps(String distance, String duration, String html_instructions, LatLng start_location, LatLng end_location, List<LatLng> polyline) {
-        this.distance = distance;
-        this.duration = duration;
-        this.html_instructions = html_instructions;
-        this.start_location = start_location;
-        this.end_location = end_location;
-        this.polyline = polyline;
-    }
-
     public Steps() {
     }
 

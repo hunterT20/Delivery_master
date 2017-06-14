@@ -8,11 +8,6 @@ public class URL_PhotoUpload {
     private String Image;
     private String Description;
 
-    public URL_PhotoUpload(String image, String description) {
-        Image = image;
-        Description = description;
-    }
-
     public URL_PhotoUpload() {
     }
 

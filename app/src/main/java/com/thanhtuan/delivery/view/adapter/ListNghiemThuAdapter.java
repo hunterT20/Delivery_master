@@ -16,14 +16,11 @@ import java.util.List;
 import co.dift.ui.SwipeToAction;
 
 public class ListNghiemThuAdapter extends RecyclerView.Adapter<ListNghiemThuAdapter.NghiemThuViewHolder> {
-    private static final String TAG = "ListNghiemThuAdapter";
     private List<Photo> photos;
-    private Context mContext;
     private LayoutInflater mLayoutInflater;
 
     public ListNghiemThuAdapter(List<Photo> photos, Context mContext) {
         this.photos = photos;
-        this.mContext = mContext;
         this.mLayoutInflater = LayoutInflater.from(mContext);
     }
 

@@ -10,13 +10,6 @@ public class Item_DaGiao {
     private String District;
     private String Status;
 
-    public Item_DaGiao(String saleReceiptId, String address, String district, String status) {
-        SaleReceiptId = saleReceiptId;
-        Address = address;
-        District = district;
-        Status = status;
-    }
-
     public Item_DaGiao() {
     }
 
