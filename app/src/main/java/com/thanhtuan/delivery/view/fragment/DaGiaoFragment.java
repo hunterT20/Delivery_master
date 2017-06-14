@@ -27,7 +27,7 @@ import com.thanhtuan.delivery.R;
 import com.thanhtuan.delivery.data.remote.ApiHelper;
 import com.thanhtuan.delivery.data.remote.VolleySingleton;
 import com.thanhtuan.delivery.interface_delivery.EndlessRecyclerViewScrollListener;
-import com.thanhtuan.delivery.interface_delivery.onGetList;
+import com.thanhtuan.delivery.interface_delivery.OnGetList;
 import com.thanhtuan.delivery.model.Item_DaGiao;
 import com.thanhtuan.delivery.sharePreference.MyShare;
 import com.thanhtuan.delivery.util.AVLoadingUtil;
@@ -102,7 +102,7 @@ public class DaGiaoFragment extends Fragment implements DatePickerDialog.OnDateS
         if (getActivity() == null){
             return;
         }
-        getData(Token, API, mItemDaGiao, new onGetList() {
+        getData(Token, API, mItemDaGiao, new OnGetList() {
             @Override
             public void getList(List<Item_DaGiao> itemDaGiaos) {
                 adapter = new ListDaGiaoAdapter(itemDaGiaos, getActivity());
@@ -200,7 +200,7 @@ public class DaGiaoFragment extends Fragment implements DatePickerDialog.OnDateS
         AVLoadingUtil.startAnim(avi_Loading);
     }
 
-    private void getData(final String Token, String API_LISTSALE, final List<Item_DaGiao> list, final onGetList onGetList){
+    private void getData(final String Token, String API_LISTSALE, final List<Item_DaGiao> list, final OnGetList onGetList){
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, API_LISTSALE, null,
                 new Response.Listener<JSONObject>() {
                     @Override
@@ -265,7 +265,7 @@ public class DaGiaoFragment extends Fragment implements DatePickerDialog.OnDateS
             public void onLoadMore(int page, int totalItemsCount, final RecyclerView view) {
                 final List<Item_DaGiao> loadMore = new ArrayList<>();
                 initData(beginDate,endDate,page);
-                getData(Token, API_LISTSALE, loadMore, new onGetList() {
+                getData(Token, API_LISTSALE, loadMore, new OnGetList() {
                     @Override
                     public void getList(List<Item_DaGiao> itemDaGiaos) {
                         Log.e("list", loadMore.size() + "");

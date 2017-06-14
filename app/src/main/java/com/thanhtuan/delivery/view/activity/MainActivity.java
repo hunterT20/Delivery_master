@@ -10,7 +10,6 @@ import android.widget.TextView;
 
 import com.thanhtuan.delivery.R;
 import com.thanhtuan.delivery.view.adapter.ViewPagerAdapter;
-import com.thanhtuan.delivery.view.fragment.ChuaGiaoFragment;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

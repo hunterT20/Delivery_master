@@ -5,10 +5,6 @@ import com.google.android.gms.maps.model.LatLng;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by Nusib on 5/29/2017.
- */
-
 public class Route_point {
     private String total_distance;
     private String total_duration;
@@ -19,27 +15,27 @@ public class Route_point {
     public Route_point() {
     }
 
-    public List<LatLng> getOverview_polyline() {
+    public List<LatLng> getOverviewPolyline() {
         return overview_polyline;
     }
 
-    public void setOverview_polyline(List<LatLng> overview_polyline) {
+    public void setOverviewPolyline(List<LatLng> overview_polyline) {
         this.overview_polyline = overview_polyline;
     }
 
-    public String getTotal_distance() {
+    public String getTotalDistance() {
         return total_distance;
     }
 
-    public void setTotal_distance(String total_distance) {
+    public void setTotalDistance(String total_distance) {
         this.total_distance = total_distance;
     }
 
-    public String getTotal_duration() {
+    public String getTotalDuration() {
         return total_duration;
     }
 
-    public void setTotal_duration(String total_duration) {
+    public void setTotalDuration(String total_duration) {
         this.total_duration = total_duration;
     }
 

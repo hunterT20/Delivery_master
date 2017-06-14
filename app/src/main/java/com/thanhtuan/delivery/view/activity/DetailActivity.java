@@ -89,7 +89,7 @@ public class DetailActivity extends AppCompatActivity {
             case android.R.id.home:
                 getStatus();
                 if (status != 0){
-                    setToast_back();
+                    setToastBack();
                 }else {
                     Intent intent = new Intent(DetailActivity.this, MainActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -106,7 +106,7 @@ public class DetailActivity extends AppCompatActivity {
     public void onBackPressed() {
         getStatus();
         if (status != 0) {
-            setToast_back();
+            setToastBack();
         }
         else {
             Intent intent = new Intent(DetailActivity.this,MainActivity.class);
@@ -121,7 +121,7 @@ public class DetailActivity extends AppCompatActivity {
         finish();
     }
 
-    private void setToast_back(){
+    private void setToastBack(){
         if (toast != null){
             toast.cancel();
         }

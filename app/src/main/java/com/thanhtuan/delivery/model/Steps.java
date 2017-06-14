@@ -43,27 +43,27 @@ public class Steps {
         this.duration = duration;
     }
 
-    public String getHtml_instructions() {
+    public String getHtmlInstructions() {
         return html_instructions;
     }
 
-    public void setHtml_instructions(String html_instructions) {
+    public void setHtmlInstructions(String html_instructions) {
         this.html_instructions = html_instructions;
     }
 
-    public LatLng getStart_location() {
+    public LatLng getStartLocation() {
         return start_location;
     }
 
-    public void setStart_location(LatLng start_location) {
+    public void setStartLocation(LatLng start_location) {
         this.start_location = start_location;
     }
 
-    public LatLng getEnd_location() {
+    public LatLng getEndLocation() {
         return end_location;
     }
 
-    public void setEnd_location(LatLng end_location) {
+    public void setEndLocation(LatLng end_location) {
         this.end_location = end_location;
     }
 }

@@ -133,7 +133,7 @@ public class NghiemThuActivity extends AppCompatActivity {
                         photoList.add(photo);
                         addControls();
 
-                        getPhoto_url(photo_taked, Description);
+                        getPhotoUrl(photo_taked, Description);
 
                         edtMoTa.setText("");
                         ibtnPhoto.setImageDrawable(getResources().getDrawable(R.drawable.ic_add_a_photo_white_24dp));
@@ -147,7 +147,7 @@ public class NghiemThuActivity extends AppCompatActivity {
 
             @Override
             public boolean swipeLeft(Photo itemData) {
-                remove_NghiemThu(itemData);
+                removeNghiemThu(itemData);
                 return true;
             }
 
@@ -171,7 +171,7 @@ public class NghiemThuActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (photoList.size() == 0){
-                    show_sweetDialog_Warning("Vui làm nghiệm thu trước khi update!");
+                    showSweetDialogWarning("Vui làm nghiệm thu trước khi update!");
                     return;
                 }
                 Gson gson = new Gson();
@@ -202,7 +202,7 @@ public class NghiemThuActivity extends AppCompatActivity {
                                         SharedPreferences.Editor prefsEditor = mPrefs.edit();
                                         prefsEditor.putInt(MyShare.VALUE_STATUS,status);
                                         prefsEditor.apply();
-                                        show_sweetDialog_Success("Nghiệm thu thành công!");
+                                        showSweetDialogSuccess("Nghiệm thu thành công!");
                                     }else {
                                         Snackbar snackbar = Snackbar.make(Root,String.valueOf(response.getBoolean("Sản phẩm đã được nghiệm thu!")),Snackbar.LENGTH_LONG);
                                         snackbar.show();
@@ -338,7 +338,7 @@ public class NghiemThuActivity extends AppCompatActivity {
         }
     }
 
-    private void getPhoto_url(Bitmap bitmap, final String des){
+    private void getPhotoUrl(Bitmap bitmap, final String des){
         String base64Photo = encodeToBase64(bitmap, Bitmap.CompressFormat.JPEG, 100);
 
         Gson gson = new Gson();
@@ -387,7 +387,7 @@ public class NghiemThuActivity extends AppCompatActivity {
         return Base64.encodeToString(byteArrayOS.toByteArray(), Base64.DEFAULT);
     }
 
-    private void show_sweetDialog_Success(String alert){
+    private void showSweetDialogSuccess(String alert){
         new SweetAlertDialog(this, SweetAlertDialog.SUCCESS_TYPE)
                 .setTitleText("Thành công!")
                 .setContentText(alert)
@@ -403,14 +403,14 @@ public class NghiemThuActivity extends AppCompatActivity {
                 .show();
     }
 
-    private void show_sweetDialog_Warning(String alert){
+    private void showSweetDialogWarning(String alert){
         new SweetAlertDialog(this, SweetAlertDialog.WARNING_TYPE)
                 .setTitleText("Cảnh báo!")
                 .setContentText(alert)
                 .show();
     }
 
-    private void remove_NghiemThu(Photo photo){
+    private void removeNghiemThu(Photo photo){
         int pos = photoList.indexOf(photo);
         photoList.remove(pos);
         adapter.notifyItemRemoved(pos);

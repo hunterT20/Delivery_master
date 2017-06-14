@@ -4,6 +4,6 @@ import com.thanhtuan.delivery.model.Item_DaGiao;
 
 import java.util.List;
 
-public interface onGetList {
+public interface OnGetList {
     void getList(List<Item_DaGiao> itemDaGiaos);
 }

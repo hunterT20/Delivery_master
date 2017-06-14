@@ -12,12 +12,7 @@ import com.thanhtuan.delivery.model.Item_DaGiao;
 
 import java.util.List;
 
-/**
- * Created by Nusib on 6/10/2017.
- */
-
 public class ListDaGiaoAdapter extends RecyclerView.Adapter<ListDaGiaoAdapter.DaGiaoViewHolder> {
-    private static final String TAG = "ListSaleAdapter";
     private List<Item_DaGiao> mItemDaGiao;
     private LayoutInflater mLayoutInflater;
 

@@ -1,11 +1,5 @@
 package com.thanhtuan.delivery.model;
 
-import java.util.Date;
-
-/**
- * Created by Nusib on 5/17/2017.
- */
-
 public class User {
     private int userID;
     private String userName;

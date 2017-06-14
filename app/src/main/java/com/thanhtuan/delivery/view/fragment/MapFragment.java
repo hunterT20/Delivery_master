@@ -215,9 +215,9 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
                                 LatLng end = new LatLng(end_location.getDouble("lat"),end_location.getDouble("lng"));
 
                                 Route_point route_point = new Route_point();
-                                route_point.setTotal_distance(distance.getString("text"));
-                                route_point.setTotal_duration(duration.getString("text"));
-                                route_point.setOverview_polyline(PolyUtil.decode(overview_polyline.getString("points")));
+                                route_point.setTotalDistance(distance.getString("text"));
+                                route_point.setTotalDuration(duration.getString("text"));
+                                route_point.setOverviewPolyline(PolyUtil.decode(overview_polyline.getString("points")));
                                 route_point.setLatLng(end);
 
                                 ArrayList<Steps> stepsArrayList = new ArrayList<>();
@@ -234,10 +234,10 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
                                     Steps steps = new Steps();
                                     steps.setDistance(step_list.getJSONObject(i).getJSONObject("distance").getString("text"));
                                     steps.setDuration(step_list.getJSONObject(i).getJSONObject("duration").getString("text"));
-                                    steps.setHtml_instructions(Jsoup.parse(step_list.getJSONObject(i).getString("html_instructions")).text());
+                                    steps.setHtmlInstructions(Jsoup.parse(step_list.getJSONObject(i).getString("html_instructions")).text());
                                     steps.setPolyline(decodedPath);
-                                    steps.setStart_location(latLng_start);
-                                    steps.setEnd_location(latLng_end);
+                                    steps.setStartLocation(latLng_start);
+                                    steps.setEndLocation(latLng_end);
 
                                     stepsArrayList.add(steps);
                                 }
@@ -312,15 +312,15 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
                 SharedPreferences mPrefs = getActivity().getSharedPreferences(MyShare.NAME,MODE_PRIVATE);
                 int current = mPrefs.getInt(MyShare.VALUE_DIRECTION, -1);
 
-                init_SwipeItem(route_point, current);
+                initSwipeItem(route_point, current);
 
                 Log.e("current", current + "");
 
                 if (current == -1){
                     /*set textview tổng quãng đường và thời gian cần đi*/
-                    txtvTime.setText("Quãng đường: " + route_point.getTotal_distance() + "- Thời gian: " + route_point.getTotal_duration());
+                    txtvTime.setText("Quãng đường: " + route_point.getTotalDistance() + "- Thời gian: " + route_point.getTotalDuration());
                     /*set color cho cả đoạn đường*/
-                    getPolyline("#FFFF7700",route_point.getOverview_polyline());
+                    getPolyline("#FFFF7700",route_point.getOverviewPolyline());
                     /*event khi click vào button Direction*/
                     btnDirection.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -330,9 +330,9 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
                             swipeSelector.setVisibility(View.VISIBLE);
 
                             /*set color cho đoạn đường đầu tiên đươc load lên*/
-                            getPolyline("#BABABA",route_point.getOverview_polyline());
+                            getPolyline("#BABABA",route_point.getOverviewPolyline());
                             getPolyline("#FFFF7700",route_point.getStepsArrayList().get(0).getPolyline());
-                            updateCamera(route_point.getStepsArrayList().get(0).getStart_location());
+                            updateCamera(route_point.getStepsArrayList().get(0).getStartLocation());
                         }
                     });
                 }else {
@@ -341,9 +341,9 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
                     swipeSelector.setVisibility(View.VISIBLE);
 
                     /*set color cho đoạn đường đầu tiên đươc load lên*/
-                    getPolyline("#BABABA",route_point.getOverview_polyline());
+                    getPolyline("#BABABA",route_point.getOverviewPolyline());
                     getPolyline("#FFFF7700",route_point.getStepsArrayList().get(current).getPolyline());
-                    updateCamera(route_point.getStepsArrayList().get(current).getStart_location());
+                    updateCamera(route_point.getStepsArrayList().get(current).getStartLocation());
                 }
             }
         });
@@ -395,12 +395,12 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
         }
     }
 
-    private void init_SwipeItem(final Route_point route_point, int current){
+    private void initSwipeItem(final Route_point route_point, int current){
         /*danh sách các direction*/
         SwipeItem[] swipeItems = new SwipeItem[route_point.getStepsArrayList().size()];
         for (int i = 0; i < route_point.getStepsArrayList().size(); i++){
             Steps steps = route_point.getStepsArrayList().get(i);
-            swipeItems[i] = new SwipeItem(i,steps.getDistance() + " - " + steps.getDuration(),steps.getHtml_instructions());
+            swipeItems[i] = new SwipeItem(i,steps.getDistance() + " - " + steps.getDuration(),steps.getHtmlInstructions());
         }
         /*Khởi tạo swipe Direction*/
         swipeSelector.setItems(
@@ -418,9 +418,9 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
                 int current = (int) item.value;
                 removePoly();
 
-                getPolyline("#BABABA",route_point.getOverview_polyline());
+                getPolyline("#BABABA",route_point.getOverviewPolyline());
                 getPolyline("#FFFF7700",route_point.getStepsArrayList().get(current).getPolyline());
-                updateCamera(route_point.getStepsArrayList().get(current).getStart_location());
+                updateCamera(route_point.getStepsArrayList().get(current).getStartLocation());
 
                 value_current(current);
             }
