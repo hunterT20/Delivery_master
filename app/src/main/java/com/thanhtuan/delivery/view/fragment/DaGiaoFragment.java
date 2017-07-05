@@ -29,7 +29,7 @@ import com.thanhtuan.delivery.data.remote.VolleySingleton;
 import com.thanhtuan.delivery.interface_delivery.EndlessRecyclerViewScrollListener;
 import com.thanhtuan.delivery.interface_delivery.OnGetList;
 import com.thanhtuan.delivery.model.Item_DaGiao;
-import com.thanhtuan.delivery.SharePreference.MyShare;
+import com.thanhtuan.delivery.share.MyShare;
 import com.thanhtuan.delivery.util.AVLoadingUtil;
 import com.thanhtuan.delivery.view.adapter.ListDaGiaoAdapter;
 import com.wang.avi.AVLoadingIndicatorView;
@@ -264,11 +264,10 @@ public class DaGiaoFragment extends Fragment implements DatePickerDialog.OnDateS
             @Override
             public void onLoadMore(int page, int totalItemsCount, final RecyclerView view) {
                 final List<Item_DaGiao> loadMore = new ArrayList<>();
-                initData(beginDate,endDate,page);
+                initData(beginDate,endDate,page + 1);
                 getData(Token, API_LISTSALE, loadMore, new OnGetList() {
                     @Override
                     public void getList(List<Item_DaGiao> itemDaGiaos) {
-                        Log.e("list", loadMore.size() + "");
                         final int size = adapter.getItemCount();
                         mItemDaGiao.addAll(loadMore);
 

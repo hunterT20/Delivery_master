@@ -20,7 +20,7 @@ import com.thanhtuan.delivery.R;
 import com.thanhtuan.delivery.data.remote.ApiHelper;
 import com.thanhtuan.delivery.data.remote.VolleySingleton;
 import com.thanhtuan.delivery.model.Item_ChuaGiao;
-import com.thanhtuan.delivery.SharePreference.MyShare;
+import com.thanhtuan.delivery.share.MyShare;
 import com.thanhtuan.delivery.util.AVLoadingUtil;
 import com.thanhtuan.delivery.view.activity.MainActivity;
 import com.thanhtuan.delivery.view.adapter.ListSaleAdapter;
@@ -75,6 +75,7 @@ public class ChuaGiaoFragment extends Fragment {
     private void initData() {
         SharedPreferences MyPre = getActivity().getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
         String ID = MyPre.getString(MyShare.VALUE_ID, null);
+        txtvNoItem.setVisibility(View.GONE);
 
         String PARAM = "key=";
         String API_LISTSALE = ApiHelper.URL + ApiHelper.DOMAIN_LISTSALE + PARAM + ID;

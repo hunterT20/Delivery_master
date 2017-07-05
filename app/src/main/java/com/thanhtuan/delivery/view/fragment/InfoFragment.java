@@ -36,7 +36,7 @@ import com.thanhtuan.delivery.view.activity.DetailActivity;
 import com.thanhtuan.delivery.view.activity.NghiemThuActivity;
 import com.thanhtuan.delivery.data.remote.ApiHelper;
 import com.thanhtuan.delivery.data.remote.VolleySingleton;
-import com.thanhtuan.delivery.SharePreference.MyShare;
+import com.thanhtuan.delivery.share.MyShare;
 
 import org.json.JSONException;
 import org.json.JSONObject;

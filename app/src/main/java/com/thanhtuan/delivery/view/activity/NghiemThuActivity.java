@@ -40,7 +40,7 @@ import com.thanhtuan.delivery.model.Item_ChuaGiao;
 import com.thanhtuan.delivery.model.Photo;
 import com.thanhtuan.delivery.model.SaleReceiptUpdate;
 import com.thanhtuan.delivery.model.URL_PhotoUpload;
-import com.thanhtuan.delivery.SharePreference.MyShare;
+import com.thanhtuan.delivery.share.MyShare;
 
 import org.json.JSONException;
 import org.json.JSONObject;

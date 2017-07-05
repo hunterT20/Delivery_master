@@ -1,4 +1,4 @@
-package com.thanhtuan.delivery.SharePreference;
+package com.thanhtuan.delivery.share;
 
 
 public class MyShare {

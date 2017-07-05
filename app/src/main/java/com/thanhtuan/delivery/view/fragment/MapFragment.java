@@ -60,7 +60,7 @@ import com.thanhtuan.delivery.interface_delivery.Interface_Location;
 import com.thanhtuan.delivery.model.Item_ChuaGiao;
 import com.thanhtuan.delivery.model.Route_point;
 import com.thanhtuan.delivery.model.Steps;
-import com.thanhtuan.delivery.SharePreference.MyShare;
+import com.thanhtuan.delivery.share.MyShare;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -162,7 +162,7 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
         if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 5, locationListener);
         Location locationCurrent = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
         if (locationCurrent != null){
             longitudeCurrent = locationCurrent.getLongitude();
