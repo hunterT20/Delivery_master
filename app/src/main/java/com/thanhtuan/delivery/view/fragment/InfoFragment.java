@@ -7,12 +7,15 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -24,25 +27,40 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.gson.Gson;
 import com.rey.material.widget.FloatingActionButton;
 import com.thanhtuan.delivery.R;
+import com.thanhtuan.delivery.interface_delivery.OnGetList;
 import com.thanhtuan.delivery.model.Item_ChuaGiao;
+import com.thanhtuan.delivery.model.Item_DaGiao;
+import com.thanhtuan.delivery.model.SaleReceiptUpdate;
+import com.thanhtuan.delivery.model.URL_PhotoUpload;
+import com.thanhtuan.delivery.util.AVLoadingUtil;
+import com.thanhtuan.delivery.util.DialogUtil;
+import com.thanhtuan.delivery.util.EncodeBitmapUtil;
 import com.thanhtuan.delivery.view.activity.DetailActivity;
+import com.thanhtuan.delivery.view.activity.MainActivity;
 import com.thanhtuan.delivery.view.activity.NghiemThuActivity;
 import com.thanhtuan.delivery.data.remote.ApiHelper;
 import com.thanhtuan.delivery.data.remote.VolleySingleton;
 import com.thanhtuan.delivery.share.MyShare;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -66,6 +84,8 @@ public class InfoFragment extends Fragment {
     @BindView(R.id.fabPhone)     FloatingActionButton fabPhone;
 
     private Item_ChuaGiao itemChuaGiao;
+    public List<URL_PhotoUpload> url_photoUploads;
+    private SaleReceiptUpdate saleReceiptUpdate;
     final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
     private int status;
 
@@ -80,6 +100,8 @@ public class InfoFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_info, container, false);
         ButterKnife.bind(this, view);
+        url_photoUploads = new ArrayList<>();
+        saleReceiptUpdate = new SaleReceiptUpdate();
 
         addViews();
         addEvents();
@@ -97,17 +119,24 @@ public class InfoFragment extends Fragment {
         btnGiaoHang.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                eventTimeRecord("1");
                 String status = btnGiaoHang.getText().toString();
                 switch (status){
                     case "Giao Hàng":
                         eventGiaoHang(ApiHelper.DOMAIN_START,"saleReceiptId");
+                        eventTimeRecord("1");
                         break;
                     case "Kết Thúc":
                         eventGiaoHang(ApiHelper.DOMAIN_END, "saleReceiptId");
+                        eventTimeRecord("2");
                         break;
                     case "Nghiệm Thu":
-                        Intent intent = new Intent(getActivity(), NghiemThuActivity.class);
-                        startActivity(intent);
+                        /*Intent intent = new Intent(getActivity(), NghiemThuActivity.class);
+                        startActivity(intent);*/
+                        Bitmap bitmap = BitmapFactory.decodeResource(getActivity().getResources(),
+                                R.mipmap.icon_app);
+                        getPhotoUrl(bitmap,"Mô tả nghiệm thu mặc định");
+                        onUpload();
                         break;
                 }
             }
@@ -291,6 +320,52 @@ public class InfoFragment extends Fragment {
         alertDialogAndroid.show();
     }
 
+    private void eventTimeRecord(final String Status){
+        SharedPreferences MyPre = getActivity().getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
+        final String Token = MyPre.getString(MyShare.VALUE_TOKEN, null);
+
+        String API_LISTSALE = ApiHelper.URL2 + ApiHelper.DOMAIN_TIME;
+
+        HashMap<String, String> params = new HashMap<>();
+        params.put("SaleReceiptId", itemChuaGiao.getSaleReceiptId());
+        params.put("Status", Status);
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(API_LISTSALE, new JSONObject(params),
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            if(response.getBoolean("Success")){
+                                Log.e("Time","Bắt đầu tính time!" + " " + Status);
+                            }else {
+                                Log.e("Error Time","ERR");
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("", "onErrorResponse: " + error.getMessage());
+            }
+        }){
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String,String> Authorization = new HashMap<>();
+                Authorization.put("Authorization", Token);
+                return Authorization;
+            }
+
+            @Override
+            public String getBodyContentType() {
+                return "application/json";
+            }
+        };
+
+        VolleySingleton.getInstance(getActivity()).getRequestQueue().add(jsonObjectRequest);
+    }
+
     @TargetApi(Build.VERSION_CODES.M)
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -346,4 +421,105 @@ public class InfoFragment extends Fragment {
         callIntent.setData(Uri.parse("tel:" + itemChuaGiao.getPhoneNumber()));
         startActivity(callIntent);
     }
+
+
+    private void getPhotoUrl(Bitmap bitmap, final String des){
+        String base64Photo = EncodeBitmapUtil.encodeToBase64(bitmap, Bitmap.CompressFormat.JPEG, 100);
+
+        Gson gson = new Gson();
+        SharedPreferences pre = getActivity().getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
+        String json = pre.getString("SaleItem", "");
+        Item_ChuaGiao itemChuaGiao = gson.fromJson(json, Item_ChuaGiao.class);
+
+        String ID = pre.getString(MyShare.VALUE_ID, null);
+
+        String API_PHOTO = ApiHelper.URL + ApiHelper.DOMAIN_UPLOADIMG;
+
+        HashMap<String, String> params = new HashMap<>();
+        params.put("base64Photo", base64Photo);
+        params.put("sku", itemChuaGiao.getSaleReceiptId());
+        params.put("key", ID);
+
+        JsonObjectRequest request_json = new JsonObjectRequest(API_PHOTO, new JSONObject(params),
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            if (response.getBoolean("Result")){
+                                URL_PhotoUpload url = new URL_PhotoUpload();
+                                url.setImage(response.getString("Data"));
+                                Log.e("data", response.getString("Data"));
+                                url.setDescription(des);
+
+                                url_photoUploads.add(url);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.e("Error: ", error.getMessage());
+            }
+        });
+        VolleySingleton.getInstance(getActivity()).getRequestQueue().add(request_json);
+    }
+
+    private void onUpload(){
+        Gson gson = new Gson();
+        SharedPreferences pre = getActivity().getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
+        String json = pre.getString("SaleItem", "");
+        Item_ChuaGiao itemChuaGiao1 = gson.fromJson(json, Item_ChuaGiao.class);
+
+        saleReceiptUpdate.setSaleReceiptId(itemChuaGiao1.getSaleReceiptId());
+        String ID = pre.getString(MyShare.VALUE_ID, null);
+        saleReceiptUpdate.setUrl(url_photoUploads);
+
+        String SaleReceiptUpdate = gson.toJson(saleReceiptUpdate);
+        String API_URL = ApiHelper.URL + ApiHelper.DOMAIN_NGHIEMTHU;
+
+        HashMap<String, String> params = new HashMap<>();
+        params.put("key", ID);
+        params.put("saleReceipt", SaleReceiptUpdate);
+
+        JsonObjectRequest request_json = new JsonObjectRequest(API_URL, new JSONObject(params),
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            if (response.getBoolean("Result")){
+                                JSONObject jsonObject = response.getJSONObject("Data");
+                                int status = jsonObject.getInt("Status");
+                                SharedPreferences mPrefs = getActivity().getSharedPreferences(MyShare.NAME,MODE_PRIVATE);
+                                SharedPreferences.Editor prefsEditor = mPrefs.edit();
+                                prefsEditor.putInt(MyShare.VALUE_STATUS,status);
+                                prefsEditor.apply();
+
+                                DialogUtil.showSweetDialogSuccess(getActivity(), "Nghiệm thu thành công!", new SweetAlertDialog.OnSweetClickListener() {
+                                    @Override
+                                    public void onClick(SweetAlertDialog sweetAlertDialog) {
+                                        sweetAlertDialog.cancel();
+                                        eventTimeRecord("3");
+                                        Intent intent = new Intent(getActivity(),MainActivity.class);
+                                        getActivity().startActivity(intent);
+                                        getActivity().finish();
+                                    }
+                                });
+                            }else {
+                                Toast.makeText(getActivity(), "Sản phẩm đã được nghiệm thu!", Toast.LENGTH_SHORT).show();
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.e("Error: ", error.getMessage());
+            }
+        });
+        VolleySingleton.getInstance(getActivity()).getRequestQueue().add(request_json);
+    }
+
 }

@@ -16,7 +16,6 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Base64;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,6 +32,8 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.gson.Gson;
 import com.rey.material.widget.FloatingActionButton;
 import com.thanhtuan.delivery.R;
+import com.thanhtuan.delivery.util.DialogUtil;
+import com.thanhtuan.delivery.util.EncodeBitmapUtil;
 import com.thanhtuan.delivery.view.adapter.ListNghiemThuAdapter;
 import com.thanhtuan.delivery.data.remote.ApiHelper;
 import com.thanhtuan.delivery.data.remote.VolleySingleton;
@@ -45,7 +46,6 @@ import com.thanhtuan.delivery.share.MyShare;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -171,59 +171,19 @@ public class NghiemThuActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (photoList.size() == 0){
-                    showSweetDialogWarning("Vui làm nghiệm thu trước khi update!");
+                    DialogUtil.showSweetDialogWarning(getApplication(),"Vui làm nghiệm thu trước khi update!");
                     return;
                 }
-                Gson gson = new Gson();
-                SharedPreferences pre = getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
-                String json = pre.getString("SaleItem", "");
-                Item_ChuaGiao itemChuaGiao1 = gson.fromJson(json, Item_ChuaGiao.class);
 
-                saleReceiptUpdate.setSaleReceiptId(itemChuaGiao1.getSaleReceiptId());
-                String ID = pre.getString(MyShare.VALUE_ID, null);
-                saleReceiptUpdate.setUrl(url_photoUploads);
-
-                String SaleReceiptUpdate = gson.toJson(saleReceiptUpdate);
-                String API_URL = ApiHelper.URL + ApiHelper.DOMAIN_NGHIEMTHU;
-
-                HashMap<String, String> params = new HashMap<>();
-                params.put("key", ID);
-                params.put("saleReceipt", SaleReceiptUpdate);
-
-                JsonObjectRequest request_json = new JsonObjectRequest(API_URL, new JSONObject(params),
-                        new Response.Listener<JSONObject>() {
-                            @Override
-                            public void onResponse(JSONObject response) {
-                                try {
-                                    if (response.getBoolean("Result")){
-                                        JSONObject jsonObject = response.getJSONObject("Data");
-                                        int status = jsonObject.getInt("Status");
-                                        SharedPreferences mPrefs = getSharedPreferences(MyShare.NAME,MODE_PRIVATE);
-                                        SharedPreferences.Editor prefsEditor = mPrefs.edit();
-                                        prefsEditor.putInt(MyShare.VALUE_STATUS,status);
-                                        prefsEditor.apply();
-                                        showSweetDialogSuccess("Nghiệm thu thành công!");
-                                    }else {
-                                        Snackbar snackbar = Snackbar.make(Root,String.valueOf(response.getBoolean("Sản phẩm đã được nghiệm thu!")),Snackbar.LENGTH_LONG);
-                                        snackbar.show();
-                                    }
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        VolleyLog.e("Error: ", error.getMessage());
-                    }
-                });
-                VolleySingleton.getInstance(getApplication()).getRequestQueue().add(request_json);
+                onUpload();
             }
         });
     }
 
     private void addViews() {
         setSupportActionBar(toolbar);
+
+        if (getSupportActionBar() == null) return;
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -338,8 +298,8 @@ public class NghiemThuActivity extends AppCompatActivity {
         }
     }
 
-    private void getPhotoUrl(Bitmap bitmap, final String des){
-        String base64Photo = encodeToBase64(bitmap, Bitmap.CompressFormat.JPEG, 100);
+    public void getPhotoUrl(Bitmap bitmap, final String des){
+        String base64Photo = EncodeBitmapUtil.encodeToBase64(bitmap, Bitmap.CompressFormat.JPEG, 100);
 
         Gson gson = new Gson();
         SharedPreferences pre = getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
@@ -381,33 +341,60 @@ public class NghiemThuActivity extends AppCompatActivity {
         VolleySingleton.getInstance(this).getRequestQueue().add(request_json);
     }
 
-    private static String encodeToBase64(Bitmap image, Bitmap.CompressFormat compressFormat, int quality){
-        ByteArrayOutputStream byteArrayOS = new ByteArrayOutputStream();
-        image.compress(compressFormat, quality, byteArrayOS);
-        return Base64.encodeToString(byteArrayOS.toByteArray(), Base64.DEFAULT);
-    }
+    public void onUpload(){
+        Gson gson = new Gson();
+        SharedPreferences pre = getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
+        String json = pre.getString("SaleItem", "");
+        Item_ChuaGiao itemChuaGiao1 = gson.fromJson(json, Item_ChuaGiao.class);
 
-    private void showSweetDialogSuccess(String alert){
-        new SweetAlertDialog(this, SweetAlertDialog.SUCCESS_TYPE)
-                .setTitleText("Thành công!")
-                .setContentText(alert)
-                .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+        saleReceiptUpdate.setSaleReceiptId(itemChuaGiao1.getSaleReceiptId());
+        String ID = pre.getString(MyShare.VALUE_ID, null);
+        saleReceiptUpdate.setUrl(url_photoUploads);
+
+        String SaleReceiptUpdate = gson.toJson(saleReceiptUpdate);
+        String API_URL = ApiHelper.URL + ApiHelper.DOMAIN_NGHIEMTHU;
+
+        HashMap<String, String> params = new HashMap<>();
+        params.put("key", ID);
+        params.put("saleReceipt", SaleReceiptUpdate);
+
+        JsonObjectRequest request_json = new JsonObjectRequest(API_URL, new JSONObject(params),
+                new Response.Listener<JSONObject>() {
                     @Override
-                    public void onClick(SweetAlertDialog sweetAlertDialog) {
-                        sweetAlertDialog.cancel();
-                        Intent intent = new Intent(NghiemThuActivity.this,MainActivity.class);
-                        startActivity(intent);
-                        finish();
-                    }
-                })
-                .show();
-    }
+                    public void onResponse(JSONObject response) {
+                        try {
+                            if (response.getBoolean("Result")){
+                                JSONObject jsonObject = response.getJSONObject("Data");
+                                int status = jsonObject.getInt("Status");
+                                SharedPreferences mPrefs = getSharedPreferences(MyShare.NAME,MODE_PRIVATE);
+                                SharedPreferences.Editor prefsEditor = mPrefs.edit();
+                                prefsEditor.putInt(MyShare.VALUE_STATUS,status);
+                                prefsEditor.apply();
 
-    private void showSweetDialogWarning(String alert){
-        new SweetAlertDialog(this, SweetAlertDialog.WARNING_TYPE)
-                .setTitleText("Cảnh báo!")
-                .setContentText(alert)
-                .show();
+                                DialogUtil.showSweetDialogSuccess(getApplication(), "Nghiệm thu thành công!", new SweetAlertDialog.OnSweetClickListener() {
+                                    @Override
+                                    public void onClick(SweetAlertDialog sweetAlertDialog) {
+                                        sweetAlertDialog.cancel();
+                                        Intent intent = new Intent(NghiemThuActivity.this,MainActivity.class);
+                                        startActivity(intent);
+                                        finish();
+                                    }
+                                });
+                            }else {
+                                Snackbar snackbar = Snackbar.make(Root,String.valueOf(response.getBoolean("Sản phẩm đã được nghiệm thu!")),Snackbar.LENGTH_LONG);
+                                snackbar.show();
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.e("Error: ", error.getMessage());
+            }
+        });
+        VolleySingleton.getInstance(getApplication()).getRequestQueue().add(request_json);
     }
 
     private void removeNghiemThu(Photo photo){
