@@ -14,7 +14,7 @@ import com.thanhtuan.delivery.R;
 import com.thanhtuan.delivery.view.activity.DetailActivity;
 import com.thanhtuan.delivery.view.activity.MainActivity;
 import com.thanhtuan.delivery.model.Item_ChuaGiao;
-import com.thanhtuan.delivery.share.MyShare;
+import com.thanhtuan.delivery.util.SharePreferenceUtil;
 
 import java.util.List;
 
@@ -71,12 +71,12 @@ public class ListSaleAdapter extends RecyclerView.Adapter<ListSaleAdapter.SaleVi
             @Override
             public void onClick(View v) {
                 Gson gson = new Gson();
-                SharedPreferences mPrefs = mContext.getSharedPreferences(MyShare.NAME,MODE_PRIVATE);
+                SharedPreferences mPrefs = mContext.getSharedPreferences(SharePreferenceUtil.NAME,MODE_PRIVATE);
                 SharedPreferences.Editor prefsEditor = mPrefs.edit();
 
                 String json = gson.toJson(itemChuaGiao);
-                prefsEditor.putString(MyShare.VALUE_SALEITEM, json);
-                prefsEditor.putInt(MyShare.VALUE_STATUS, itemChuaGiao.getStatus());
+                prefsEditor.putString(SharePreferenceUtil.VALUE_SALEITEM, json);
+                prefsEditor.putInt(SharePreferenceUtil.VALUE_STATUS, itemChuaGiao.getStatus());
                 prefsEditor.apply();
 
                 Intent intent = new Intent(mContext, DetailActivity.class);

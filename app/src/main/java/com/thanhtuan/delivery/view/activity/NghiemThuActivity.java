@@ -41,7 +41,7 @@ import com.thanhtuan.delivery.model.Item_ChuaGiao;
 import com.thanhtuan.delivery.model.Photo;
 import com.thanhtuan.delivery.model.SaleReceiptUpdate;
 import com.thanhtuan.delivery.model.URL_PhotoUpload;
-import com.thanhtuan.delivery.share.MyShare;
+import com.thanhtuan.delivery.util.SharePreferenceUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -302,11 +302,11 @@ public class NghiemThuActivity extends AppCompatActivity {
         String base64Photo = EncodeBitmapUtil.encodeToBase64(bitmap, Bitmap.CompressFormat.JPEG, 100);
 
         Gson gson = new Gson();
-        SharedPreferences pre = getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
+        SharedPreferences pre = getSharedPreferences(SharePreferenceUtil.NAME, MODE_PRIVATE);
         String json = pre.getString("SaleItem", "");
         Item_ChuaGiao itemChuaGiao = gson.fromJson(json, Item_ChuaGiao.class);
 
-        String ID = pre.getString(MyShare.VALUE_ID, null);
+        String ID = pre.getString(SharePreferenceUtil.VALUE_ID, null);
 
         String API_PHOTO = ApiHelper.URL + ApiHelper.DOMAIN_UPLOADIMG;
 
@@ -343,12 +343,12 @@ public class NghiemThuActivity extends AppCompatActivity {
 
     public void onUpload(){
         Gson gson = new Gson();
-        SharedPreferences pre = getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
+        SharedPreferences pre = getSharedPreferences(SharePreferenceUtil.NAME, MODE_PRIVATE);
         String json = pre.getString("SaleItem", "");
         Item_ChuaGiao itemChuaGiao1 = gson.fromJson(json, Item_ChuaGiao.class);
 
         saleReceiptUpdate.setSaleReceiptId(itemChuaGiao1.getSaleReceiptId());
-        String ID = pre.getString(MyShare.VALUE_ID, null);
+        String ID = pre.getString(SharePreferenceUtil.VALUE_ID, null);
         saleReceiptUpdate.setUrl(url_photoUploads);
 
         String SaleReceiptUpdate = gson.toJson(saleReceiptUpdate);
@@ -366,9 +366,9 @@ public class NghiemThuActivity extends AppCompatActivity {
                             if (response.getBoolean("Result")){
                                 JSONObject jsonObject = response.getJSONObject("Data");
                                 int status = jsonObject.getInt("Status");
-                                SharedPreferences mPrefs = getSharedPreferences(MyShare.NAME,MODE_PRIVATE);
+                                SharedPreferences mPrefs = getSharedPreferences(SharePreferenceUtil.NAME,MODE_PRIVATE);
                                 SharedPreferences.Editor prefsEditor = mPrefs.edit();
-                                prefsEditor.putInt(MyShare.VALUE_STATUS,status);
+                                prefsEditor.putInt(SharePreferenceUtil.VALUE_STATUS,status);
                                 prefsEditor.apply();
 
                                 DialogUtil.showSweetDialogSuccess(getApplication(), "Nghiệm thu thành công!", new SweetAlertDialog.OnSweetClickListener() {

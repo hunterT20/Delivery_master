@@ -4,28 +4,25 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.android.volley.Request;
 import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.rey.material.widget.CheckBox;
 import com.thanhtuan.delivery.R;
 import com.thanhtuan.delivery.data.remote.ApiHelper;
-import com.thanhtuan.delivery.data.remote.VolleySingleton;
 import com.thanhtuan.delivery.model.User;
-import com.thanhtuan.delivery.share.MyShare;
-import com.thanhtuan.delivery.util.DataUtils;
+import com.thanhtuan.delivery.util.SharePreferenceUtil;
+import com.thanhtuan.delivery.util.NetworkUtils;
 import com.thanhtuan.delivery.util.NewtonLoadingUtil;
 import com.victor.loading.newton.NewtonCradleLoading;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.HashMap;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -38,13 +35,6 @@ public class LoginActivity extends AppCompatActivity {
     @BindView(R.id.newton_cradle_loading)  NewtonCradleLoading newtonCradleLoading;
     @BindView(R.id.ckbSave)     CheckBox ckbSaveUser;
 
-    private static String API_LOGIN;
-    private static String PARAM1 = "username=";
-    private static String PARAM2 = "&password=";
-
-    private String UsernameValue;
-    private String PasswordValue;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,7 +46,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void addViews() {
-        loadUser();
+        SharePreferenceUtil.loadUser(this,edtUserName,edtPassword);
     }
 
     private void addEvents() {
@@ -64,83 +54,58 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 /*Check connect internet*/
-                if (!DataUtils.isNetworkAvailable(getApplication())){
+                if (!NetworkUtils.isNetworkAvailable(getApplication())){
                     Toast.makeText(LoginActivity.this, "Bạn chưa bật kết nối mạng!", Toast.LENGTH_SHORT).show();
+                    return;
                 }
                 /*Set view cho NewtonLoadingUtil*/
                 final NewtonLoadingUtil newtonLoadingUtil = new NewtonLoadingUtil(newtonCradleLoading);
                 newtonLoadingUtil.show();
 
-                API_LOGIN = ApiHelper.URL + ApiHelper.DOMAIN_LOGIN + PARAM1 + edtUserName.getText() + PARAM2 + edtPassword.getText();
+                HashMap<String, String> params = new HashMap<>();
+                params.put("EmployeeId", edtUserName.getText().toString());
+                params.put("password", edtPassword.getText().toString());
 
-                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, API_LOGIN, null,
-                        new Response.Listener<JSONObject>() {
-                            @Override
-                            public void onResponse(JSONObject response) {
-                                try {
-                                    if(response.getBoolean("Result")){
-                                        JSONObject data = response.getJSONObject("Data");
-
-                                        User user = new User();
-                                        user.setUserID(data.getInt("UserId"));
-                                        user.setUserName(data.getString("UserName"));
-                                        user.setToken("Bearer " + data.getString("Token"));
-
-                                        /*Gắn biến share ID chuyền ID để làm PARAM cho API khác*/
-                                        SharedPreferences pre = getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
-                                        SharedPreferences.Editor edit = pre.edit();
-                                        edit.putString(MyShare.VALUE_ID, data.getString("Id"));
-                                        edit.putString(MyShare.VALUE_TOKEN, "Bearer " + data.getString("Token"));
-                                        edit.apply();
-
-                                        newtonLoadingUtil.dismiss();
-                                        Toast.makeText(LoginActivity.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
-
-                                        //Save username và password
-                                        if (ckbSaveUser.isChecked()){
-                                            saveUser();
-                                        }
-
-                                        Intent intent = new Intent(LoginActivity.this,MainActivity.class);
-                                        startActivity(intent);
-                                        finish();
-                                    }else {
-                                        newtonLoadingUtil.dismiss();
-                                        Toast.makeText(LoginActivity.this, response.getString("Message"), Toast.LENGTH_SHORT).show();
-                                    }
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }, new Response.ErrorListener() {
+                ApiHelper.LOGIN(getApplication(), params, new Response.Listener<JSONObject>() {
                     @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.e("", "onErrorResponse: " + error.getMessage());
+                    public void onResponse(JSONObject response) {
+                        try {
+                            if(response.getBoolean("Success")){
+                                JSONObject data = response.getJSONObject("Data");
+
+                                User user = new User();
+                                user.setID(data.getString("EmployeeId"));
+                                user.setToken(data.getString("SessionToken"));
+
+                                SharePreferenceUtil.setValueId(getApplication(),user.getID());
+                                SharePreferenceUtil.setValueToken(getApplication(),user.getToken());
+
+                                newtonLoadingUtil.dismiss();
+                                Toast.makeText(LoginActivity.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
+
+                                SaveLogin();
+
+                                Intent intent = new Intent(LoginActivity.this,MainActivity.class);
+                                startActivity(intent);
+                                finish();
+                            }else {
+                                newtonLoadingUtil.dismiss();
+                                Toast.makeText(LoginActivity.this, response.getString("Message"), Toast.LENGTH_SHORT).show();
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
                 });
-
-                VolleySingleton.getInstance(getApplication()).getRequestQueue().add(jsonObjectRequest);
             }
         });
     }
 
-    private void saveUser() {
-        UsernameValue = edtUserName.getText().toString();
-        PasswordValue = edtPassword.getText().toString();
-
-        SharedPreferences MyPre = getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
-        SharedPreferences.Editor editor = MyPre.edit();
-        editor.putString(MyShare.VALUE_USERNAME, UsernameValue);
-        editor.putString(MyShare.VALUE_PASSWORD, PasswordValue);
-        editor.apply();
-    }
-
-    private void loadUser() {
-        SharedPreferences MyPre = getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
-        UsernameValue = MyPre.getString(MyShare.VALUE_USERNAME, "");
-        PasswordValue = MyPre.getString(MyShare.VALUE_PASSWORD, "");
-
-        edtUserName.setText(UsernameValue);
-        edtPassword.setText(PasswordValue);
+    private void SaveLogin(){
+        if (ckbSaveUser.isChecked()){
+            String username = edtUserName.getText().toString();
+            String password = edtPassword.getText().toString();
+            SharePreferenceUtil.saveUser(getApplication(),username,password);
+        }
     }
 }

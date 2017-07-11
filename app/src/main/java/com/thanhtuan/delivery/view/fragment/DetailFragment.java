@@ -24,7 +24,7 @@ import com.thanhtuan.delivery.data.remote.ApiHelper;
 import com.thanhtuan.delivery.data.remote.VolleySingleton;
 import com.thanhtuan.delivery.model.Item_ChuaGiao;
 import com.thanhtuan.delivery.model.Product;
-import com.thanhtuan.delivery.share.MyShare;
+import com.thanhtuan.delivery.util.SharePreferenceUtil;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import org.json.JSONArray;
@@ -66,17 +66,16 @@ public class DetailFragment extends Fragment {
     }
 
     private void initData() {
-        String PARAM1 = "key=";
-        String PARAM2 = "&SaleReceiptId=";
+        String PARAM1 = "EmployeeId=";
 
         Gson gson = new Gson();
-        SharedPreferences pre=getActivity().getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
-        String ID = pre.getString(MyShare.VALUE_ID, null);
+        SharedPreferences pre=getActivity().getSharedPreferences(SharePreferenceUtil.NAME, MODE_PRIVATE);
+        String ID = pre.getString(SharePreferenceUtil.VALUE_ID, null);
 
         String json = pre.getString("SaleItem", "");
         Item_ChuaGiao itemChuaGiao = gson.fromJson(json, Item_ChuaGiao.class);
 
-        String API_LISTPRODUCT = ApiHelper.URL + ApiHelper.DOMAIN_LISTPRODUCT + PARAM1 + ID + PARAM2 + itemChuaGiao.getSaleReceiptId();
+        String API_LISTPRODUCT = ApiHelper.URL2 + ApiHelper.DOMAIN_LISTPRODUCT + PARAM1 + ID;
         AVLoadingUtil.startAnim(avi_Loading);
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, API_LISTPRODUCT, null,
@@ -84,9 +83,8 @@ public class DetailFragment extends Fragment {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
-                            if(response.getBoolean("Result")){
-                                JSONObject data = response.getJSONObject("Data");
-                                JSONArray listProduct = data.getJSONArray("Items");
+                            if(response.getBoolean("Success")){
+                                JSONArray listProduct = response.getJSONArray("Data");
 
                                 for (int i = 0; i < listProduct.length(); i++){
                                     JSONObject object = (JSONObject) listProduct.get(i);

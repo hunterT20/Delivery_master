@@ -17,7 +17,7 @@ import com.thanhtuan.delivery.R;
 import com.thanhtuan.delivery.view.fragment.DetailFragment;
 import com.thanhtuan.delivery.view.fragment.InfoFragment;
 import com.thanhtuan.delivery.view.fragment.MapFragment;
-import com.thanhtuan.delivery.share.MyShare;
+import com.thanhtuan.delivery.util.SharePreferenceUtil;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -92,7 +92,6 @@ public class DetailActivity extends AppCompatActivity {
                     setToastBack();
                 }else {
                     Intent intent = new Intent(DetailActivity.this, MainActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
                     finish();
                 }
@@ -115,7 +114,7 @@ public class DetailActivity extends AppCompatActivity {
         }
     }
 
-    public void setEventHuy(){
+    public void setIntent(){
         Intent intent = new Intent(DetailActivity.this,MainActivity.class);
         startActivity(intent);
         finish();
@@ -130,7 +129,7 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private void getStatus(){
-        SharedPreferences pre = getSharedPreferences(MyShare.NAME, MODE_PRIVATE);
+        SharedPreferences pre = getSharedPreferences(SharePreferenceUtil.NAME, MODE_PRIVATE);
         status = pre.getInt("status",0);
     }
 }

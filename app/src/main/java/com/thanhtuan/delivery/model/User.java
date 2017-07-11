@@ -1,27 +1,18 @@
 package com.thanhtuan.delivery.model;
 
 public class User {
-    private int userID;
-    private String userName;
+    private String ID;
     private String token;
 
     public User() {
     }
 
-    public int getUserID() {
-        return userID;
+    public String getID() {
+        return ID;
     }
 
-    public void setUserID(int userID) {
-        this.userID = userID;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setID(String ID) {
+        this.ID = ID;
     }
 
     public String getToken() {

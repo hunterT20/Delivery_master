@@ -60,7 +60,7 @@ import com.thanhtuan.delivery.interface_delivery.Interface_Location;
 import com.thanhtuan.delivery.model.Item_ChuaGiao;
 import com.thanhtuan.delivery.model.Route_point;
 import com.thanhtuan.delivery.model.Steps;
-import com.thanhtuan.delivery.share.MyShare;
+import com.thanhtuan.delivery.util.SharePreferenceUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -110,8 +110,8 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
 
         mMapView.onCreate(savedInstanceState);
         polylines = new ArrayList<>();
-        SharedPreferences mPrefs = getActivity().getSharedPreferences(MyShare.NAME,MODE_PRIVATE);
-        int status = mPrefs.getInt(MyShare.VALUE_STATUS,0);
+        SharedPreferences mPrefs = getActivity().getSharedPreferences(SharePreferenceUtil.NAME,MODE_PRIVATE);
+        int status = mPrefs.getInt(SharePreferenceUtil.VALUE_STATUS,0);
         /*Nếu status == 0 (Đơn hàng đang chờ giao) thì vị trí map direction trở về ban đầu
         * */
         if(status ==0){
@@ -309,8 +309,8 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
         getLocationSale(new Interface_Location() {
             @Override
             public void onLocation(final Route_point route_point) {
-                SharedPreferences mPrefs = getActivity().getSharedPreferences(MyShare.NAME,MODE_PRIVATE);
-                int current = mPrefs.getInt(MyShare.VALUE_DIRECTION, -1);
+                SharedPreferences mPrefs = getActivity().getSharedPreferences(SharePreferenceUtil.NAME,MODE_PRIVATE);
+                int current = mPrefs.getInt(SharePreferenceUtil.VALUE_DIRECTION, -1);
 
                 initSwipeItem(route_point, current);
 
@@ -429,9 +429,9 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
 
     public void valueCurrent(int current){
         /*Biến Share giữ vị trí đang chỉ đường*/
-        SharedPreferences mPrefs = getActivity().getSharedPreferences(MyShare.NAME,MODE_PRIVATE);
+        SharedPreferences mPrefs = getActivity().getSharedPreferences(SharePreferenceUtil.NAME,MODE_PRIVATE);
         SharedPreferences.Editor prefsEditor = mPrefs.edit();
-        prefsEditor.putInt(MyShare.VALUE_DIRECTION, current);
+        prefsEditor.putInt(SharePreferenceUtil.VALUE_DIRECTION, current);
         prefsEditor.apply();
     }
 
