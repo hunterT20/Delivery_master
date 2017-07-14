@@ -83,11 +83,11 @@ import static android.content.Context.MODE_PRIVATE;
  */
 public class MapFragment extends Fragment implements RoutingListener, GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
 
-    @BindView(R.id.mapView) MapView mMapView;
-    @BindView(R.id.Direction)    SwipeSelector swipeSelector;
-    @BindView(R.id.txtvTime)    TextView txtvTime;
+    @BindView(R.id.mapView)         MapView mMapView;
+    @BindView(R.id.Direction)       SwipeSelector swipeSelector;
+    @BindView(R.id.txtvTime)        TextView txtvTime;
     @BindView(R.id.btnDirection)    Button btnDirection;
-    @BindView(R.id.LnLTotal)    LinearLayout linearLayout;
+    @BindView(R.id.LnLTotal)        LinearLayout linearLayout;
 
     final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
     private GoogleMap googleMap;
@@ -110,12 +110,11 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
 
         mMapView.onCreate(savedInstanceState);
         polylines = new ArrayList<>();
-        SharedPreferences mPrefs = getActivity().getSharedPreferences(SharePreferenceUtil.NAME,MODE_PRIVATE);
-        int status = mPrefs.getInt(SharePreferenceUtil.VALUE_STATUS,0);
+        int status = SharePreferenceUtil.getValueStatus(getActivity());
         /*Nếu status == 0 (Đơn hàng đang chờ giao) thì vị trí map direction trở về ban đầu
         * */
         if(status ==0){
-            valueCurrent(-1);
+            SharePreferenceUtil.setValueDirection(getActivity(),-1);
         }
 
         mMapView.onResume();
@@ -171,7 +170,6 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
     }
 
     private void getLocationSale(final Interface_Location interface_location) {
-        Gson gson = new Gson();
         String PARAM1 = "origin=";
         String PARAM2 = "&destination=";
         String PARAM3 = "&language=";
@@ -180,9 +178,7 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
         if(getActivity() == null){
             return;
         }
-        SharedPreferences mPrefs = getActivity().getSharedPreferences("MyPre",MODE_PRIVATE);
-        String json = mPrefs.getString("SaleItem", "");
-        Item_ChuaGiao itemChuaGiao = gson.fromJson(json, Item_ChuaGiao.class);
+        Item_ChuaGiao itemChuaGiao = SharePreferenceUtil.getValueSaleItem(getActivity());
         String address = itemChuaGiao.getAddress();
         try {
             address = URLEncoder.encode(address, "utf-8");
@@ -309,12 +305,8 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
         getLocationSale(new Interface_Location() {
             @Override
             public void onLocation(final Route_point route_point) {
-                SharedPreferences mPrefs = getActivity().getSharedPreferences(SharePreferenceUtil.NAME,MODE_PRIVATE);
-                int current = mPrefs.getInt(SharePreferenceUtil.VALUE_DIRECTION, -1);
-
+                int current = SharePreferenceUtil.getValueDirection(getActivity());
                 initSwipeItem(route_point, current);
-
-                Log.e("current", current + "");
 
                 if (current == -1){
                     /*set textview tổng quãng đường và thời gian cần đi*/
@@ -422,17 +414,9 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
                 getPolyline("#FFFF7700",route_point.getStepsArrayList().get(current).getPolyline());
                 updateCamera(route_point.getStepsArrayList().get(current).getStartLocation());
 
-                valueCurrent(current);
+                SharePreferenceUtil.setValueDirection(getActivity(),current);
             }
         });
-    }
-
-    public void valueCurrent(int current){
-        /*Biến Share giữ vị trí đang chỉ đường*/
-        SharedPreferences mPrefs = getActivity().getSharedPreferences(SharePreferenceUtil.NAME,MODE_PRIVATE);
-        SharedPreferences.Editor prefsEditor = mPrefs.edit();
-        prefsEditor.putInt(SharePreferenceUtil.VALUE_DIRECTION, current);
-        prefsEditor.apply();
     }
 
     @TargetApi(Build.VERSION_CODES.M)

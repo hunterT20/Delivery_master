@@ -70,14 +70,8 @@ public class ListSaleAdapter extends RecyclerView.Adapter<ListSaleAdapter.SaleVi
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Gson gson = new Gson();
-                SharedPreferences mPrefs = mContext.getSharedPreferences(SharePreferenceUtil.NAME,MODE_PRIVATE);
-                SharedPreferences.Editor prefsEditor = mPrefs.edit();
-
-                String json = gson.toJson(itemChuaGiao);
-                prefsEditor.putString(SharePreferenceUtil.VALUE_SALEITEM, json);
-                prefsEditor.putInt(SharePreferenceUtil.VALUE_STATUS, itemChuaGiao.getStatus());
-                prefsEditor.apply();
+                SharePreferenceUtil.setValueSaleitem(mContext ,itemChuaGiao);
+                SharePreferenceUtil.setValueStatus(mContext, itemChuaGiao.getStatus());
 
                 Intent intent = new Intent(mContext, DetailActivity.class);
                 mContext.startActivity(intent);

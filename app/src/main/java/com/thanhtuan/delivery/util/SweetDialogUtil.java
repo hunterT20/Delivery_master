@@ -5,7 +5,7 @@ import android.content.Context;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
-public class DialogUtil {
+public class SweetDialogUtil {
 
     public static void showSweetDialogSuccess(Context context , String alert, SweetAlertDialog.OnSweetClickListener onSweetClickListener){
         new SweetAlertDialog(context, SweetAlertDialog.SUCCESS_TYPE)

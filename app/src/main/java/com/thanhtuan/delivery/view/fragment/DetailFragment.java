@@ -18,6 +18,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.gson.Gson;
 import com.thanhtuan.delivery.R;
+import com.thanhtuan.delivery.data.remote.JsonRequest;
 import com.thanhtuan.delivery.util.AVLoadingUtil;
 import com.thanhtuan.delivery.view.adapter.ListProductAdapter;
 import com.thanhtuan.delivery.data.remote.ApiHelper;
@@ -66,60 +67,44 @@ public class DetailFragment extends Fragment {
     }
 
     private void initData() {
-        String PARAM1 = "EmployeeId=";
-
-        Gson gson = new Gson();
-        SharedPreferences pre=getActivity().getSharedPreferences(SharePreferenceUtil.NAME, MODE_PRIVATE);
-        String ID = pre.getString(SharePreferenceUtil.VALUE_ID, null);
-
-        String json = pre.getString("SaleItem", "");
-        Item_ChuaGiao itemChuaGiao = gson.fromJson(json, Item_ChuaGiao.class);
-
-        String API_LISTPRODUCT = ApiHelper.URL2 + ApiHelper.DOMAIN_LISTPRODUCT + PARAM1 + ID;
+        final String Token = SharePreferenceUtil.getValueToken(getActivity());
+        String URL = ApiHelper.ApiDetail(getActivity());
         AVLoadingUtil.startAnim(avi_Loading);
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, API_LISTPRODUCT, null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            if(response.getBoolean("Success")){
-                                JSONArray listProduct = response.getJSONArray("Data");
-
-                                for (int i = 0; i < listProduct.length(); i++){
-                                    JSONObject object = (JSONObject) listProduct.get(i);
-
-                                    Product product = new Product();
-                                    product.setItemId(object.getString("ItemId"));
-                                    product.setSKU(object.getString("SKU"));
-                                    product.setPrice(object.getDouble("Price"));
-                                    product.setQuantity(object.getInt("Quantity"));
-                                    product.setStatus(object.getInt("Status"));
-
-                                    mProduct.add(product);
-                                }
-                                addControls();
-
-                                //RecyclerView scroll vertical
-                                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
-                                rcvProduct.setLayoutManager(linearLayoutManager);
-                                AVLoadingUtil.stopAnim(avi_Loading);
-                            }else {
-                                Toast.makeText(getActivity(), response.getString("Message"), Toast.LENGTH_SHORT).show();
-                                AVLoadingUtil.stopAnim(avi_Loading);
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
+        JsonRequest.Request(getActivity(), Token, URL, null, new Response.Listener<JSONObject>() {
             @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e("", "onErrorResponse: " + error.getMessage());
+            public void onResponse(JSONObject response) {
+                try {
+                    if(response.getBoolean("Success")){
+                        JSONArray listProduct = response.getJSONArray("Data");
+
+                        for (int i = 0; i < listProduct.length(); i++){
+                            JSONObject object = (JSONObject) listProduct.get(i);
+
+                            Product product = new Product();
+                            product.setItemId(object.getString("ItemId"));
+                            product.setSKU(object.getString("SKU"));
+                            product.setPrice(object.getDouble("Price"));
+                            product.setQuantity(object.getInt("Quantity"));
+                            product.setStatus(object.getInt("Status"));
+
+                            mProduct.add(product);
+                        }
+                        addControls();
+
+                        //RecyclerView scroll vertical
+                        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
+                        rcvProduct.setLayoutManager(linearLayoutManager);
+                        AVLoadingUtil.stopAnim(avi_Loading);
+                    }else {
+                        Toast.makeText(getActivity(), response.getString("Message"), Toast.LENGTH_SHORT).show();
+                        AVLoadingUtil.stopAnim(avi_Loading);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         });
-
-        VolleySingleton.getInstance(getActivity()).getRequestQueue().add(jsonObjectRequest);
     }
     private void addControls() {
         if(getActivity() == null) return;

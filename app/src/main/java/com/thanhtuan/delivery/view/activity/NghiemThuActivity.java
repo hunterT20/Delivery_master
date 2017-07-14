@@ -32,7 +32,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.gson.Gson;
 import com.rey.material.widget.FloatingActionButton;
 import com.thanhtuan.delivery.R;
-import com.thanhtuan.delivery.util.DialogUtil;
+import com.thanhtuan.delivery.util.SweetDialogUtil;
 import com.thanhtuan.delivery.util.EncodeBitmapUtil;
 import com.thanhtuan.delivery.view.adapter.ListNghiemThuAdapter;
 import com.thanhtuan.delivery.data.remote.ApiHelper;
@@ -171,7 +171,7 @@ public class NghiemThuActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (photoList.size() == 0){
-                    DialogUtil.showSweetDialogWarning(getApplication(),"Vui làm nghiệm thu trước khi update!");
+                    SweetDialogUtil.showSweetDialogWarning(getApplication(),"Vui làm nghiệm thu trước khi update!");
                     return;
                 }
 
@@ -301,13 +301,9 @@ public class NghiemThuActivity extends AppCompatActivity {
     public void getPhotoUrl(Bitmap bitmap, final String des){
         String base64Photo = EncodeBitmapUtil.encodeToBase64(bitmap, Bitmap.CompressFormat.JPEG, 100);
 
-        Gson gson = new Gson();
-        SharedPreferences pre = getSharedPreferences(SharePreferenceUtil.NAME, MODE_PRIVATE);
-        String json = pre.getString("SaleItem", "");
-        Item_ChuaGiao itemChuaGiao = gson.fromJson(json, Item_ChuaGiao.class);
+        Item_ChuaGiao itemChuaGiao = SharePreferenceUtil.getValueSaleItem(this);
 
-        String ID = pre.getString(SharePreferenceUtil.VALUE_ID, null);
-
+        String ID = SharePreferenceUtil.getValueId(this);
         String API_PHOTO = ApiHelper.URL + ApiHelper.DOMAIN_UPLOADIMG;
 
         HashMap<String, String> params = new HashMap<>();
@@ -342,17 +338,15 @@ public class NghiemThuActivity extends AppCompatActivity {
     }
 
     public void onUpload(){
-        Gson gson = new Gson();
-        SharedPreferences pre = getSharedPreferences(SharePreferenceUtil.NAME, MODE_PRIVATE);
-        String json = pre.getString("SaleItem", "");
-        Item_ChuaGiao itemChuaGiao1 = gson.fromJson(json, Item_ChuaGiao.class);
+        Item_ChuaGiao itemChuaGiao1 = SharePreferenceUtil.getValueSaleItem(this);
 
         saleReceiptUpdate.setSaleReceiptId(itemChuaGiao1.getSaleReceiptId());
-        String ID = pre.getString(SharePreferenceUtil.VALUE_ID, null);
         saleReceiptUpdate.setUrl(url_photoUploads);
 
+        Gson gson = new Gson();
         String SaleReceiptUpdate = gson.toJson(saleReceiptUpdate);
         String API_URL = ApiHelper.URL + ApiHelper.DOMAIN_NGHIEMTHU;
+        String ID = SharePreferenceUtil.getValueId(this);
 
         HashMap<String, String> params = new HashMap<>();
         params.put("key", ID);
@@ -366,15 +360,13 @@ public class NghiemThuActivity extends AppCompatActivity {
                             if (response.getBoolean("Result")){
                                 JSONObject jsonObject = response.getJSONObject("Data");
                                 int status = jsonObject.getInt("Status");
-                                SharedPreferences mPrefs = getSharedPreferences(SharePreferenceUtil.NAME,MODE_PRIVATE);
-                                SharedPreferences.Editor prefsEditor = mPrefs.edit();
-                                prefsEditor.putInt(SharePreferenceUtil.VALUE_STATUS,status);
-                                prefsEditor.apply();
+                                SharePreferenceUtil.setValueStatus(getApplication(),status);
 
-                                DialogUtil.showSweetDialogSuccess(getApplication(), "Nghiệm thu thành công!", new SweetAlertDialog.OnSweetClickListener() {
+                                SweetDialogUtil.showSweetDialogSuccess(getApplication(), "Nghiệm thu thành công!", new SweetAlertDialog.OnSweetClickListener() {
                                     @Override
                                     public void onClick(SweetAlertDialog sweetAlertDialog) {
                                         sweetAlertDialog.cancel();
+                                        SharePreferenceUtil.Clean(getApplication());
                                         Intent intent = new Intent(NghiemThuActivity.this,MainActivity.class);
                                         startActivity(intent);
                                         finish();

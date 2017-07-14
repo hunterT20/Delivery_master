@@ -10,8 +10,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.android.volley.Response;
+import com.google.android.gms.common.api.Api;
 import com.thanhtuan.delivery.R;
 import com.thanhtuan.delivery.data.remote.ApiHelper;
+import com.thanhtuan.delivery.data.remote.JsonRequest;
 import com.thanhtuan.delivery.model.Item_ChuaGiao;
 import com.thanhtuan.delivery.util.SharePreferenceUtil;
 import com.thanhtuan.delivery.util.AVLoadingUtil;
@@ -64,13 +66,13 @@ public class ChuaGiaoFragment extends Fragment {
     }
 
     private void initData() {
-        String ID = SharePreferenceUtil.getValueId(getActivity());
         final String Token = SharePreferenceUtil.getValueToken(getActivity());
-        txtvNoItem.setVisibility(View.GONE);
 
+        txtvNoItem.setVisibility(View.GONE);
         AVLoadingUtil.startAnim(avi_Loading);
 
-        ApiHelper.GETLIST_CHUAGIAO(getActivity(), ID, Token, new Response.Listener<JSONObject>() {
+        String URL = ApiHelper.ApiListChuaGIao(getActivity());
+        JsonRequest.Request(getActivity(), Token, URL, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 try {
@@ -93,11 +95,6 @@ public class ChuaGiaoFragment extends Fragment {
                             itemChuaGiao.setNote(object.getString("Note"));
                             itemChuaGiao.setStatus(object.getInt("Status"));
 
-                            if (itemChuaGiao.getStatus() != 0){
-                                SharePreferenceUtil.setValueSaleitem(getActivity(),itemChuaGiao);
-                                SharePreferenceUtil.setValueStatus(getActivity(),itemChuaGiao.getStatus());
-                                ((MainActivity)getActivity()).intentDetail();
-                            }
                             mItemChuaGiao.add(itemChuaGiao);
                         }
 

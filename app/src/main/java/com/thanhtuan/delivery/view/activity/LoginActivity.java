@@ -1,7 +1,6 @@
 package com.thanhtuan.delivery.view.activity;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -13,6 +12,7 @@ import com.android.volley.Response;
 import com.rey.material.widget.CheckBox;
 import com.thanhtuan.delivery.R;
 import com.thanhtuan.delivery.data.remote.ApiHelper;
+import com.thanhtuan.delivery.data.remote.JsonRequest;
 import com.thanhtuan.delivery.model.User;
 import com.thanhtuan.delivery.util.SharePreferenceUtil;
 import com.thanhtuan.delivery.util.NetworkUtils;
@@ -62,11 +62,12 @@ public class LoginActivity extends AppCompatActivity {
                 final NewtonLoadingUtil newtonLoadingUtil = new NewtonLoadingUtil(newtonCradleLoading);
                 newtonLoadingUtil.show();
 
-                HashMap<String, String> params = new HashMap<>();
-                params.put("EmployeeId", edtUserName.getText().toString());
-                params.put("password", edtPassword.getText().toString());
+                HashMap<String, String> param = ApiHelper.paramLoGin(
+                        edtUserName.getText().toString(),
+                        edtPassword.getText().toString()
+                );
 
-                ApiHelper.LOGIN(getApplication(), params, new Response.Listener<JSONObject>() {
+                JsonRequest.Request(getApplication(), null, ApiHelper.ApiLogin(), new JSONObject(param), new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
@@ -84,8 +85,13 @@ public class LoginActivity extends AppCompatActivity {
                                 Toast.makeText(LoginActivity.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
 
                                 SaveLogin();
-
-                                Intent intent = new Intent(LoginActivity.this,MainActivity.class);
+                                Intent intent;
+                                if (SharePreferenceUtil.getValueStatus(getApplication()) != 0)
+                                {
+                                    intent = new Intent(LoginActivity.this, DetailActivity.class);
+                                }else {
+                                    intent = new Intent(LoginActivity.this,MainActivity.class);
+                                }
                                 startActivity(intent);
                                 finish();
                             }else {

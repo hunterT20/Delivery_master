@@ -29,7 +29,6 @@ public class DetailActivity extends AppCompatActivity {
     @BindView(R.id.toolbar_title)   TextView txtvTitleToolbar;
 
     private Toast toast;
-    private int status;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,7 +87,7 @@ public class DetailActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
                 getStatus();
-                if (status != 0){
+                if (getStatus() != 0){
                     setToastBack();
                 }else {
                     Intent intent = new Intent(DetailActivity.this, MainActivity.class);
@@ -104,7 +103,7 @@ public class DetailActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         getStatus();
-        if (status != 0) {
+        if (getStatus() != 0) {
             setToastBack();
         }
         else {
@@ -128,8 +127,7 @@ public class DetailActivity extends AppCompatActivity {
         toast.show();
     }
 
-    private void getStatus(){
-        SharedPreferences pre = getSharedPreferences(SharePreferenceUtil.NAME, MODE_PRIVATE);
-        status = pre.getInt("status",0);
+    private int getStatus(){
+        return SharePreferenceUtil.getValueStatus(this);
     }
 }

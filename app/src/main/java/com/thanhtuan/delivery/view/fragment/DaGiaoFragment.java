@@ -19,11 +19,13 @@ import com.android.volley.Response;
 import com.rey.material.widget.FloatingActionButton;
 import com.thanhtuan.delivery.R;
 import com.thanhtuan.delivery.data.remote.ApiHelper;
+import com.thanhtuan.delivery.data.remote.JsonRequest;
 import com.thanhtuan.delivery.interface_delivery.EndlessRecyclerViewScrollListener;
 import com.thanhtuan.delivery.interface_delivery.OnGetList;
 import com.thanhtuan.delivery.model.Item_DaGiao;
 import com.thanhtuan.delivery.util.RecyclerViewUtil;
 import com.thanhtuan.delivery.util.AVLoadingUtil;
+import com.thanhtuan.delivery.util.SharePreferenceUtil;
 import com.thanhtuan.delivery.view.adapter.ListDaGiaoAdapter;
 import com.wang.avi.AVLoadingIndicatorView;
 
@@ -178,11 +180,14 @@ public class DaGiaoFragment extends Fragment implements DatePickerDialog.OnDateS
 
     private void getData(String timeBegin, String timeEnd,int pages,
                          final List<Item_DaGiao> list, final OnGetList onGetList){
+        final String Token = SharePreferenceUtil.getValueToken(getActivity());
 
         txtvNoItem.setVisibility(View.GONE);
         AVLoadingUtil.startAnim(avi_Loading);
 
-        ApiHelper.GETLIST_DAGIAO(getActivity(), pages, timeBegin, timeEnd, new Response.Listener<JSONObject>() {
+        String URL = ApiHelper.ApiListDaGiao(pages,timeBegin,timeEnd);
+
+        JsonRequest.Request(getActivity(), Token, URL, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 try {
