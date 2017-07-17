@@ -201,7 +201,8 @@ public class InfoFragment extends Fragment {
         else {
             final String Token = SharePreferenceUtil.getValueToken(getActivity());
             String URL = ApiHelper.ApiAbort();
-            JsonRequest.Request(getActivity(), Token, URL, null, new Response.Listener<JSONObject>() {
+            HashMap<String,String> param = ApiHelper.paramAbort(getActivity(),"Default",url_photoUploads);
+            JsonRequest.Request(getActivity(), Token, URL, new JSONObject(param), new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
                     try {
