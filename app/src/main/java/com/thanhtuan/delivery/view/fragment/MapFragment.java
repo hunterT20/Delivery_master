@@ -26,10 +26,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Request;
 import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.directions.route.AbstractRouting;
 import com.directions.route.Route;
 import com.directions.route.RouteException;
@@ -48,16 +45,14 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.RoundCap;
-import com.google.gson.Gson;
 import com.google.maps.android.PolyUtil;
 import com.roughike.swipeselector.OnSwipeItemSelectedListener;
 import com.roughike.swipeselector.SwipeItem;
 import com.roughike.swipeselector.SwipeSelector;
 import com.thanhtuan.delivery.R;
 import com.thanhtuan.delivery.data.remote.ApiHelper;
-import com.thanhtuan.delivery.data.remote.VolleySingleton;
+import com.thanhtuan.delivery.data.remote.JsonRequest;
 import com.thanhtuan.delivery.interface_delivery.Interface_Location;
-import com.thanhtuan.delivery.model.Item_ChuaGiao;
 import com.thanhtuan.delivery.model.Route_point;
 import com.thanhtuan.delivery.model.Steps;
 import com.thanhtuan.delivery.util.SharePreferenceUtil;
@@ -67,16 +62,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.pedant.SweetAlert.SweetAlertDialog;
-
-import static android.content.Context.MODE_PRIVATE;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -170,95 +161,70 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
     }
 
     private void getLocationSale(final Interface_Location interface_location) {
-        String PARAM1 = "origin=";
-        String PARAM2 = "&destination=";
-        String PARAM3 = "&language=";
-        String PARAM4 = "&key=";
-
+        getCurrentLocation();
         if(getActivity() == null){
             return;
         }
-        Item_ChuaGiao itemChuaGiao = SharePreferenceUtil.getValueSaleItem(getActivity());
-        String address = itemChuaGiao.getAddress();
-        try {
-            address = URLEncoder.encode(address, "utf-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
 
-        getCurrentLocation();
+        String URL =  ApiHelper.ApiMap(getActivity(),latitudeCurrent,longitudeCurrent);
+        JsonRequest.Request(getActivity(), null, URL, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    if (response.get("status").equals("OK")) {
+                        JSONObject routes = response.getJSONArray("routes").getJSONObject(0);
 
+                        JSONObject legs = routes.getJSONArray("legs").getJSONObject(0);
+                        JSONObject overview_polyline = routes.getJSONObject("overview_polyline");
+                        JSONObject distance = legs.getJSONObject("distance");
+                        JSONObject duration = legs.getJSONObject("duration");
+                        JSONObject end_location = legs.getJSONObject("end_location");
+                        JSONArray step_list = legs.getJSONArray("steps");
 
-        String key = "AIzaSyCueeDritXwUW37E3jH897o9iBHyIMpseE";
-        String API_MAP = ApiHelper.URL_MAP + ApiHelper.DOMAIN_MAP + PARAM1 + latitudeCurrent + "," + longitudeCurrent +
-                PARAM2 + address + PARAM3 + "vi" + PARAM4 + key;
-        Log.e("MAP", API_MAP);
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, API_MAP, null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            if (response.get("status").equals("OK")) {
-                                JSONObject routes = response.getJSONArray("routes").getJSONObject(0);
+                        LatLng end = new LatLng(end_location.getDouble("lat"),end_location.getDouble("lng"));
 
-                                JSONObject legs = routes.getJSONArray("legs").getJSONObject(0);
-                                JSONObject overview_polyline = routes.getJSONObject("overview_polyline");
-                                JSONObject distance = legs.getJSONObject("distance");
-                                JSONObject duration = legs.getJSONObject("duration");
-                                JSONObject end_location = legs.getJSONObject("end_location");
-                                JSONArray step_list = legs.getJSONArray("steps");
+                        Route_point route_point = new Route_point();
+                        route_point.setTotalDistance(distance.getString("text"));
+                        route_point.setTotalDuration(duration.getString("text"));
+                        route_point.setOverviewPolyline(PolyUtil.decode(overview_polyline.getString("points")));
+                        route_point.setLatLng(end);
 
-                                LatLng end = new LatLng(end_location.getDouble("lat"),end_location.getDouble("lng"));
+                        ArrayList<Steps> stepsArrayList = new ArrayList<>();
+                        for (int i = 0; i < step_list.length(); i++){
+                            LatLng latLng_start = new LatLng(step_list.getJSONObject(i).getJSONObject("start_location").getDouble("lat"),
+                                    step_list.getJSONObject(i).getJSONObject("start_location").getDouble("lng"));
+                            LatLng latLng_end = new LatLng(step_list.getJSONObject(i).getJSONObject("start_location").getDouble("lat"),
+                                    step_list.getJSONObject(i).getJSONObject("end_location").getDouble("lng"));
 
-                                Route_point route_point = new Route_point();
-                                route_point.setTotalDistance(distance.getString("text"));
-                                route_point.setTotalDuration(duration.getString("text"));
-                                route_point.setOverviewPolyline(PolyUtil.decode(overview_polyline.getString("points")));
-                                route_point.setLatLng(end);
-
-                                ArrayList<Steps> stepsArrayList = new ArrayList<>();
-                                for (int i = 0; i < step_list.length(); i++){
-                                    LatLng latLng_start = new LatLng(step_list.getJSONObject(i).getJSONObject("start_location").getDouble("lat"),
-                                            step_list.getJSONObject(i).getJSONObject("start_location").getDouble("lng"));
-                                    LatLng latLng_end = new LatLng(step_list.getJSONObject(i).getJSONObject("start_location").getDouble("lat"),
-                                            step_list.getJSONObject(i).getJSONObject("end_location").getDouble("lng"));
-
-                                    String LINE = step_list.getJSONObject(i).getJSONObject("polyline").getString("points");
-                                    List<LatLng> decodedPath = PolyUtil.decode(LINE);
+                            String LINE = step_list.getJSONObject(i).getJSONObject("polyline").getString("points");
+                            List<LatLng> decodedPath = PolyUtil.decode(LINE);
 
 
-                                    Steps steps = new Steps();
-                                    steps.setDistance(step_list.getJSONObject(i).getJSONObject("distance").getString("text"));
-                                    steps.setDuration(step_list.getJSONObject(i).getJSONObject("duration").getString("text"));
-                                    steps.setHtmlInstructions(Jsoup.parse(step_list.getJSONObject(i).getString("html_instructions")).text());
-                                    steps.setPolyline(decodedPath);
-                                    steps.setStartLocation(latLng_start);
-                                    steps.setEndLocation(latLng_end);
+                            Steps steps = new Steps();
+                            steps.setDistance(step_list.getJSONObject(i).getJSONObject("distance").getString("text"));
+                            steps.setDuration(step_list.getJSONObject(i).getJSONObject("duration").getString("text"));
+                            steps.setHtmlInstructions(Jsoup.parse(step_list.getJSONObject(i).getString("html_instructions")).text());
+                            steps.setPolyline(decodedPath);
+                            steps.setStartLocation(latLng_start);
+                            steps.setEndLocation(latLng_end);
 
-                                    stepsArrayList.add(steps);
-                                }
+                            stepsArrayList.add(steps);
+                        }
 
-                                route_point.setStepsArrayList(stepsArrayList);
+                        route_point.setStepsArrayList(stepsArrayList);
 
-                                interface_location.onLocation(route_point);
-                            }else {
-                                if (getActivity() != null){
-                                    txtvTime.setText("Không Tìm thấy địa chỉ!");
-                                    btnDirection.setVisibility(View.GONE);
-                                }
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+                        interface_location.onLocation(route_point);
+                    }else {
+                        if (getActivity() != null){
+                            txtvTime.setText("Không Tìm thấy địa chỉ!");
+                            btnDirection.setVisibility(View.GONE);
                         }
                     }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e("", "onErrorResponse: " + error.getMessage());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         });
-
-        VolleySingleton.getInstance(getActivity()).getRequestQueue().add(jsonObjectRequest);
     }
 
     public void route(){
@@ -310,7 +276,12 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
 
                 if (current == -1){
                     /*set textview tổng quãng đường và thời gian cần đi*/
-                    txtvTime.setText("Quãng đường: " + route_point.getTotalDistance() + "- Thời gian: " + route_point.getTotalDuration());
+                    if (getActivity() == null) return;
+                    SharePreferenceUtil.setValueDistance(getActivity(),route_point.getTotalDistance());
+                    txtvTime.setText(
+                            "Quãng đường: " + route_point.getTotalDistance() +
+                                    "- Thời gian: " + route_point.getTotalDuration()
+                    );
                     /*set color cho cả đoạn đường*/
                     getPolyline("#FFFF7700",route_point.getOverviewPolyline());
                     /*event khi click vào button Direction*/

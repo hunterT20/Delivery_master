@@ -32,6 +32,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.gson.Gson;
 import com.rey.material.widget.FloatingActionButton;
 import com.thanhtuan.delivery.R;
+import com.thanhtuan.delivery.data.remote.JsonRequest;
 import com.thanhtuan.delivery.util.SweetDialogUtil;
 import com.thanhtuan.delivery.util.EncodeBitmapUtil;
 import com.thanhtuan.delivery.view.adapter.ListNghiemThuAdapter;
@@ -72,7 +73,6 @@ public class NghiemThuActivity extends AppCompatActivity {
     private ListNghiemThuAdapter adapter;
     public List<URL_PhotoUpload> url_photoUploads;
     private Boolean flag_back = false;
-    private SaleReceiptUpdate saleReceiptUpdate;
     private Bitmap photo_taked;
 
     @Override
@@ -191,7 +191,6 @@ public class NghiemThuActivity extends AppCompatActivity {
         txtvTitle.setText("Nghiệm Thu");
         photoList = new ArrayList<>();
         url_photoUploads = new ArrayList<>();
-        saleReceiptUpdate = new SaleReceiptUpdate();
     }
 
     private void addControls() {
@@ -338,55 +337,36 @@ public class NghiemThuActivity extends AppCompatActivity {
     }
 
     public void onUpload(){
-        Item_ChuaGiao itemChuaGiao1 = SharePreferenceUtil.getValueSaleItem(this);
+        HashMap<String, String> params = ApiHelper.paramDone(this,url_photoUploads,"default");
+        String URL = ApiHelper.ApiDone();
+        final String Token = SharePreferenceUtil.getValueToken(this);
 
-        saleReceiptUpdate.setSaleReceiptId(itemChuaGiao1.getSaleReceiptId());
-        saleReceiptUpdate.setUrl(url_photoUploads);
-
-        Gson gson = new Gson();
-        String SaleReceiptUpdate = gson.toJson(saleReceiptUpdate);
-        String API_URL = ApiHelper.URL + ApiHelper.DOMAIN_NGHIEMTHU;
-        String ID = SharePreferenceUtil.getValueId(this);
-
-        HashMap<String, String> params = new HashMap<>();
-        params.put("key", ID);
-        params.put("saleReceipt", SaleReceiptUpdate);
-
-        JsonObjectRequest request_json = new JsonObjectRequest(API_URL, new JSONObject(params),
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            if (response.getBoolean("Result")){
-                                JSONObject jsonObject = response.getJSONObject("Data");
-                                int status = jsonObject.getInt("Status");
-                                SharePreferenceUtil.setValueStatus(getApplication(),status);
-
-                                SweetDialogUtil.showSweetDialogSuccess(getApplication(), "Nghiệm thu thành công!", new SweetAlertDialog.OnSweetClickListener() {
-                                    @Override
-                                    public void onClick(SweetAlertDialog sweetAlertDialog) {
-                                        sweetAlertDialog.cancel();
-                                        SharePreferenceUtil.Clean(getApplication());
-                                        Intent intent = new Intent(NghiemThuActivity.this,MainActivity.class);
-                                        startActivity(intent);
-                                        finish();
-                                    }
-                                });
-                            }else {
-                                Snackbar snackbar = Snackbar.make(Root,String.valueOf(response.getBoolean("Sản phẩm đã được nghiệm thu!")),Snackbar.LENGTH_LONG);
-                                snackbar.show();
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
+        JsonRequest.Request(this, Token, URL, new JSONObject(params), new Response.Listener<JSONObject>() {
             @Override
-            public void onErrorResponse(VolleyError error) {
-                VolleyLog.e("Error: ", error.getMessage());
+            public void onResponse(JSONObject response) {
+                try {
+                    if (response.getBoolean("Success")){
+                        SharePreferenceUtil.Clean(getApplication());
+
+                        SweetDialogUtil.showSweetDialogSuccess(getApplication(), "Nghiệm thu thành công!", new SweetAlertDialog.OnSweetClickListener() {
+                            @Override
+                            public void onClick(SweetAlertDialog sweetAlertDialog) {
+                                sweetAlertDialog.cancel();
+                                SharePreferenceUtil.Clean(getApplication());
+                                Intent intent = new Intent(getApplication(), MainActivity.class);
+                                startActivity(intent);
+                                finish();
+                            }
+                        });
+                    }else {
+                        Snackbar snackbar = Snackbar.make(Root,String.valueOf(response.getBoolean("Nghiệm thu thất bại!")),Snackbar.LENGTH_LONG);
+                        snackbar.show();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         });
-        VolleySingleton.getInstance(getApplication()).getRequestQueue().add(request_json);
     }
 
     private void removeNghiemThu(Photo photo){

@@ -33,8 +33,7 @@ public class ListProductAdapter extends RecyclerView.Adapter<ListProductAdapter.
         final Product product = mProduct.get(position);
 
         //bind data to viewholder
-        holder.txtvSKU.setText(position + 1 + ". " + product.getSKU());
-        holder.txtvDonGia.setText(product.getPrice().toString() + " VNĐ");
+        holder.txtvSKU.setText(position + 1 + ". " + product.getItemName());
         holder.txtvSoLuong.setText(String.valueOf(product.getQuantity()));
     }
 
@@ -45,12 +44,10 @@ public class ListProductAdapter extends RecyclerView.Adapter<ListProductAdapter.
 
     class ProductViewHolder extends RecyclerView.ViewHolder {
         private TextView txtvSKU;
-        private TextView txtvDonGia;
         private TextView txtvSoLuong;
         ProductViewHolder(View itemView) {
             super(itemView);
             txtvSKU = (TextView) itemView.findViewById(R.id.txtvSKU);
-            txtvDonGia = (TextView) itemView.findViewById(R.id.txtvDonGia);
             txtvSoLuong = (TextView) itemView.findViewById(R.id.txtvSoLuong);
         }
     }

@@ -1,15 +1,9 @@
 package com.thanhtuan.delivery.model;
 
-/**
- * Created by Nusib on 5/23/2017.
- */
-
 public class Product {
     private String ItemId;
-    private String SKU;
+    private String ItemName;
     private int Quantity;
-    private Double Price;
-    private int Status;
 
     public Product() {
     }
@@ -22,12 +16,12 @@ public class Product {
         ItemId = itemId;
     }
 
-    public String getSKU() {
-        return SKU;
+    public String getItemName() {
+        return ItemName;
     }
 
-    public void setSKU(String SKU) {
-        this.SKU = SKU;
+    public void setItemName(String itemName) {
+        this.ItemName = itemName;
     }
 
     public int getQuantity() {
@@ -36,21 +30,5 @@ public class Product {
 
     public void setQuantity(int quantity) {
         Quantity = quantity;
-    }
-
-    public Double getPrice() {
-        return Price;
-    }
-
-    public void setPrice(Double price) {
-        Price = price;
-    }
-
-    public int getStatus() {
-        return Status;
-    }
-
-    public void setStatus(int status) {
-        Status = status;
     }
 }

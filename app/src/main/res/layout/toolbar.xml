@@ -7,7 +7,7 @@
     android:layout_height="wrap_content"
     android:background="?attr/colorAccent"
     android:elevation="4dp"
-    app:theme="@style/ToolbarColoredBackArrow"
+    app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
     tools:targetApi="lollipop">
 
     <TextView

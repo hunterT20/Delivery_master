@@ -1,7 +1,6 @@
 package com.thanhtuan.delivery.view.fragment;
 
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,18 +11,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.android.volley.Request;
 import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.google.gson.Gson;
 import com.thanhtuan.delivery.R;
 import com.thanhtuan.delivery.data.remote.JsonRequest;
 import com.thanhtuan.delivery.util.AVLoadingUtil;
 import com.thanhtuan.delivery.view.adapter.ListProductAdapter;
 import com.thanhtuan.delivery.data.remote.ApiHelper;
-import com.thanhtuan.delivery.data.remote.VolleySingleton;
-import com.thanhtuan.delivery.model.Item_ChuaGiao;
 import com.thanhtuan.delivery.model.Product;
 import com.thanhtuan.delivery.util.SharePreferenceUtil;
 import com.wang.avi.AVLoadingIndicatorView;
@@ -37,8 +30,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-
-import static android.content.Context.MODE_PRIVATE;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -69,6 +60,7 @@ public class DetailFragment extends Fragment {
     private void initData() {
         final String Token = SharePreferenceUtil.getValueToken(getActivity());
         String URL = ApiHelper.ApiDetail(getActivity());
+        Log.e("URL detail", URL);
         AVLoadingUtil.startAnim(avi_Loading);
 
         JsonRequest.Request(getActivity(), Token, URL, null, new Response.Listener<JSONObject>() {
@@ -83,10 +75,8 @@ public class DetailFragment extends Fragment {
 
                             Product product = new Product();
                             product.setItemId(object.getString("ItemId"));
-                            product.setSKU(object.getString("SKU"));
-                            product.setPrice(object.getDouble("Price"));
+                            product.setItemName(object.getString("ItemName"));
                             product.setQuantity(object.getInt("Quantity"));
-                            product.setStatus(object.getInt("Status"));
 
                             mProduct.add(product);
                         }

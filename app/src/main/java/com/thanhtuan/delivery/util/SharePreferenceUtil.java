@@ -19,6 +19,7 @@ public class SharePreferenceUtil {
     private static String VALUE_SALEITEM = "SaleItem";
     private static String VALUE_STATUS = "status";
     private static String VALUE_DIRECTION = "Direction";
+    private static String VALUE_DISTANCE = "Distance";
     private static String VALUE_TOKEN = "Token";
 
     public static void setValueId(Context context, String ID){
@@ -101,6 +102,18 @@ public class SharePreferenceUtil {
     public static int getValueDirection(Context context){
         SharedPreferences MyPre = context.getSharedPreferences(NAME, MODE_PRIVATE);
         return MyPre.getInt(VALUE_DIRECTION, -1);
+    }
+
+    public static void setValueDistance(Context context,String distance){
+        SharedPreferences MyPre = context.getSharedPreferences(NAME, MODE_PRIVATE);
+        SharedPreferences.Editor edit = MyPre.edit();
+        edit.putString(VALUE_DISTANCE, distance);
+        edit.apply();
+    }
+
+    public static String getValueDistance(Context context){
+        SharedPreferences MyPre = context.getSharedPreferences(NAME, MODE_PRIVATE);
+        return MyPre.getString(VALUE_DISTANCE, "");
     }
 
     public static void Clean(Context context){

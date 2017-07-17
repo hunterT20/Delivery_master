@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.app.Fragment;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -34,6 +35,7 @@ import com.thanhtuan.delivery.util.SweetDialogUtil;
 import com.thanhtuan.delivery.view.activity.DetailActivity;
 import com.thanhtuan.delivery.data.remote.ApiHelper;
 import com.thanhtuan.delivery.util.SharePreferenceUtil;
+import com.thanhtuan.delivery.view.activity.MainActivity;
 import com.thanhtuan.delivery.view.activity.NghiemThuActivity;
 
 import org.json.JSONException;
@@ -133,8 +135,9 @@ public class InfoFragment extends Fragment {
                 eventTimeRecord("2");
                 break;
             case "Nghiệm Thu":
-                Intent intent = new Intent(getActivity(), NghiemThuActivity.class);
-                startActivity(intent);
+                /*Intent intent = new Intent(getActivity(), NghiemThuActivity.class);
+                startActivity(intent);*/
+                onUpload();
                 break;
         }
     }
@@ -197,7 +200,7 @@ public class InfoFragment extends Fragment {
         }
         else {
             final String Token = SharePreferenceUtil.getValueToken(getActivity());
-            String URL = ApiHelper.ApiAbort(getActivity(),txtvDonHang.getText().toString(),lyDo);
+            String URL = ApiHelper.ApiAbort();
             JsonRequest.Request(getActivity(), Token, URL, null, new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
@@ -241,6 +244,38 @@ public class InfoFragment extends Fragment {
                         setQuaTrinh(jsonObject.getInt("Status"));
                     }else {
                         Log.e("Error Time","ERR");
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    public void onUpload() {
+        HashMap<String, String> params = ApiHelper.paramDone(getActivity(),url_photoUploads,"default");
+        String URL = ApiHelper.ApiDone();
+        final String Token = SharePreferenceUtil.getValueToken(getActivity());
+
+        JsonRequest.Request(getActivity(), Token, URL, new JSONObject(params), new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    if (response.getBoolean("Success")) {
+                        SharePreferenceUtil.Clean(getActivity());
+
+                        SweetDialogUtil.showSweetDialogSuccess(getActivity(), "Nghiệm thu thành công!", new SweetAlertDialog.OnSweetClickListener() {
+                            @Override
+                            public void onClick(SweetAlertDialog sweetAlertDialog) {
+                                sweetAlertDialog.cancel();
+                                SharePreferenceUtil.Clean(getActivity());
+                                Intent intent = new Intent(getActivity(), MainActivity.class);
+                                getActivity().startActivity(intent);
+                                getActivity().finish();
+                            }
+                        });
+                    } else {
+                        Toast.makeText(getActivity(), "Nghiệm thu thất bại!!!", Toast.LENGTH_SHORT).show();
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();

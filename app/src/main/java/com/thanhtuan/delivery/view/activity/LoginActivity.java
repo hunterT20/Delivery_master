@@ -3,6 +3,7 @@ package com.thanhtuan.delivery.view.activity;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -32,7 +33,6 @@ public class LoginActivity extends AppCompatActivity {
     @BindView(R.id.edtUserName) EditText edtUserName;
     @BindView(R.id.edtPassword) EditText edtPassword;
     @BindView(R.id.btnLogin)    Button btnLogin;
-    @BindView(R.id.newton_cradle_loading)  NewtonCradleLoading newtonCradleLoading;
     @BindView(R.id.ckbSave)     CheckBox ckbSaveUser;
 
     @Override
@@ -59,8 +59,7 @@ public class LoginActivity extends AppCompatActivity {
                     return;
                 }
                 /*Set view cho NewtonLoadingUtil*/
-                final NewtonLoadingUtil newtonLoadingUtil = new NewtonLoadingUtil(newtonCradleLoading);
-                newtonLoadingUtil.show();
+                btnLogin.setText("Waiting...");
 
                 HashMap<String, String> param = ApiHelper.paramLoGin(
                         edtUserName.getText().toString(),
@@ -72,8 +71,8 @@ public class LoginActivity extends AppCompatActivity {
                     public void onResponse(JSONObject response) {
                         try {
                             if(response.getBoolean("Success")){
+                                Log.e("res", String.valueOf(response));
                                 JSONObject data = response.getJSONObject("Data");
-
                                 User user = new User();
                                 user.setID(data.getString("EmployeeId"));
                                 user.setToken(data.getString("SessionToken"));
@@ -81,7 +80,7 @@ public class LoginActivity extends AppCompatActivity {
                                 SharePreferenceUtil.setValueId(getApplication(),user.getID());
                                 SharePreferenceUtil.setValueToken(getApplication(),user.getToken());
 
-                                newtonLoadingUtil.dismiss();
+                                btnLogin.setText("Login");
                                 Toast.makeText(LoginActivity.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
 
                                 SaveLogin();
@@ -95,7 +94,7 @@ public class LoginActivity extends AppCompatActivity {
                                 startActivity(intent);
                                 finish();
                             }else {
-                                newtonLoadingUtil.dismiss();
+                                btnLogin.setText("Login");
                                 Toast.makeText(LoginActivity.this, response.getString("Message"), Toast.LENGTH_SHORT).show();
                             }
                         } catch (JSONException e) {
