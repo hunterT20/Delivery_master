@@ -49,12 +49,14 @@
 
         <TextView
             android:id="@+id/txtvPhone"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
             android:layout_marginStart="8dp"
+            android:gravity="right"
+            android:lines="2"
             android:text="PhoneNumber"
             android:textSize="18sp"
             android:textStyle="bold"
@@ -71,7 +73,7 @@
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="9dp"
+            android:layout_marginTop="0dp"
             android:gravity="right"
             android:lines="2"
             android:maxLines="2"
@@ -80,7 +82,8 @@
             android:textStyle="bold"
             card_view:layout_constraintLeft_toRightOf="@+id/textView11"
             card_view:layout_constraintRight_toRightOf="parent"
-            card_view:layout_constraintTop_toBottomOf="@+id/txtvPhone" />
+            card_view:layout_constraintTop_toBottomOf="@+id/txtvPhone"
+            card_view:layout_constraintHorizontal_bias="0.0" />
 
         <TextView
             android:id="@+id/txtvSL"
@@ -132,15 +135,15 @@
             android:id="@+id/textView11"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
+            android:layout_marginLeft="13dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="0dp"
             android:text="Địa Chỉ:"
             android:textColor="@color/colorAccent"
             android:textSize="18sp"
             android:textStyle="bold"
             card_view:layout_constraintLeft_toLeftOf="parent"
-            card_view:layout_constraintTop_toBottomOf="@+id/textView10" />
+            card_view:layout_constraintTop_toBottomOf="@+id/txtvPhone" />
 
         <TextView
             android:id="@+id/textView12"

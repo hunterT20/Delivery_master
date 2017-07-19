@@ -337,7 +337,7 @@ public class NghiemThuActivity extends AppCompatActivity {
     }
 
     public void onUpload(){
-        HashMap<String, String> params = ApiHelper.paramDone(this,url_photoUploads,"default");
+        HashMap<String, String> params = ApiHelper.paramDone(this,"default");
         String URL = ApiHelper.ApiDone();
         final String Token = SharePreferenceUtil.getValueToken(this);
 

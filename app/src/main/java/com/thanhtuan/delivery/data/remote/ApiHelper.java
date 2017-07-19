@@ -112,7 +112,7 @@ public class ApiHelper {
         return params;
     }
 
-    public static HashMap<String,String> paramAbort(Context context, String Description, List<URL_PhotoUpload> url_photoUploads){
+    public static HashMap<String,String> paramAbort(Context context, String Description){
         String description = null;
         try {
             description = URLEncoder.encode(String.valueOf(Description), "utf-8");
@@ -121,40 +121,28 @@ public class ApiHelper {
         }
 
         Item_ChuaGiao itemChuaGiao1 = SharePreferenceUtil.getValueSaleItem(context);
-        SaleReceiptUpdate saleReceiptUpdate = new SaleReceiptUpdate();
-
-        saleReceiptUpdate.setSaleReceiptId(itemChuaGiao1.getSaleReceiptId());
-        saleReceiptUpdate.setUrl(url_photoUploads);
-
-        Gson gson = new Gson();
-        String SaleReceiptUpdate = gson.toJson(saleReceiptUpdate);
         String ID = SharePreferenceUtil.getValueId(context);
         String distance = SharePreferenceUtil.getValueDistance(context);
         HashMap<String, String> params = new HashMap<>();
         params.put("employeeId", ID);
-        params.put("saleReceipt", SaleReceiptUpdate);
+        params.put("saleReceiptId", itemChuaGiao1.getSaleReceiptId());
         params.put("Distance", distance);
         params.put("Description",description);
 
         return params;
     }
 
-    public static HashMap<String,String> paramDone(Context context, List<URL_PhotoUpload> url_photoUploads, String description){
+    public static HashMap<String,String> paramDone(Context context, String description){
         Item_ChuaGiao itemChuaGiao1 = SharePreferenceUtil.getValueSaleItem(context);
-        SaleReceiptUpdate saleReceiptUpdate = new SaleReceiptUpdate();
 
-        saleReceiptUpdate.setSaleReceiptId(itemChuaGiao1.getSaleReceiptId());
-        saleReceiptUpdate.setUrl(url_photoUploads);
-
-        Gson gson = new Gson();
-        String SaleReceiptUpdate = gson.toJson(saleReceiptUpdate);
         String ID = SharePreferenceUtil.getValueId(context);
         String distance = SharePreferenceUtil.getValueDistance(context);
+        Log.e("dis",distance);
 
         HashMap<String, String> params = new HashMap<>();
         params.put("employeeId", ID);
-        params.put("saleReceipt", SaleReceiptUpdate);
-        params.put("Distance", distance);
+        params.put("saleReceiptId", itemChuaGiao1.getSaleReceiptId());
+        params.put("Distance", "0123");
         params.put("Description",description);
 
         return params;

@@ -138,6 +138,7 @@ public class InfoFragment extends Fragment {
                 /*Intent intent = new Intent(getActivity(), NghiemThuActivity.class);
                 startActivity(intent);*/
                 onUpload();
+                eventTimeRecord("3");
                 break;
         }
     }
@@ -201,7 +202,7 @@ public class InfoFragment extends Fragment {
         else {
             final String Token = SharePreferenceUtil.getValueToken(getActivity());
             String URL = ApiHelper.ApiAbort();
-            HashMap<String,String> param = ApiHelper.paramAbort(getActivity(),"Default",url_photoUploads);
+            HashMap<String,String> param = ApiHelper.paramAbort(getActivity(),"Default");
             JsonRequest.Request(getActivity(), Token, URL, new JSONObject(param), new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
@@ -254,14 +255,17 @@ public class InfoFragment extends Fragment {
     }
 
     public void onUpload() {
-        HashMap<String, String> params = ApiHelper.paramDone(getActivity(),url_photoUploads,"default");
+        HashMap<String, String> params = ApiHelper.paramDone(getActivity(),"default");
         String URL = ApiHelper.ApiDone();
         final String Token = SharePreferenceUtil.getValueToken(getActivity());
+        Log.e("URL", URL);
+        Log.e("Param", String.valueOf(params));
 
         JsonRequest.Request(getActivity(), Token, URL, new JSONObject(params), new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 try {
+                    Log.e("data",String.valueOf(response));
                     if (response.getBoolean("Success")) {
                         SharePreferenceUtil.Clean(getActivity());
 

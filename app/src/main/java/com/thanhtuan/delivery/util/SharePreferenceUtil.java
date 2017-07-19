@@ -119,10 +119,11 @@ public class SharePreferenceUtil {
     public static void Clean(Context context){
         SharedPreferences MyPre = context.getSharedPreferences(NAME, MODE_PRIVATE);
         SharedPreferences.Editor edit = MyPre.edit();
-        edit.remove("VALUE_ID");
-        edit.remove("VALUE_SALEITEM");
-        edit.remove("VALUE_STATUS");
-        edit.remove("VALUE_DIRECTION");
+        edit.remove(VALUE_ID);
+        edit.remove(VALUE_SALEITEM);
+        edit.remove(VALUE_STATUS);
+        edit.remove(VALUE_DISTANCE);
+        edit.remove(VALUE_DIRECTION);
         edit.apply();
     }
 }
