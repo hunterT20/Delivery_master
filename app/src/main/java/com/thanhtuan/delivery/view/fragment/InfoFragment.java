@@ -51,6 +51,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
+import static android.content.ContentValues.TAG;
 import static android.content.Context.MODE_PRIVATE;
 
 /**
@@ -94,11 +95,8 @@ public class InfoFragment extends Fragment {
         itemChuaGiao = SharePreferenceUtil.getValueSaleItem(getActivity());
 
         int status = SharePreferenceUtil.getValueStatus(getActivity());
-        if (status == 3) {
-            setQuaTrinh(itemChuaGiao.getStatus());
-        }else {
-            setQuaTrinh(status);
-        }
+        setQuaTrinh(status);
+
 
         txtvDonHang.setText(itemChuaGiao.getSaleReceiptId());
         txtvTenKH.setText(itemChuaGiao.getCustomerName());
@@ -125,7 +123,6 @@ public class InfoFragment extends Fragment {
 
     @OnClick(R.id.btnGiaoHang)
     public void giaoHangClick(){
-        eventTimeRecord("1");
         String status = btnGiaoHang.getText().toString();
         switch (status){
             case "Giao Hàng":
@@ -135,9 +132,9 @@ public class InfoFragment extends Fragment {
                 eventTimeRecord("2");
                 break;
             case "Nghiệm Thu":
-                /*Intent intent = new Intent(getActivity(), NghiemThuActivity.class);
-                startActivity(intent);*/
-                onUpload();
+                Intent intent = new Intent(getActivity(), NghiemThuActivity.class);
+                startActivity(intent);
+                /*onUpload();*/
                 eventTimeRecord("3");
                 break;
         }
@@ -159,7 +156,8 @@ public class InfoFragment extends Fragment {
                 btnGiaoHang.setText("Nghiệm Thu");
                 break;
             case 3:
-                txtvQuaTrinh.setText("Hủy giao hàng");
+                txtvQuaTrinh.setText("Đang nghiệm thu");
+                btnGiaoHang.setText("Nghiệm Thu");
                 SharePreferenceUtil.setValueStatus(getActivity(),Status);
                 break;
             default:
@@ -244,6 +242,7 @@ public class InfoFragment extends Fragment {
                     if(response.getBoolean("Success")){
                         JSONObject jsonObject = response.getJSONArray("Data").getJSONObject(0);
                         setQuaTrinh(jsonObject.getInt("Status"));
+                        Log.e(TAG, "onResponse: " + jsonObject.getInt("Status"));
                     }else {
                         Log.e("Error Time","ERR");
                     }
@@ -254,7 +253,7 @@ public class InfoFragment extends Fragment {
         });
     }
 
-    public void onUpload() {
+    /*public void onUpload() {
         HashMap<String, String> params = ApiHelper.paramDone(getActivity(),"default");
         String URL = ApiHelper.ApiDone();
         final String Token = SharePreferenceUtil.getValueToken(getActivity());
@@ -287,7 +286,7 @@ public class InfoFragment extends Fragment {
                 }
             }
         });
-    }
+    }*/
 
     @TargetApi(Build.VERSION_CODES.M)
     @Override

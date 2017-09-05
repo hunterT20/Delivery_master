@@ -1,39 +1,30 @@
 package com.thanhtuan.delivery.data.remote;
 
 import android.content.Context;
-import android.util.Log;
+import android.graphics.Bitmap;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.google.gson.Gson;
 import com.thanhtuan.delivery.model.Item_ChuaGiao;
-import com.thanhtuan.delivery.model.SaleReceiptUpdate;
-import com.thanhtuan.delivery.model.URL_PhotoUpload;
+import com.thanhtuan.delivery.util.EncodeBitmapUtil;
 import com.thanhtuan.delivery.util.SharePreferenceUtil;
-
-import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class ApiHelper {
-    public static String URL = "http://112.78.12.251:12358/api/";
     private static String URL2 = "http://dmclwspl_2015.dienmaycholon.com.vn:12341/api/";
     private static String URL_MAP = "https://maps.googleapis.com/maps/api/";
 
-    public static String DOMAIN_UPLOADIMG = "UploadPhoto/";
     private static String DOMAIN_MAP = "directions/json?";
 
     public static String ApiLogin(){
         String DOMAIN_LOGIN = "accounts/login";
         return URL2 + DOMAIN_LOGIN;
+    }
+
+    public static String ApiUpload(){
+        String DOMAIN_UPLOADIMG = "salereceipt/photoupload";
+        return URL2 + DOMAIN_UPLOADIMG;
     }
 
     public static String ApiListChuaGIao(Context context){
@@ -137,13 +128,28 @@ public class ApiHelper {
 
         String ID = SharePreferenceUtil.getValueId(context);
         String distance = SharePreferenceUtil.getValueDistance(context);
-        Log.e("dis",distance);
 
         HashMap<String, String> params = new HashMap<>();
         params.put("employeeId", ID);
         params.put("saleReceiptId", itemChuaGiao1.getSaleReceiptId());
         params.put("Distance", "0123");
         params.put("Description",description);
+
+        return params;
+    }
+
+    public static HashMap<String,String> paramUpload(Context context, Bitmap bitmap){
+        String base64Photo = EncodeBitmapUtil.encodeToBase64(bitmap, Bitmap.CompressFormat.JPEG, 100);
+
+        Item_ChuaGiao itemChuaGiao = SharePreferenceUtil.getValueSaleItem(context);
+
+        HashMap<String, String> params = new HashMap<>();
+        params.put("ImageBase64String", base64Photo);
+        params.put("SaleReceiptId", itemChuaGiao.getSaleReceiptId());
+        params.put("LocalFileName", "");
+        params.put("FileName", "");
+        params.put("ContentType", "");
+        params.put("Extention", "");
 
         return params;
     }

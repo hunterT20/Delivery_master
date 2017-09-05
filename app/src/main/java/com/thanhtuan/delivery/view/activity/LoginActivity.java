@@ -71,7 +71,6 @@ public class LoginActivity extends AppCompatActivity {
                     public void onResponse(JSONObject response) {
                         try {
                             if(response.getBoolean("Success")){
-                                Log.e("res", String.valueOf(response));
                                 JSONObject data = response.getJSONObject("Data");
                                 User user = new User();
                                 user.setID(data.getString("EmployeeId"));
@@ -89,7 +88,7 @@ public class LoginActivity extends AppCompatActivity {
                                 {
                                     intent = new Intent(LoginActivity.this, DetailActivity.class);
                                 }else {
-                                    intent = new Intent(LoginActivity.this,MainActivity.class);
+                                    intent = new Intent(LoginActivity.this, MainActivity.class);
                                 }
                                 startActivity(intent);
                                 finish();

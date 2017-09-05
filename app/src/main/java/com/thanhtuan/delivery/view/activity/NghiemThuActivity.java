@@ -133,7 +133,7 @@ public class NghiemThuActivity extends AppCompatActivity {
                         photoList.add(photo);
                         addControls();
 
-                        getPhotoUrl(photo_taked, Description);
+                        getPhotoUrl(photo_taked);
 
                         edtMoTa.setText("");
                         ibtnPhoto.setImageDrawable(getResources().getDrawable(R.drawable.ic_add_a_photo_white_24dp));
@@ -297,43 +297,19 @@ public class NghiemThuActivity extends AppCompatActivity {
         }
     }
 
-    public void getPhotoUrl(Bitmap bitmap, final String des){
-        String base64Photo = EncodeBitmapUtil.encodeToBase64(bitmap, Bitmap.CompressFormat.JPEG, 100);
+    public void getPhotoUrl(Bitmap bitmap){
+        String API_PHOTO = ApiHelper.ApiUpload();
+        HashMap<String,String> params = ApiHelper.paramUpload(this,bitmap);
+        final String Token = SharePreferenceUtil.getValueToken(this);
 
-        Item_ChuaGiao itemChuaGiao = SharePreferenceUtil.getValueSaleItem(this);
+        Log.e("test", "getPhotoUrl: " + params);
 
-        String ID = SharePreferenceUtil.getValueId(this);
-        String API_PHOTO = ApiHelper.URL + ApiHelper.DOMAIN_UPLOADIMG;
-
-        HashMap<String, String> params = new HashMap<>();
-        params.put("base64Photo", base64Photo);
-        params.put("sku", itemChuaGiao.getSaleReceiptId());
-        params.put("key", ID);
-
-        JsonObjectRequest request_json = new JsonObjectRequest(API_PHOTO, new JSONObject(params),
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            if (response.getBoolean("Result")){
-                                URL_PhotoUpload url = new URL_PhotoUpload();
-                                url.setImage(response.getString("Data"));
-                                Log.e("data", response.getString("Data"));
-                                url.setDescription(des);
-
-                                url_photoUploads.add(url);
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
+        JsonRequest.Request(this, Token, API_PHOTO, new JSONObject(params), new Response.Listener<JSONObject>() {
             @Override
-            public void onErrorResponse(VolleyError error) {
-                VolleyLog.e("Error: ", error.getMessage());
+            public void onResponse(JSONObject response) {
+                Log.e("test", "onResponse: " + response);
             }
         });
-        VolleySingleton.getInstance(this).getRequestQueue().add(request_json);
     }
 
     public void onUpload(){
