@@ -134,6 +134,7 @@ public class InfoFragment extends Fragment {
             case "Nghiệm Thu":
                 Intent intent = new Intent(getActivity(), NghiemThuActivity.class);
                 startActivity(intent);
+                getActivity().finish();
                 /*onUpload();*/
                 eventTimeRecord("3");
                 break;

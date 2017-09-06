@@ -24,6 +24,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -302,12 +303,16 @@ public class NghiemThuActivity extends AppCompatActivity {
         HashMap<String,String> params = ApiHelper.paramUpload(this,bitmap);
         final String Token = SharePreferenceUtil.getValueToken(this);
 
-        Log.e("test", "getPhotoUrl: " + params);
-
         JsonRequest.Request(this, Token, API_PHOTO, new JSONObject(params), new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Log.e("test", "onResponse: " + response);
+            try {
+                if (response.getBoolean("Success")){
+                    Toast.makeText(NghiemThuActivity.this, "Đã gửi hình lên server!", Toast.LENGTH_SHORT).show();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             }
         });
     }
@@ -324,7 +329,7 @@ public class NghiemThuActivity extends AppCompatActivity {
                     if (response.getBoolean("Success")){
                         SharePreferenceUtil.Clean(getApplication());
 
-                        SweetDialogUtil.showSweetDialogSuccess(getApplication(), "Nghiệm thu thành công!", new SweetAlertDialog.OnSweetClickListener() {
+                        SweetDialogUtil.showSweetDialogSuccess(NghiemThuActivity.this, "Nghiệm thu thành công!", new SweetAlertDialog.OnSweetClickListener() {
                             @Override
                             public void onClick(SweetAlertDialog sweetAlertDialog) {
                                 sweetAlertDialog.cancel();

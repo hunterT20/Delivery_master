@@ -131,6 +131,7 @@
                         android:inputType="textMultiLine"
                         android:maxLines="5"
                         android:minLines="3"
+                        android:text="Hình nghiệm thu sản phẩm đang giao!"
                         app:layout_constraintLeft_toRightOf="@+id/ibtnPhoto"
                         app:layout_constraintTop_toTopOf="parent" />
 
