@@ -22,6 +22,11 @@ public class ApiHelper {
         return URL2 + DOMAIN_LOGIN;
     }
 
+    public static String ApiVersion(){
+        String DOMAIN_VERSION = "salereceipt/version/ANDROID";
+        return URL2 + DOMAIN_VERSION;
+    }
+
     public static String ApiUpload(){
         String DOMAIN_UPLOADIMG = "salereceipt/photoupload";
         return URL2 + DOMAIN_UPLOADIMG;

@@ -134,11 +134,12 @@ public class NghiemThuActivity extends AppCompatActivity {
                         photoList.add(photo);
                         addControls();
 
+                        btnXacNhan.setText("Loading...");
+
                         getPhotoUrl(photo_taked);
 
                         edtMoTa.setText("");
                         ibtnPhoto.setImageDrawable(getResources().getDrawable(R.drawable.ic_add_a_photo_white_24dp));
-                        cvNghiemThuGONE();
                     }
                 }
             }
@@ -308,6 +309,8 @@ public class NghiemThuActivity extends AppCompatActivity {
             public void onResponse(JSONObject response) {
             try {
                 if (response.getBoolean("Success")){
+                    btnXacNhan.setText("Xác nhận");
+                    cvNghiemThuGONE();
                     Toast.makeText(NghiemThuActivity.this, "Đã gửi hình lên server!", Toast.LENGTH_SHORT).show();
                 }
             } catch (JSONException e) {
