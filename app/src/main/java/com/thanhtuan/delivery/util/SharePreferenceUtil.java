@@ -21,6 +21,19 @@ public class SharePreferenceUtil {
     private static String VALUE_DIRECTION = "Direction";
     private static String VALUE_DISTANCE = "Distance";
     private static String VALUE_TOKEN = "Token";
+    private static String VALUE_VERSION = "Version";
+
+    public static void setValueVersion(Context context, String valueVersion) {
+        SharedPreferences MyPre = context.getSharedPreferences(NAME, MODE_PRIVATE);
+        SharedPreferences.Editor edit = MyPre.edit();
+        edit.putString(VALUE_VERSION, valueVersion);
+        edit.apply();
+    }
+
+    public static String getValueVersion(Context context) {
+        SharedPreferences MyPre = context.getSharedPreferences(NAME, MODE_PRIVATE);
+        return MyPre.getString(VALUE_VERSION, null);
+    }
 
     public static void setValueId(Context context, String ID){
         SharedPreferences MyPre = context.getSharedPreferences(NAME, MODE_PRIVATE);

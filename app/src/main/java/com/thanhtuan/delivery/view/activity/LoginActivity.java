@@ -54,21 +54,6 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void addEvents() {
-        JsonRequest.Request(getApplication(), null, ApiHelper.ApiVersion(), null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                try {
-                    if(response.getBoolean("Success")){
-                        Log.e("LoginActivity", "onResponse: " + response);
-                    }else {
-                        Log.e("LoginActivity", "onResponse: " + "ERR");
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -102,6 +87,26 @@ public class LoginActivity extends AppCompatActivity {
                                 Toast.makeText(LoginActivity.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
 
                                 SaveLogin();
+
+                                JsonRequest.Request(getApplication(), user.getToken(), ApiHelper.ApiVersion(), null, new Response.Listener<JSONObject>() {
+                                    @Override
+                                    public void onResponse(JSONObject response) {
+                                        try {
+                                            if(response.getBoolean("Success")){
+                                                JSONObject data = response.getJSONObject("Data");
+                                                String versionCurrent = SharePreferenceUtil.getValueVersion(getApplication());
+                                                if (versionCurrent.equals(data.getString("VersionNo"))){
+                                                    SharePreferenceUtil.setValueVersion(getApplication(),data.getString("VersionNo"));
+                                                    Log.e("LinkDownload", "onResponse: " + data.getString("LinkUpdate"));
+                                                }
+                                            }else {
+                                                Log.e("LoginActivity", "onResponse: " + "ERR");
+                                            }
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                });
                                 Intent intent;
                                 if (SharePreferenceUtil.getValueStatus(getApplication()) != 0)
                                 {
