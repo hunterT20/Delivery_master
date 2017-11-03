@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     card_view:cardBackgroundColor="@color/cardview_light_background"
-    card_view:cardElevation="8dp"
     card_view:cardUseCompatPadding="true">
 
     <android.support.constraint.ConstraintLayout
@@ -19,11 +18,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
-            android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:text="Đơn Hàng:"
             android:textColor="@color/colorAccent"
-            android:textSize="18sp"
+            android:textSize="16sp"
             android:textStyle="bold"
             card_view:layout_constraintLeft_toLeftOf="parent"
             card_view:layout_constraintTop_toTopOf="parent" />
@@ -32,19 +30,17 @@
             android:id="@+id/txtvAddress"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
-            android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:text="Address"
-            android:textSize="18sp"
+            android:textSize="16sp"
             android:textStyle="bold"
+            card_view:layout_constraintBottom_toBottomOf="parent"
             card_view:layout_constraintLeft_toLeftOf="parent"
             card_view:layout_constraintRight_toRightOf="parent"
             card_view:layout_constraintTop_toBottomOf="@+id/textView11"
-            card_view:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginBottom="8dp"
             card_view:layout_constraintVertical_bias="1.0" />
 
         <TextView
@@ -52,26 +48,23 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
             android:text="Địa Chỉ:"
             android:textColor="@color/colorAccent"
-            android:textSize="18sp"
+            android:textSize="16sp"
             android:textStyle="bold"
             card_view:layout_constraintLeft_toLeftOf="parent"
-            android:layout_marginTop="8dp"
             card_view:layout_constraintTop_toBottomOf="@+id/txtvTrangThai" />
 
         <TextView
             android:id="@+id/txtvDonHang"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
-            android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:text="Đơn Hàng"
-            android:textSize="18sp"
+            android:textSize="16sp"
             android:textStyle="bold"
             card_view:layout_constraintHorizontal_bias="0.978"
             card_view:layout_constraintLeft_toRightOf="@+id/textView2"
@@ -83,11 +76,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
-            android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:text="Trạng Thái:"
             android:textColor="@color/colorAccent"
-            android:textSize="18sp"
+            android:textSize="16sp"
             android:textStyle="bold"
             card_view:layout_constraintLeft_toLeftOf="parent"
             card_view:layout_constraintTop_toBottomOf="@+id/textView2" />
@@ -96,18 +88,16 @@
             android:id="@+id/txtvTrangThai"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginStart="8dp"
-            android:text="Trạng thái"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            card_view:layout_constraintRight_toRightOf="parent"
             android:layout_marginLeft="8dp"
-            card_view:layout_constraintLeft_toLeftOf="parent"
+            android:layout_marginRight="8dp"
             android:layout_marginTop="8dp"
-            card_view:layout_constraintTop_toBottomOf="@+id/textview56"
-            card_view:layout_constraintHorizontal_bias="0.416" />
+            android:text="Trạng thái"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            card_view:layout_constraintHorizontal_bias="0.416"
+            card_view:layout_constraintLeft_toLeftOf="parent"
+            card_view:layout_constraintRight_toRightOf="parent"
+            card_view:layout_constraintTop_toBottomOf="@+id/textview56" />
 
     </android.support.constraint.ConstraintLayout>
 </android.support.v7.widget.CardView>

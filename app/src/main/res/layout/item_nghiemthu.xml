@@ -15,7 +15,8 @@
         android:layout_height="match_parent"
         android:background="@color/colorAccent"
         android:paddingRight="20dp"
-        android:tag="reveal-left">
+        android:tag="reveal-left"
+        tools:ignore="RtlSymmetry">
 
         <ImageView
             android:layout_width="wrap_content"
@@ -23,7 +24,8 @@
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:src="@drawable/ic_delete_black_24dp"
-            android:tint="@color/icons" />
+            android:tint="@color/icons"
+            android:contentDescription="@string/todo" />
     </RelativeLayout>
 
     <!-- this is the item front view -->
@@ -38,7 +40,8 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:scaleType="centerCrop"
-            app:srcCompat="@mipmap/ic_launcher" />
+            app:srcCompat="@mipmap/ic_launcher"
+            android:contentDescription="@string/todo" />
 
         <TextView
             android:id="@+id/textView4"
