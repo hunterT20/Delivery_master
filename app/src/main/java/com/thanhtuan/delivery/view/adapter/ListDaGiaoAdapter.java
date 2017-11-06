@@ -18,6 +18,7 @@ public class ListDaGiaoAdapter extends RecyclerView.Adapter<ListDaGiaoAdapter.Da
 
     public ListDaGiaoAdapter(List<Item_DaGiao> mItemDaGiao, Context mContext) {
         this.mItemDaGiao = mItemDaGiao;
+        if (mContext == null) return;
         this.mLayoutInflater = LayoutInflater.from(mContext);
     }
     @Override

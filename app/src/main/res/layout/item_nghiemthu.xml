@@ -6,7 +6,6 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="2dp"
-    app:cardElevation="8dp"
     app:cardUseCompatPadding="true">
 
     <!-- this view reveals when swipe left -->
@@ -23,9 +22,9 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
+            android:contentDescription="@string/todo"
             android:src="@drawable/ic_delete_black_24dp"
-            android:tint="@color/icons"
-            android:contentDescription="@string/todo" />
+            android:tint="@color/icons" />
     </RelativeLayout>
 
     <!-- this is the item front view -->
@@ -39,9 +38,9 @@
             android:id="@+id/imgPhoto"
             android:layout_width="100dp"
             android:layout_height="100dp"
+            android:contentDescription="@string/todo"
             android:scaleType="centerCrop"
-            app:srcCompat="@mipmap/ic_launcher"
-            android:contentDescription="@string/todo" />
+            app:srcCompat="@mipmap/ic_launcher" />
 
         <TextView
             android:id="@+id/textView4"
@@ -49,9 +48,9 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:layout_toRightOf="@+id/imgPhoto"
-            android:text="Mô Tả:"
+            android:text="@string/mo_ta"
             android:textColor="@color/colorAccent"
-            android:textSize="20sp"
+            android:textSize="18sp"
             android:textStyle="bold" />
 
         <TextView
@@ -60,7 +59,6 @@
             android:layout_height="wrap_content"
             android:layout_alignLeft="@+id/textView4"
             android:layout_below="@+id/textView4"
-            android:text="Mô tả"
             android:textStyle="bold" />
     </RelativeLayout>
 </android.support.v7.widget.CardView>

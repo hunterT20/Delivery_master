@@ -3,9 +3,13 @@ package com.thanhtuan.delivery.view.fragment;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -25,6 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Response;
+import com.google.android.gms.maps.model.LatLng;
 import com.rey.material.widget.FloatingActionButton;
 import com.thanhtuan.delivery.R;
 import com.thanhtuan.delivery.data.remote.JsonRequest;
@@ -38,6 +43,7 @@ import com.thanhtuan.delivery.util.SharePreferenceUtil;
 import com.thanhtuan.delivery.view.activity.MainActivity;
 import com.thanhtuan.delivery.view.activity.NghiemThuActivity;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -73,15 +79,14 @@ public class InfoFragment extends Fragment {
     public List<URL_PhotoUpload> url_photoUploads;
     final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
 
-    public InfoFragment() {
-        // Required empty public constructor
-    }
+    private double longitudeCurrent, latitudeCurrent;
+
+    public InfoFragment() {}
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_info, container, false);
         ButterKnife.bind(this, view);
         url_photoUploads = new ArrayList<>();
@@ -107,7 +112,68 @@ public class InfoFragment extends Fragment {
             txtvNote.setText("Không có ghi chú!");
         else
             txtvNote.setText(itemChuaGiao.getNote());
+        setTime();
     }
+
+    private void getCurrentLocation() {
+        if(getActivity() == null){
+            return;
+        }
+        LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 5, locationListener);
+    }
+
+    private void setTime() {
+        getCurrentLocation();
+        if (getActivity() == null) {
+            return;
+        }
+
+        String URL = ApiHelper.ApiMap(getActivity(), latitudeCurrent, longitudeCurrent);
+        JsonRequest.Request(getActivity(), null, URL, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    if (response.get("status").equals("OK")) {
+                        JSONObject routes = response.getJSONArray("routes").getJSONObject(0);
+
+                        JSONObject legs = routes.getJSONArray("legs").getJSONObject(0);
+                        JSONObject duration = legs.getJSONObject("duration");
+                        Log.e(TAG, "onResponse: " + duration.getString("text"));
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private final LocationListener locationListener = new LocationListener() {
+        @Override
+        public void onLocationChanged(Location location) {
+            longitudeCurrent = location.getLongitude();
+            latitudeCurrent = location.getLatitude();
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+
+        }
+    };
 
 
     @OnClick(R.id.btnHuyGiaoHang)
@@ -170,7 +236,7 @@ public class InfoFragment extends Fragment {
     private void initDialogHuy(){
         LayoutInflater layoutInflaterAndroid = LayoutInflater.from(getActivity());
         final View mView = layoutInflaterAndroid.inflate(R.layout.dialog_huy, null);
-        final EditText edtLyDo = (EditText) mView.findViewById(R.id.edtLydo);
+        final EditText edtLyDo = mView.findViewById(R.id.edtLydo);
         AlertDialog.Builder alertDialogBuilderUserInput = new AlertDialog.Builder(getActivity());
         alertDialogBuilderUserInput.setView(mView);
 
@@ -253,41 +319,6 @@ public class InfoFragment extends Fragment {
             }
         });
     }
-
-    /*public void onUpload() {
-        HashMap<String, String> params = ApiHelper.paramDone(getActivity(),"default");
-        String URL = ApiHelper.ApiDone();
-        final String Token = SharePreferenceUtil.getValueToken(getActivity());
-        Log.e("URL", URL);
-        Log.e("Param", String.valueOf(params));
-
-        JsonRequest.Request(getActivity(), Token, URL, new JSONObject(params), new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                try {
-                    Log.e("data",String.valueOf(response));
-                    if (response.getBoolean("Success")) {
-                        SharePreferenceUtil.Clean(getActivity());
-
-                        SweetDialogUtil.showSweetDialogSuccess(getActivity(), "Nghiệm thu thành công!", new SweetAlertDialog.OnSweetClickListener() {
-                            @Override
-                            public void onClick(SweetAlertDialog sweetAlertDialog) {
-                                sweetAlertDialog.cancel();
-                                SharePreferenceUtil.Clean(getActivity());
-                                Intent intent = new Intent(getActivity(), MainActivity.class);
-                                getActivity().startActivity(intent);
-                                getActivity().finish();
-                            }
-                        });
-                    } else {
-                        Toast.makeText(getActivity(), "Nghiệm thu thất bại!!!", Toast.LENGTH_SHORT).show();
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }*/
 
     @TargetApi(Build.VERSION_CODES.M)
     @Override

@@ -8,7 +8,6 @@
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="quatrinh">Quá Trình:</string>
     <string name="choxuly">Chờ xử lý</string>
@@ -31,4 +30,26 @@
     <string name="dialog_title">Lý do hủy:</string>
     <string name="title_activity_maps">Map</string>
     <string name="todo">TODO</string>
+    <string name="khong_co_don_hang">Không có đơn hàng nào cần giao!</string>
+    <string name="khong_co_don_hang_duoc_giao">Không có đơn hàng nào được giao!</string>
+    <string name="ghi_nho_tai_khoan">Ghi nhớ tài khoản</string>
+    <string name="dang_nhap">Đăng nhập</string>
+    <string name="upload">Upload</string>
+    <string name="mo_ta">Mô tả</string>
+    <string name="demo_mo_ta_nghiem_thu">Hình nghiệm thu sản phẩm đang giao!</string>
+    <string name="xac_nhan">Xác nhận</string>
+    <string name="ngay_bat_dau">Ngày bắt đầu</string>
+    <string name="chon_ngay_bat_dau">Chọn ngày bắt đầu</string>
+    <string name="chon_ngay_ket_thuc">Chọn ngày kết thúc</string>
+    <string name="ngay_ket_thuc">Ngày kết thúc</string>
+    <string name="bat_dau">Bắt đầu</string>
+    <string name="don_hang">Đơn Hàng:</string>
+    <string name="address">Address</string>
+    <string name="dia_chi">Địa Chỉ:</string>
+    <string name="trang_thai">Trạng Thái:</string>
+    <string name="so_luong">Số Lượng:</string>
+    <string name="ten_khach_hang">Tên Khách Hàng:</string>
+    <string name="so_dien_thoai">Số Điện Thoại:</string>
+    <string name="co_phien_ban_moi">Hiện đã có phiên bản mới! Vui lòng cập nhật để sử dụng!</string>
+    <string name="update">Update</string>
 </resources>

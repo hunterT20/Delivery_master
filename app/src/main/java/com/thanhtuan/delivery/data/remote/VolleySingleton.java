@@ -16,13 +16,13 @@ public class VolleySingleton {
         }
     }
 
-    public static VolleySingleton getInstance(Context context) {
+    static VolleySingleton getInstance(Context context) {
         if (sInstance == null)
             sInstance = new VolleySingleton(context);
         return sInstance;
     }
 
-    public RequestQueue getRequestQueue() {
+    RequestQueue getRequestQueue() {
         return mRequestQueue;
     }
 

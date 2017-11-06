@@ -5,6 +5,7 @@ import android.app.DatePickerDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -44,11 +45,13 @@ import butterknife.OnClick;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class DaGiaoFragment extends Fragment implements DatePickerDialog.OnDateSetListener{
+public class DaGiaoFragment extends Fragment implements DatePickerDialog.OnDateSetListener, SwipeRefreshLayout.OnRefreshListener {
     @BindView(R.id.rcvDonHang_DaGiao)    RecyclerView rcvDonHang;
     @BindView(R.id.avi_loading)          AVLoadingIndicatorView avi_Loading;
     @BindView(R.id.txtvNoItem_DaGiao)    TextView txtvNoItem;
     @BindView(R.id.fabFilter)            FloatingActionButton fabFilter;
+    @BindView(R.id.swipe_refresh_layout)
+    SwipeRefreshLayout swipeRefreshLayout;
     private Button btnBegin, btnEnd;
 
     private List<Item_DaGiao> mItemDaGiao;
@@ -58,10 +61,9 @@ public class DaGiaoFragment extends Fragment implements DatePickerDialog.OnDateS
     private int CURRENT_PAGE = 1;
 
     private int Flag_Time;
+    boolean isRefresh = false;
 
-    public DaGiaoFragment() {
-        // Required empty public constructor
-    }
+    public DaGiaoFragment() {}
 
 
     @Override
@@ -70,6 +72,7 @@ public class DaGiaoFragment extends Fragment implements DatePickerDialog.OnDateS
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_da_giao, container, false);
         ButterKnife.bind(this,view);
+        swipeRefreshLayout.setOnRefreshListener(this);
 
         mItemDaGiao = new ArrayList<>();
         RecyclerViewUtil.setupRecyclerView(rcvDonHang,new ListDaGiaoAdapter(mItemDaGiao,getActivity()),getActivity());
@@ -100,8 +103,8 @@ public class DaGiaoFragment extends Fragment implements DatePickerDialog.OnDateS
         if (getActivity() == null) return;
         LayoutInflater layoutInflaterAndroid = LayoutInflater.from(getActivity());
         final View mView = layoutInflaterAndroid.inflate(R.layout.dialog_filter, null);
-        btnBegin = (Button) mView.findViewById(R.id.btnBegin);
-        btnEnd = (Button) mView.findViewById(R.id.btnend);
+        btnBegin = mView.findViewById(R.id.btnBegin);
+        btnEnd = mView.findViewById(R.id.btnend);
 
         btnBegin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -207,6 +210,8 @@ public class DaGiaoFragment extends Fragment implements DatePickerDialog.OnDateS
                         }
                         onGetList.getList(list);
                         AVLoadingUtil.stopAnim(avi_Loading);
+                        swipeRefreshLayout.setRefreshing(false);
+                        isRefresh = false;
                     }else {
                         if (mItemDaGiao.size() > 0){
                             txtvNoItem.setVisibility(View.GONE);
@@ -215,9 +220,13 @@ public class DaGiaoFragment extends Fragment implements DatePickerDialog.OnDateS
                         }
                         list.clear();
                         AVLoadingUtil.stopAnim(avi_Loading);
+                        swipeRefreshLayout.setRefreshing(false);
+                        isRefresh = false;
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
+                    swipeRefreshLayout.setRefreshing(false);
+                    isRefresh = false;
                 }
             }
         });
@@ -254,6 +263,21 @@ public class DaGiaoFragment extends Fragment implements DatePickerDialog.OnDateS
             btnBegin.setText(month + "/" + dayOfMonth + "/" + year);
         }else {
             btnEnd.setText(month + "/" + dayOfMonth + "/" + year);
+        }
+    }
+
+    @Override
+    public void onRefresh() {
+        if(!isRefresh){
+            isRefresh = true;
+            mItemDaGiao.clear();
+            getData(getCurrentDate(),getCurrentDate(),CURRENT_PAGE, mItemDaGiao, new OnGetList() {
+                @Override
+                public void getList(List<Item_DaGiao> itemDaGiaos) {
+                    adapter = new ListDaGiaoAdapter(itemDaGiaos, getActivity());
+                    rcvDonHang.setAdapter(adapter);
+                }
+            });
         }
     }
 }

@@ -17,6 +17,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -69,6 +70,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
+import static android.content.ContentValues.TAG;
+
 /**
  * A simple {@link Fragment} subclass.
  */
@@ -78,7 +81,7 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
     @BindView(R.id.Direction)       SwipeSelector swipeSelector;
     @BindView(R.id.txtvTime)        TextView txtvTime;
     @BindView(R.id.btnDirection)    Button btnDirection;
-    @BindView(R.id.LnLTotal)        LinearLayout linearLayout;
+    @BindView(R.id.LnLTotal)        CardView cardView;
 
     final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
     private GoogleMap googleMap;
@@ -126,21 +129,23 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
         public void onLocationChanged(Location location) {
             longitudeCurrent = location.getLongitude();
             latitudeCurrent = location.getLatitude();
+
+            Log.e(TAG, "onLocationChanged: " + longitudeCurrent);
         }
 
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras) {
-
+            Log.e(TAG, "onLocationChanged: " + status);
         }
 
         @Override
         public void onProviderEnabled(String provider) {
-
+            Log.e(TAG, "onLocationChanged: " + provider);
         }
 
         @Override
         public void onProviderDisabled(String provider) {
-
+            Log.e(TAG, "onLocationChanged: " + provider);
         }
     };
 
@@ -152,8 +157,9 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
         if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 5, locationListener);
-        Location locationCurrent = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+        assert locationManager != null;
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+        Location locationCurrent = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         if (locationCurrent != null){
             longitudeCurrent = locationCurrent.getLongitude();
             latitudeCurrent = locationCurrent.getLatitude();
@@ -260,9 +266,7 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
     }
 
     @Override
-    public void onRoutingStart() {
-
-    }
+    public void onRoutingStart() {}
 
     @Override
     public void onRoutingSuccess(ArrayList<Route> route, int shortestRouteIndex) {
@@ -289,7 +293,7 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
                         @Override
                         public void onClick(View v) {
                             /*set visibility cho view direction*/
-                            linearLayout.setVisibility(View.GONE);
+                            cardView.setVisibility(View.GONE);
                             swipeSelector.setVisibility(View.VISIBLE);
 
                             /*set color cho đoạn đường đầu tiên đươc load lên*/
@@ -300,7 +304,7 @@ public class MapFragment extends Fragment implements RoutingListener, GoogleApiC
                     });
                 }else {
                     /*set visibility cho view direction*/
-                    linearLayout.setVisibility(View.GONE);
+                    cardView.setVisibility(View.GONE);
                     swipeSelector.setVisibility(View.VISIBLE);
 
                     /*set color cho đoạn đường đầu tiên đươc load lên*/

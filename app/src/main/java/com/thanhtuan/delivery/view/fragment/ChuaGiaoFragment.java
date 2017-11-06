@@ -2,12 +2,15 @@ package com.thanhtuan.delivery.view.fragment;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.google.android.gms.common.api.Api;
@@ -31,15 +34,19 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static android.content.ContentValues.TAG;
+
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ChuaGiaoFragment extends Fragment {
+public class ChuaGiaoFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
     @BindView(R.id.rcvDonHang_ChuaGiao)    RecyclerView rcvDonHang;
     @BindView(R.id.avi_loading)   AVLoadingIndicatorView avi_Loading;
     @BindView(R.id.txtvNoItem_ChuaGiao)    TextView txtvNoItem;
+    @BindView(R.id.swipe_refresh_layout) SwipeRefreshLayout swipeRefreshLayout;
 
     private List<Item_ChuaGiao> mItemChuaGiao;
+    boolean isRefresh = false;
 
     public ChuaGiaoFragment() {
         // Required empty public constructor
@@ -53,6 +60,7 @@ public class ChuaGiaoFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_chua_giao, container, false);
         ButterKnife.bind(this,view);
 
+        swipeRefreshLayout.setOnRefreshListener(this);
         mItemChuaGiao = new ArrayList<>();
         initReCyclerView();
 
@@ -76,6 +84,7 @@ public class ChuaGiaoFragment extends Fragment {
             @Override
             public void onResponse(JSONObject response) {
                 try {
+                    Log.e(TAG, "onResponse: " + response);
                     if(response.getBoolean("Success")){
                         txtvNoItem.setVisibility(View.GONE);
                         JSONArray listItem = response.getJSONArray("Data");
@@ -100,11 +109,16 @@ public class ChuaGiaoFragment extends Fragment {
 
                         setListSale();
                         AVLoadingUtil.stopAnim(avi_Loading);
+                        swipeRefreshLayout.setRefreshing(false);
                     }else {
                         txtvNoItem.setVisibility(View.VISIBLE);
                         AVLoadingUtil.stopAnim(avi_Loading);
+                        isRefresh = false;
+                        swipeRefreshLayout.setRefreshing(false);
                     }
                 } catch (JSONException e) {
+                    isRefresh = false;
+                    swipeRefreshLayout.setRefreshing(false);
                     e.printStackTrace();
                 }
             }
@@ -115,5 +129,14 @@ public class ChuaGiaoFragment extends Fragment {
         rcvDonHang.setAdapter(new ListSaleAdapter(mItemChuaGiao,getActivity()));
         rcvDonHang.setLayoutManager(new LinearLayoutManager(getActivity()));
         rcvDonHang.setHasFixedSize(true);
+    }
+
+    @Override
+    public void onRefresh() {
+        if(!isRefresh){
+            isRefresh = true;
+            mItemChuaGiao.clear();
+            initData();
+        }
     }
 }
