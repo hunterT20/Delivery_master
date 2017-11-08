@@ -3,7 +3,6 @@ package com.thanhtuan.delivery.view.activity;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
@@ -16,8 +15,8 @@ import android.widget.Toast;
 import com.thanhtuan.delivery.R;
 import com.thanhtuan.delivery.view.fragment.DetailFragment;
 import com.thanhtuan.delivery.view.fragment.InfoFragment;
-import com.thanhtuan.delivery.view.fragment.MapFragment;
 import com.thanhtuan.delivery.util.SharePreferenceUtil;
+import com.thanhtuan.delivery.view.fragment.MapFragment;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

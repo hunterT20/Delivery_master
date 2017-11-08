@@ -175,6 +175,14 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
+
+        /*JsonRequest.Request(getApplication(), SharePreferenceUtil.getValueToken(getApplication()), ApiHelper.ApiSentSMS(),
+                new JSONObject(ApiHelper.paramSentSMS("01669384803", "30")), new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Log.e("SMS", "onResponse: " + response);
+                    }
+                });*/
     }
 
     public void setFullScreen() {

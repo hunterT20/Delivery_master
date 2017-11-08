@@ -158,4 +158,17 @@ public class ApiHelper {
 
         return params;
     }
+
+    public static HashMap<String, String> paramSentSMS(String NumberPhone, String Minutes){
+        HashMap<String,String> params = new HashMap<>();
+        params.put("Phone", NumberPhone);
+        params.put("SoPhut", Minutes);
+
+        return params;
+    }
+
+    public static String ApiSentSMS(){
+        String DOMAIN_SENTSMS = "salereceipt/sendsmsdelivery";
+        return URL2 + DOMAIN_SENTSMS;
+    }
 }

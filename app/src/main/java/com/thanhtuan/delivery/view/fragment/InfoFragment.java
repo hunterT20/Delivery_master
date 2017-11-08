@@ -79,7 +79,6 @@ public class InfoFragment extends Fragment {
     public List<URL_PhotoUpload> url_photoUploads;
     final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
 
-    private double longitudeCurrent, latitudeCurrent;
 
     public InfoFragment() {}
 
@@ -112,69 +111,7 @@ public class InfoFragment extends Fragment {
             txtvNote.setText("Không có ghi chú!");
         else
             txtvNote.setText(itemChuaGiao.getNote());
-        setTime();
     }
-
-    private void getCurrentLocation() {
-        if(getActivity() == null){
-            return;
-        }
-        LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 5, locationListener);
-    }
-
-    private void setTime() {
-        getCurrentLocation();
-        if (getActivity() == null) {
-            return;
-        }
-
-        String URL = ApiHelper.ApiMap(getActivity(), latitudeCurrent, longitudeCurrent);
-        JsonRequest.Request(getActivity(), null, URL, null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                try {
-                    if (response.get("status").equals("OK")) {
-                        JSONObject routes = response.getJSONArray("routes").getJSONObject(0);
-
-                        JSONObject legs = routes.getJSONArray("legs").getJSONObject(0);
-                        JSONObject duration = legs.getJSONObject("duration");
-                        Log.e(TAG, "onResponse: " + duration.getString("text"));
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
-
-    private final LocationListener locationListener = new LocationListener() {
-        @Override
-        public void onLocationChanged(Location location) {
-            longitudeCurrent = location.getLongitude();
-            latitudeCurrent = location.getLatitude();
-        }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-
-        }
-
-        @Override
-        public void onProviderEnabled(String provider) {
-
-        }
-
-        @Override
-        public void onProviderDisabled(String provider) {
-
-        }
-    };
-
 
     @OnClick(R.id.btnHuyGiaoHang)
     public void clickHuy(){
