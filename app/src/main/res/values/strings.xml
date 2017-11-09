@@ -52,4 +52,7 @@
     <string name="so_dien_thoai">Số Điện Thoại:</string>
     <string name="co_phien_ban_moi">Hiện đã có phiên bản mới! Vui lòng cập nhật để sử dụng!</string>
     <string name="update">Update</string>
+    <string name="cap_nhat_thoi_gian_di">Cập nhật thời gian đi</string>
+    <string name="luu_y_thoi_gian">(Lưu ý: thời gian sẽ được gửi cho khách hàng)</string>
+    <string name="thoi_gian_du_kien">Thời gian dự kiến (phút)</string>
 </resources>

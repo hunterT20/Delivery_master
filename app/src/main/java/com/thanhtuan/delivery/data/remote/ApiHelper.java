@@ -137,7 +137,7 @@ public class ApiHelper {
         HashMap<String, String> params = new HashMap<>();
         params.put("employeeId", ID);
         params.put("saleReceiptId", itemChuaGiao1.getSaleReceiptId());
-        params.put("Distance", "0123");
+        params.put("Distance", distance);
         params.put("Description",description);
 
         return params;

@@ -111,6 +111,8 @@ public class InfoFragment extends Fragment {
             txtvNote.setText("Không có ghi chú!");
         else
             txtvNote.setText(itemChuaGiao.getNote());
+
+        MapsFragment mapsFragment = new MapsFragment();
     }
 
     @OnClick(R.id.btnHuyGiaoHang)
@@ -126,9 +128,11 @@ public class InfoFragment extends Fragment {
 
     @OnClick(R.id.btnGiaoHang)
     public void giaoHangClick(){
-        String status = btnGiaoHang.getText().toString();
+        initDialogSetTime("30");
+        /*String status = btnGiaoHang.getText().toString();
         switch (status){
             case "Giao Hàng":
+                initDialogSetTime("30");
                 eventTimeRecord("1");
                 break;
             case "Kết Thúc":
@@ -138,10 +142,9 @@ public class InfoFragment extends Fragment {
                 Intent intent = new Intent(getActivity(), NghiemThuActivity.class);
                 startActivity(intent);
                 getActivity().finish();
-                /*onUpload();*/
                 eventTimeRecord("3");
                 break;
-        }
+        }*/
     }
 
     private void setQuaTrinh(int Status){
@@ -192,6 +195,25 @@ public class InfoFragment extends Fragment {
                                 dialogBox.cancel();
                             }
                         });
+
+        AlertDialog alertDialogAndroid = alertDialogBuilderUserInput.create();
+        alertDialogAndroid.show();
+    }
+    private void initDialogSetTime(final String Time){
+        LayoutInflater layoutInflaterAndroid = LayoutInflater.from(getActivity());
+        final View mView = layoutInflaterAndroid.inflate(R.layout.dialog_set_time, null);
+        EditText edtTime = mView.findViewById(R.id.edtTime);
+        edtTime.setText(SharePreferenceUtil.getValueTime(getActivity()));
+        AlertDialog.Builder alertDialogBuilderUserInput = new AlertDialog.Builder(getActivity());
+        alertDialogBuilderUserInput.setView(mView);
+
+        alertDialogBuilderUserInput
+                .setCancelable(false)
+                .setPositiveButton("Xác nhận", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialogBox, int id) {
+                        dialogBox.dismiss();
+                    }
+                });
 
         AlertDialog alertDialogAndroid = alertDialogBuilderUserInput.create();
         alertDialogAndroid.show();

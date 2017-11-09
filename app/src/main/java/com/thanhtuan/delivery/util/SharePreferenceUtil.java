@@ -3,6 +3,7 @@ package com.thanhtuan.delivery.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.location.Location;
 import android.widget.EditText;
 
 import com.google.gson.Gson;
@@ -21,6 +22,7 @@ public class SharePreferenceUtil {
     private static String VALUE_DIRECTION = "Direction";
     private static String VALUE_DISTANCE = "Distance";
     private static String VALUE_TOKEN = "Token";
+    private static String VALUE_TIME = "Time";
 
     public static void setValueId(Context context, String ID){
         SharedPreferences MyPre = context.getSharedPreferences(NAME, MODE_PRIVATE);
@@ -116,6 +118,18 @@ public class SharePreferenceUtil {
         return MyPre.getString(VALUE_DISTANCE, "");
     }
 
+    public static void setValueTime(Context context,String Time){
+        SharedPreferences MyPre = context.getSharedPreferences(NAME, MODE_PRIVATE);
+        SharedPreferences.Editor edit = MyPre.edit();
+        edit.putString(VALUE_TIME, Time);
+        edit.apply();
+    }
+
+    public static String getValueTime(Context context){
+        SharedPreferences MyPre = context.getSharedPreferences(NAME, MODE_PRIVATE);
+        return MyPre.getString(VALUE_TIME, "");
+    }
+
     public static void Clean(Context context){
         SharedPreferences MyPre = context.getSharedPreferences(NAME, MODE_PRIVATE);
         SharedPreferences.Editor edit = MyPre.edit();
@@ -124,6 +138,7 @@ public class SharePreferenceUtil {
         edit.remove(VALUE_STATUS);
         edit.remove(VALUE_DISTANCE);
         edit.remove(VALUE_DIRECTION);
+        edit.remove(VALUE_TIME);
         edit.apply();
     }
 }

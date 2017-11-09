@@ -1,16 +1,13 @@
 package com.thanhtuan.delivery.view.fragment;
 
-
 import android.Manifest;
 import android.app.Fragment;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
-import android.os.Build;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
@@ -72,14 +69,10 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static android.content.ContentValues.TAG;
+import static android.content.Context.LOCATION_SERVICE;
 
-/**
- * A simple {@link Fragment} subclass.
- */
-public class MapFragment extends Fragment implements GoogleApiClient.OnConnectionFailedListener,
-        GoogleApiClient.ConnectionCallbacks {
-
+public class MapsFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener {
     @BindView(R.id.mapView)
     MapView mMapView;
     @BindView(R.id.Direction)
@@ -91,93 +84,105 @@ public class MapFragment extends Fragment implements GoogleApiClient.OnConnectio
     @BindView(R.id.LnLTotal)
     CardView cardView;
 
+    private GoogleMap googleMap;
+    private List<Polyline> polylines;
+    private LatLng start;
+
+    public static final String TAG = MapsFragment.class.getSimpleName();
+    private static final long UPDATE_INTERVAL = 5000;
+    private static final long FASTEST_INTERVAL = 5000;
+    private static final int REQUEST_LOCATION_PERMISSION = 100;
+
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
     private Location mLastLocation;
     private FusedLocationProviderClient client;
 
-    final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
-    private static final long UPDATE_INTERVAL = 5000;
-    private static final long FASTEST_INTERVAL = 5000;
-    private GoogleMap googleMap;
-    private List<Polyline> polylines;
-    private LatLng start;
-
-    public MapFragment() {
+    public MapsFragment() {
         // Required empty public constructor
     }
 
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_map, container, false);
-        ButterKnife.bind(this, view);
+        ButterKnife.bind(this,view);
         mMapView.onCreate(savedInstanceState);
 
         requestLocationPermissions();
+
         if (isPlayServicesAvailable()) {
             setUpLocationClientIfNeeded();
             buildLocationRequest();
         }
 
-        initData();
-
-        initGoogleMap();
         return view;
     }
 
-    private void initData(){
-        polylines = new ArrayList<>();
+    private void requestLocationPermissions() {
+        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_LOCATION_PERMISSION);
+        }
+    }
 
-        if (client == null) {
+    @Override
+    public void onRequestPermissionsResult(
+            int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_LOCATION_PERMISSION:
+                if (grantResults.length <= 0
+                        && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                    requestLocationPermissions();
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    private boolean isPlayServicesAvailable() {
+        return GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(getActivity())
+                == ConnectionResult.SUCCESS;
+    }
+
+    private boolean isGpsOn() {
+        LocationManager manager = (LocationManager) getActivity().getSystemService(LOCATION_SERVICE);
+        assert manager != null;
+        return manager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+    }
+
+    private void setUpLocationClientIfNeeded() {
+        if (mGoogleApiClient == null) {
+            mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
+        }
+
+        if (client == null){
             client = LocationServices.getFusedLocationProviderClient(getActivity());
         }
-        startLocationUpdates();
-
-        int status = SharePreferenceUtil.getValueStatus(getActivity());
-        if (status == AppConst.DANG_CHO_GIAO_HANG) {
-            SharePreferenceUtil.setValueDirection(getActivity(), -1);
-        }
-
-        mMapView.onResume();
-
-        try {
-            MapsInitializer.initialize(getActivity().getApplicationContext());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        if (mGoogleApiClient != null) {
-            mGoogleApiClient.connect();
-        }
+    private void buildLocationRequest() {
+        mLocationRequest = LocationRequest.create();
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setInterval(UPDATE_INTERVAL);
+        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
     }
 
-    @Override
-    public void onStop() {
-        if (mGoogleApiClient != null) {
-            mGoogleApiClient.disconnect();
+    private LocationCallback callback = new LocationCallback(){
+        @Override
+        public void onLocationResult(LocationResult locationResult) {
+            super.onLocationResult(locationResult);
+            mLastLocation = locationResult.getLastLocation();
         }
-        super.onStop();
-    }
-
-    @Override
-    public void onDestroy() {
-        if (mGoogleApiClient != null
-                && mGoogleApiClient.isConnected()) {
-            stopLocationUpdates();
-            mGoogleApiClient.disconnect();
-            mGoogleApiClient = null;
-        }
-        Log.d(TAG, "onDestroy LocationService");
-        super.onDestroy();
-    }
+    };
 
     protected void startLocationUpdates() {
         if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
@@ -193,37 +198,27 @@ public class MapFragment extends Fragment implements GoogleApiClient.OnConnectio
         client.removeLocationUpdates(callback);
     }
 
-    private LocationCallback callback = new LocationCallback(){
-        @Override
-        public void onLocationResult(LocationResult locationResult) {
-            super.onLocationResult(locationResult);
-            mLastLocation = locationResult.getLastLocation();
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (mGoogleApiClient != null) {
+            mGoogleApiClient.connect();
         }
-    };
-
-    private void setUpLocationClientIfNeeded() {
-        if (mGoogleApiClient == null) {
-            mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
-                    .addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this)
-                    .addApi(LocationServices.API)
-                    .build();
-        }
-
-        if (client == null) {
-            client = LocationServices.getFusedLocationProviderClient(getActivity());
-        }
-    }
-
-    private void buildLocationRequest() {
-        mLocationRequest = LocationRequest.create();
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocationRequest.setInterval(UPDATE_INTERVAL);
-        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
     }
 
     @Override
-    public void onConnected(@Nullable Bundle bundle) {
+    public void onStop() {
+        if (mGoogleApiClient != null
+                && mGoogleApiClient.isConnected()) {
+            stopLocationUpdates();
+            mGoogleApiClient.disconnect();
+            mGoogleApiClient = null;
+        }
+        super.onStop();
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
         if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(getActivity(),
                 Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -233,9 +228,16 @@ public class MapFragment extends Fragment implements GoogleApiClient.OnConnectio
         client.getLastLocation().addOnSuccessListener(getActivity(), new OnSuccessListener<Location>() {
             @Override
             public void onSuccess(Location location) {
-                Log.e(TAG, "onSuccess: " + location);
                 if (location != null) {
+                    if (!isGpsOn()){
+                        Toast.makeText(getActivity(), "Bạn chưa mở GPS! Mở GPS để xác định địa điểm chính xác!", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     mLastLocation = location;
+                    startLocationUpdates();
+
+                    initData();
+                    initGoogleMap();
                 }
             }
         });
@@ -249,6 +251,28 @@ public class MapFragment extends Fragment implements GoogleApiClient.OnConnectio
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Log.e(TAG, "onConnectionFailed: " + connectionResult.getErrorMessage());
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
+    private void initData(){
+        polylines = new ArrayList<>();
+
+        int status = SharePreferenceUtil.getValueStatus(getActivity());
+        if (status == AppConst.DANG_CHO_GIAO_HANG) {
+            SharePreferenceUtil.setValueDirection(getActivity(), -1);
+        }
+
+        mMapView.onResume();
+
+        try {
+            MapsInitializer.initialize(getActivity().getApplicationContext());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private RoutingListener listener = new RoutingListener() {
@@ -281,6 +305,8 @@ public class MapFragment extends Fragment implements GoogleApiClient.OnConnectio
                     /*set textview tổng quãng đường và thời gian cần đi*/
                         if (getActivity() == null) return;
                         SharePreferenceUtil.setValueDistance(getActivity(), route_point.getTotalDistance());
+                        SharePreferenceUtil.setValueTime(getActivity(),route_point.getTotalDuration());
+
                         txtvTime.setText(
                                 "Quãng đường: " + route_point.getTotalDistance() +
                                         "- Thời gian: " + route_point.getTotalDuration()
@@ -466,35 +492,6 @@ public class MapFragment extends Fragment implements GoogleApiClient.OnConnectio
         });
     }
 
-    private void requestLocationPermissions() {
-        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(),
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    REQUEST_CODE_ASK_PERMISSIONS);
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(
-            int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_CODE_ASK_PERMISSIONS:
-                if (grantResults.length <= 0
-                        && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                    requestLocationPermissions();
-                }
-                break;
-            default:
-                break;
-        }
-    }
-
-    private boolean isPlayServicesAvailable() {
-        return GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(getActivity())
-                == ConnectionResult.SUCCESS;
-    }
-
     private void initGoogleMap() {
         mMapView.getMapAsync(new OnMapReadyCallback() {
             @Override
@@ -525,4 +522,5 @@ public class MapFragment extends Fragment implements GoogleApiClient.OnConnectio
             }
         });
     }
+
 }

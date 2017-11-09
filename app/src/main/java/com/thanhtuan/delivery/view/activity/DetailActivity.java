@@ -16,7 +16,7 @@ import com.thanhtuan.delivery.R;
 import com.thanhtuan.delivery.view.fragment.DetailFragment;
 import com.thanhtuan.delivery.view.fragment.InfoFragment;
 import com.thanhtuan.delivery.util.SharePreferenceUtil;
-import com.thanhtuan.delivery.view.fragment.MapFragment;
+import com.thanhtuan.delivery.view.fragment.MapsFragment;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -66,7 +66,7 @@ public class DetailActivity extends AppCompatActivity {
                         txtvTitleToolbar.setText("Thông tin");
                         break;
                     case R.id.action_map:
-                        fragmentTransaction.replace(R.id.frmMain, new MapFragment());
+                        fragmentTransaction.replace(R.id.frmMain, new MapsFragment());
                         txtvTitleToolbar.setText("Bản đồ");
                         break;
                     case R.id.action_detail:
