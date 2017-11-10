@@ -3,7 +3,6 @@ package com.thanhtuan.delivery.view.activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.provider.MediaStore;
@@ -16,7 +15,7 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -27,21 +26,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.VolleyLog;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.google.gson.Gson;
 import com.rey.material.widget.FloatingActionButton;
 import com.thanhtuan.delivery.R;
 import com.thanhtuan.delivery.data.remote.JsonRequest;
-import com.thanhtuan.delivery.util.SweetDialogUtil;
-import com.thanhtuan.delivery.util.EncodeBitmapUtil;
 import com.thanhtuan.delivery.view.adapter.ListNghiemThuAdapter;
 import com.thanhtuan.delivery.data.remote.ApiHelper;
-import com.thanhtuan.delivery.data.remote.VolleySingleton;
-import com.thanhtuan.delivery.model.Item_ChuaGiao;
 import com.thanhtuan.delivery.model.Photo;
-import com.thanhtuan.delivery.model.SaleReceiptUpdate;
 import com.thanhtuan.delivery.model.URL_PhotoUpload;
 import com.thanhtuan.delivery.util.SharePreferenceUtil;
 
@@ -54,7 +44,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import cn.pedant.SweetAlert.SweetAlertDialog;
 import co.dift.ui.SwipeToAction;
 
 public class NghiemThuActivity extends AppCompatActivity {
@@ -108,6 +97,7 @@ public class NghiemThuActivity extends AppCompatActivity {
             public void onClick(View v) {
                 /*Hide keyboard*/
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                assert imm != null;
                 imm.hideSoftInputFromWindow(edtMoTa.getWindowToken(), 0);
 
                 if (((BitmapDrawable)ibtnPhoto.getDrawable()).getBitmap() == bitmap_old){
@@ -173,10 +163,9 @@ public class NghiemThuActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (photoList.size() == 0){
-                    SweetDialogUtil.showSweetDialogWarning(getApplication(),"Vui làm nghiệm thu trước khi update!");
+                    showErrorDialog("Vui lòng nghiệm thu trước khi update!");
                     return;
                 }
-
                 onUpload();
             }
         });
@@ -200,7 +189,7 @@ public class NghiemThuActivity extends AppCompatActivity {
         rcvNghiemThu.setAdapter(adapter);
         adapter.notifyDataSetChanged();
 
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplication(), LinearLayoutManager.VERTICAL, false);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(NghiemThuActivity.this, LinearLayoutManager.VERTICAL, false);
         rcvNghiemThu.setLayoutManager(linearLayoutManager);
     }
 
@@ -226,8 +215,7 @@ public class NghiemThuActivity extends AppCompatActivity {
             cvNghiemThuGONE();
         } else {
             if (photoList.size() != 0) {
-                String mess = "Bạn chưa upload nghiệm thu! Có muốn thoát không?";
-                showLocationDialog(mess);
+                showWarnningActionUploadDialog();
             }
             else {
                 finish();
@@ -243,8 +231,7 @@ public class NghiemThuActivity extends AppCompatActivity {
                     cvNghiemThuGONE();
                 }else {
                     if (photoList.size() != 0){
-                        String mess = "Bạn chưa upload nghiệm thu! Có muốn thoát không?";
-                        showLocationDialog(mess);
+                        showWarnningActionUploadDialog();
                     }
                     else {
                         finish();
@@ -259,34 +246,6 @@ public class NghiemThuActivity extends AppCompatActivity {
     private void eventAddPhoto(){
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         startActivityForResult(intent,CODE_PHOTO);
-    }
-
-    private void showLocationDialog(String mess) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(NghiemThuActivity.this);
-        builder.setTitle("Cảnh báo!");
-        builder.setMessage(mess);
-
-        String positiveText = getString(android.R.string.ok);
-        builder.setPositiveButton(positiveText,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        finish();
-                    }
-                });
-
-        String negativeText = getString(android.R.string.cancel);
-        builder.setNegativeButton(negativeText,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // negative button logic
-                    }
-                });
-
-        AlertDialog dialog = builder.create();
-        // display dialog
-        dialog.show();
     }
 
     @Override
@@ -330,18 +289,24 @@ public class NghiemThuActivity extends AppCompatActivity {
             public void onResponse(JSONObject response) {
                 try {
                     if (response.getBoolean("Success")){
-                        SharePreferenceUtil.Clean(getApplication());
+                        SharePreferenceUtil.Clean(NghiemThuActivity.this);
 
-                        SweetDialogUtil.showSweetDialogSuccess(NghiemThuActivity.this, "Nghiệm thu thành công!", new SweetAlertDialog.OnSweetClickListener() {
-                            @Override
-                            public void onClick(SweetAlertDialog sweetAlertDialog) {
-                                sweetAlertDialog.cancel();
-                                SharePreferenceUtil.Clean(getApplication());
-                                Intent intent = new Intent(getApplication(), MainActivity.class);
-                                startActivity(intent);
-                                finish();
-                            }
-                        });
+                        AlertDialog.Builder builder = new AlertDialog.Builder(NghiemThuActivity.this);
+                        String positiveText = NghiemThuActivity.this.getString(android.R.string.ok);
+                        builder.setCancelable(false)
+                                .setPositiveButton(positiveText,new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        startActivity(new Intent(NghiemThuActivity.this,MainActivity.class));
+                                        finish();
+                                    }
+                                })
+                                .setMessage("Nghiệm thu thành công!")
+                                .setTitle("Thành công!");
+
+                        AlertDialog dialog = builder.create();
+                        dialog.show();
+
                     }else {
                         Snackbar snackbar = Snackbar.make(Root,String.valueOf(response.getBoolean("Nghiệm thu thất bại!")),Snackbar.LENGTH_LONG);
                         snackbar.show();
@@ -351,6 +316,49 @@ public class NghiemThuActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void showWarnningActionUploadDialog() {
+        String mess = "Bạn chưa upload nghiệm thu! Có muốn thoát không?";
+        AlertDialog.Builder builder = new AlertDialog.Builder(NghiemThuActivity.this);
+
+        String positiveText = NghiemThuActivity.this.getString(android.R.string.ok);
+        builder.setCancelable(false)
+                .setPositiveButton(positiveText,new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                })
+                .setNegativeButton(NghiemThuActivity.this.getText(android.R.string.cancel), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                })
+                .setMessage(mess)
+                .setTitle("Cảnh báo!");
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void showErrorDialog(String s) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(NghiemThuActivity.this);
+
+        String positiveText = NghiemThuActivity.this.getString(android.R.string.ok);
+        builder.setCancelable(false)
+                .setPositiveButton(positiveText,new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .setMessage(s)
+                .setTitle("Cảnh báo!");
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     private void removeNghiemThu(Photo photo){

@@ -48,9 +48,7 @@ public class ChuaGiaoFragment extends Fragment implements SwipeRefreshLayout.OnR
     private List<Item_ChuaGiao> mItemChuaGiao;
     boolean isRefresh = false;
 
-    public ChuaGiaoFragment() {
-        // Required empty public constructor
-    }
+    public ChuaGiaoFragment() {}
 
 
     @Override
@@ -84,7 +82,6 @@ public class ChuaGiaoFragment extends Fragment implements SwipeRefreshLayout.OnR
             @Override
             public void onResponse(JSONObject response) {
                 try {
-                    Log.e(TAG, "onResponse: " + response);
                     if(response.getBoolean("Success")){
                         txtvNoItem.setVisibility(View.GONE);
                         JSONArray listItem = response.getJSONArray("Data");

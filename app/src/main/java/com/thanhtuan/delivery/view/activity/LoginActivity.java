@@ -1,8 +1,6 @@
 package com.thanhtuan.delivery.view.activity;
 
 import android.Manifest;
-import android.app.DownloadManager;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -49,6 +47,8 @@ public class LoginActivity extends AppCompatActivity {
     @BindView(R.id.btnLogin)    Button btnLogin;
     @BindView(R.id.ckbSave)     CheckBox ckbSaveUser;
 
+    Toast toast;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,7 +57,7 @@ public class LoginActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         if (!NetworkUtils.isNetworkAvailable(getApplication())){
-            Toast.makeText(LoginActivity.this, "Bạn chưa bật kết nối mạng!", Toast.LENGTH_SHORT).show();
+            setToastShow("Bạn chưa bật kết nối mạng!");
             return;
         }
 
@@ -118,7 +118,7 @@ public class LoginActivity extends AppCompatActivity {
                         SharePreferenceUtil.setValueToken(getApplication(),user.getToken());
 
                         btnLogin.setText("Login");
-                        Toast.makeText(LoginActivity.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
+                        setToastShow("Đăng nhập thành công!");
 
                         SaveLogin();
 
@@ -133,7 +133,7 @@ public class LoginActivity extends AppCompatActivity {
                         finish();
                     }else {
                         btnLogin.setText("Login");
-                        Toast.makeText(LoginActivity.this, response.getString("Message"), Toast.LENGTH_SHORT).show();
+                        setToastShow(response.getString("Message"));
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -175,14 +175,6 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
-
-        /*JsonRequest.Request(getApplication(), SharePreferenceUtil.getValueToken(getApplication()), ApiHelper.ApiSentSMS(),
-                new JSONObject(ApiHelper.paramSentSMS("01669384803", "30")), new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        Log.e("SMS", "onResponse: " + response);
-                    }
-                });*/
     }
 
     public void setFullScreen() {
@@ -194,6 +186,14 @@ public class LoginActivity extends AppCompatActivity {
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                     WindowManager.LayoutParams.FLAG_FULLSCREEN);
         }
+    }
+
+    private void setToastShow(String text){
+        if (toast != null){
+            toast.cancel();
+        }
+        toast = Toast.makeText(this, text, Toast.LENGTH_SHORT);
+        toast.show();
     }
 
     public void checkPermission() {

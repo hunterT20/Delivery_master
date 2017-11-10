@@ -48,7 +48,7 @@ public class DetailActivity extends AppCompatActivity {
 
         getFragmentManager()
                 .beginTransaction()
-                .replace(R.id.frmMain, new InfoFragment())
+                .add(R.id.frmMain, new InfoFragment())
                 .commit();
         txtvTitleToolbar.setText("Thông tin");
     }
@@ -79,6 +79,8 @@ public class DetailActivity extends AppCompatActivity {
                 return true;
             }
         });
+
+        bottomNavigationView.setSelectedItemId(R.id.action_map);
     }
 
     @Override

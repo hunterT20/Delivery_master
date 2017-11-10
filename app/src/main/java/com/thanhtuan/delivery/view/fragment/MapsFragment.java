@@ -403,6 +403,8 @@ public class MapsFragment extends Fragment implements GoogleApiClient.Connection
                     } else {
                         if (getActivity() != null) {
                             txtvTime.setText("Không Tìm thấy địa chỉ!");
+                            SharePreferenceUtil.setValueDistance(getActivity(),"");
+                            SharePreferenceUtil.setValueTime(getActivity(),"");
                             btnDirection.setVisibility(View.GONE);
                         }
                     }

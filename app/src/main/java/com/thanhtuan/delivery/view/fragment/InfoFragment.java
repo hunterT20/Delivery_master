@@ -29,6 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.google.android.gms.maps.model.LatLng;
 import com.rey.material.widget.FloatingActionButton;
 import com.thanhtuan.delivery.R;
@@ -36,21 +37,18 @@ import com.thanhtuan.delivery.data.remote.JsonRequest;
 import com.thanhtuan.delivery.model.Item_ChuaGiao;
 import com.thanhtuan.delivery.model.SaleReceiptUpdate;
 import com.thanhtuan.delivery.model.URL_PhotoUpload;
-import com.thanhtuan.delivery.util.SweetDialogUtil;
 import com.thanhtuan.delivery.view.activity.DetailActivity;
 import com.thanhtuan.delivery.data.remote.ApiHelper;
 import com.thanhtuan.delivery.util.SharePreferenceUtil;
 import com.thanhtuan.delivery.view.activity.MainActivity;
 import com.thanhtuan.delivery.view.activity.NghiemThuActivity;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -58,7 +56,6 @@ import butterknife.OnClick;
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
 import static android.content.ContentValues.TAG;
-import static android.content.Context.MODE_PRIVATE;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -78,7 +75,7 @@ public class InfoFragment extends Fragment {
     private Item_ChuaGiao itemChuaGiao;
     public List<URL_PhotoUpload> url_photoUploads;
     final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
-
+    String Token;
 
     public InfoFragment() {}
 
@@ -111,8 +108,7 @@ public class InfoFragment extends Fragment {
             txtvNote.setText("Không có ghi chú!");
         else
             txtvNote.setText(itemChuaGiao.getNote());
-
-        MapsFragment mapsFragment = new MapsFragment();
+        eventSentTime("0123","0548");
     }
 
     @OnClick(R.id.btnHuyGiaoHang)
@@ -128,12 +124,10 @@ public class InfoFragment extends Fragment {
 
     @OnClick(R.id.btnGiaoHang)
     public void giaoHangClick(){
-        initDialogSetTime("30");
-        /*String status = btnGiaoHang.getText().toString();
+        String status = btnGiaoHang.getText().toString();
         switch (status){
             case "Giao Hàng":
-                initDialogSetTime("30");
-                eventTimeRecord("1");
+                initDialogSetTime();
                 break;
             case "Kết Thúc":
                 eventTimeRecord("2");
@@ -144,7 +138,7 @@ public class InfoFragment extends Fragment {
                 getActivity().finish();
                 eventTimeRecord("3");
                 break;
-        }*/
+        }
     }
 
     private void setQuaTrinh(int Status){
@@ -187,8 +181,6 @@ public class InfoFragment extends Fragment {
                         onAbort(edtLyDo.getText().toString());
                     }
                 })
-                .setTitle("Lý Do Hủy")
-
                 .setNegativeButton("Cancel",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialogBox, int id) {
@@ -199,10 +191,11 @@ public class InfoFragment extends Fragment {
         AlertDialog alertDialogAndroid = alertDialogBuilderUserInput.create();
         alertDialogAndroid.show();
     }
-    private void initDialogSetTime(final String Time){
+
+    private void initDialogSetTime(){
         LayoutInflater layoutInflaterAndroid = LayoutInflater.from(getActivity());
         final View mView = layoutInflaterAndroid.inflate(R.layout.dialog_set_time, null);
-        EditText edtTime = mView.findViewById(R.id.edtTime);
+        final EditText edtTime = mView.findViewById(R.id.edtTime);
         edtTime.setText(SharePreferenceUtil.getValueTime(getActivity()));
         AlertDialog.Builder alertDialogBuilderUserInput = new AlertDialog.Builder(getActivity());
         alertDialogBuilderUserInput.setView(mView);
@@ -211,7 +204,15 @@ public class InfoFragment extends Fragment {
                 .setCancelable(false)
                 .setPositiveButton("Xác nhận", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialogBox, int id) {
+                        Log.e(TAG, "onClick: " + "Xác nhận");
+                        eventSentTime(String.valueOf(edtTime.getText()), String.valueOf(txtvSDT.getText()));
                         dialogBox.dismiss();
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
                     }
                 });
 
@@ -234,13 +235,31 @@ public class InfoFragment extends Fragment {
                         if (response.getBoolean("Result")) {
                             JSONObject jsonObject = response.getJSONObject("Data");
                             setQuaTrinh(jsonObject.getInt("Status"));
-                            SweetDialogUtil.showSweetDialogSuccess(getActivity(), "Đã hủy giao hàng!", new SweetAlertDialog.OnSweetClickListener() {
-                                @Override
-                                public void onClick(SweetAlertDialog sweetAlertDialog) {
-                                    sweetAlertDialog.dismiss();
-                                    ((DetailActivity)getActivity()).setIntent();
-                                }
-                            });
+
+                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                            builder.setTitle("Thành công!");
+                            builder.setMessage("Đã hủy giao hàng!");
+
+                            String positiveText = getActivity().getString(android.R.string.ok);
+                            builder.setPositiveButton(positiveText,
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            ((DetailActivity)getActivity()).setIntent();
+                                        }
+                                    });
+
+                            String negativeText = getActivity().getString(android.R.string.cancel);
+                            builder.setNegativeButton(negativeText,
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.dismiss();
+                                        }
+                                    });
+
+                            AlertDialog dialog = builder.create();
+                            dialog.show();
                         } else {
                             Toast.makeText(getActivity(), response.getString("Message"), Toast.LENGTH_SHORT).show();
                         }
@@ -252,8 +271,30 @@ public class InfoFragment extends Fragment {
         }
     }
 
+    private void eventSentTime(String Time, String Phone){
+        Token = SharePreferenceUtil.getValueToken(getActivity());
+
+        JsonRequest.Request(getActivity(), SharePreferenceUtil.getValueToken(getActivity()), ApiHelper.ApiSentSMS(),
+                new JSONObject(ApiHelper.paramSentSMS("01669384803", "30")),
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            if (response.getBoolean("Success")){
+                                Log.e(TAG, "onResponse: " + response);
+                                //eventTimeRecord("1");
+                            }else {
+                                Log.e(TAG, "onResponse: " + response.getString("Message"));
+                            }
+                        } catch (JSONException e) {
+                            Log.e(TAG, "onResponse: " + e.getMessage());
+                        }
+                    }
+                });
+    }
+
     private void eventTimeRecord(final String Status){
-        final String Token = SharePreferenceUtil.getValueToken(getActivity());
+        Token = SharePreferenceUtil.getValueToken(getActivity());
         String URL = ApiHelper.ApiTime();
 
         HashMap<String,String> params = ApiHelper.paramTime(
