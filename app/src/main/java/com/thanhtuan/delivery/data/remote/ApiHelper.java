@@ -3,9 +3,9 @@ package com.thanhtuan.delivery.data.remote;
 import android.content.Context;
 import android.graphics.Bitmap;
 
-import com.thanhtuan.delivery.model.Item_ChuaGiao;
-import com.thanhtuan.delivery.util.EncodeBitmapUtil;
-import com.thanhtuan.delivery.util.SharePreferenceUtil;
+import com.thanhtuan.delivery.data.model.Item_ChuaGiao;
+import com.thanhtuan.delivery.utils.EncodeBitmapUtil;
+import com.thanhtuan.delivery.data.local.prefs.SharePreferenceUtil;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;

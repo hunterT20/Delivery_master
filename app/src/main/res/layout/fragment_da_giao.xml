@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/cardview_shadow_end_color"
     android:orientation="vertical"
-    tools:context="com.thanhtuan.delivery.view.fragment.DaGiaoFragment">
+    tools:context="com.thanhtuan.delivery.ui.main.DaGiaoFragment">
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"

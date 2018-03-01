@@ -17,12 +17,7 @@ public class JsonRequest {
 
     public static void Request(Context context, final String Token, String URL, JSONObject jsonObject, Response.Listener<JSONObject> objectListener){
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(URL, jsonObject,
-                objectListener, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e("", "onErrorResponse: " + error.getMessage());
-            }
-        }){
+                objectListener, error -> Log.e("", "onErrorResponse: " + error.getMessage())){
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String,String> Authorization = new HashMap<>();

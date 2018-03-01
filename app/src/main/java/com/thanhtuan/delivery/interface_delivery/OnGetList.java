@@ -1,6 +1,6 @@
 package com.thanhtuan.delivery.interface_delivery;
 
-import com.thanhtuan.delivery.model.Item_DaGiao;
+import com.thanhtuan.delivery.data.model.Item_DaGiao;
 
 import java.util.List;
 

@@ -1,10 +1,6 @@
 package com.thanhtuan.delivery.interface_delivery;
 
-import com.thanhtuan.delivery.model.Route_point;
-
-/**
- * Created by Nusib on 5/22/2017.
- */
+import com.thanhtuan.delivery.data.model.Route_point;
 
 public interface Interface_Location {
     void onLocation(Route_point route_point);

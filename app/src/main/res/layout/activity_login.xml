@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/bglogin"
     android:fitsSystemWindows="true"
-    tools:context=".view.activity.LoginActivity">
+    tools:context=".ui.login.LoginActivity">
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline"
@@ -67,7 +67,6 @@
                 android:layout_height="wrap_content"
                 android:hint="@string/username"
                 android:singleLine="true" />
-
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
@@ -92,7 +91,6 @@
                 android:hint="@string/password"
                 android:inputType="textPassword"
                 android:singleLine="true" />
-
         </android.support.design.widget.TextInputLayout>
 
         <com.rey.material.widget.CheckBox
@@ -125,6 +123,4 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
     </android.support.constraint.ConstraintLayout>
-
-
 </android.support.constraint.ConstraintLayout>
