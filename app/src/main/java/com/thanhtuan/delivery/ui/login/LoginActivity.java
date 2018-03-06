@@ -23,6 +23,8 @@ import android.widget.Toast;
 import com.android.volley.Response;
 import com.rey.material.widget.CheckBox;
 import com.thanhtuan.delivery.R;
+import com.thanhtuan.delivery.data.model.VersionApp;
+import com.thanhtuan.delivery.data.model.api.ApiListResult;
 import com.thanhtuan.delivery.data.model.api.ApiResult;
 import com.thanhtuan.delivery.data.remote.ApiHelper;
 import com.thanhtuan.delivery.data.AppConst;
@@ -38,6 +40,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -116,39 +119,40 @@ public class LoginActivity extends AppCompatActivity {
 
         Observable<ApiResult<User>> login = ApiUtils.getAPIservices().login(param);
 
-        disposable.add(login.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new DisposableObserver<ApiResult<User>>() {
-                    @Override
-                    public void onNext(ApiResult<User> userApiResult) {
-                        User user = userApiResult.getData();
-                        SharePreferenceUtil.setValueId(getApplication(),user.getEmployeeId());
-                        SharePreferenceUtil.setValueToken(getApplication(),user.getSessionToken());
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        btnLogin.setText("Login");
-                        Log.e(TAG, "onError: " + e.getMessage());
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        btnLogin.setText("Login");
-                        setToastShow("Đăng nhập thành công!");
-                        SaveLogin();
-
-                        Intent intent;
-                        if (SharePreferenceUtil.getValueStatus(getApplication()) != 0)
-                        {
-                            intent = new Intent(LoginActivity.this, DetailActivity.class);
-                        }else {
-                            intent = new Intent(LoginActivity.this, MainActivity.class);
+        disposable.add(
+                login.subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeWith(new DisposableObserver<ApiResult<User>>() {
+                        @Override
+                        public void onNext(ApiResult<User> result) {
+                            User user = result.getData();
+                            SharePreferenceUtil.setValueId(getApplication(),user.getEmployeeId());
+                            SharePreferenceUtil.setValueToken(getApplication(),user.getSessionToken());
                         }
-                        startActivity(intent);
-                        finish();
-                    }
-                })
+
+                        @Override
+                        public void onError(Throwable e) {
+                            btnLogin.setText("Login");
+                            Log.e(TAG, "onError: " + e.getMessage());
+                        }
+
+                        @Override
+                        public void onComplete() {
+                            btnLogin.setText("Login");
+                            setToastShow("Đăng nhập thành công!");
+                            SaveLogin();
+
+                            Intent intent;
+                            if (SharePreferenceUtil.getValueStatus(getApplication()) != 0)
+                            {
+                                intent = new Intent(LoginActivity.this, DetailActivity.class);
+                            }else {
+                                intent = new Intent(LoginActivity.this, MainActivity.class);
+                            }
+                            startActivity(intent);
+                            finish();
+                        }
+                    })
         );
     }
 
@@ -161,30 +165,42 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void checkVersion(){
-        JsonRequest.Request(getApplication(), SharePreferenceUtil.getValueToken(getApplication()), ApiHelper.ApiVersion(), null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                try {
-                    if(response.getBoolean("Success")){
-                        JSONObject data = response.getJSONArray("Data").getJSONObject(0);
-                        PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(),0);
-                        String versionCurrent = packageInfo.versionName;
-                        String linkUpdate = data.getString("LinkUpdate");
-                        if (!versionCurrent.equals(data.getString("VersionNo"))){
-                            //initDialogUpdate(linkUpdate);
-                        }else {
-                            Log.e("LinkDownload", "Phiên bản mới rồi!");
-                        }
-                    }else {
-                        Log.e("LoginActivity", "onResponse: " + "ERR");
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                } catch (PackageManager.NameNotFoundException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+        String token = SharePreferenceUtil.getValueToken(getApplication());
+        Observable<ApiListResult<VersionApp>> checkVersion = ApiUtils.getAPIservices().checkVerson(token);
+        disposable.add(
+                checkVersion.subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(new DisposableObserver<ApiListResult<VersionApp>>() {
+                            @Override
+                            public void onNext(ApiListResult<VersionApp> result) {
+                                try {
+                                    VersionApp versionApp = result.getData().get(0);
+                                    PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(),0);
+
+                                    String versionCurrent = packageInfo.versionName;
+                                    String linkUpdate = versionApp.getLinkUpdate();
+
+                                    if (!versionCurrent.equals(versionApp.getVersionNo())){
+                                        //initDialogUpdate(linkUpdate);
+                                    }else {
+                                        Log.e("LinkDownload", "Phiên bản mới rồi!");
+                                    }
+                                } catch (PackageManager.NameNotFoundException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                Log.e(TAG, "onError: " + e.getMessage());
+                            }
+
+                            @Override
+                            public void onComplete() {
+
+                            }
+                        })
+        );
     }
 
     public void setFullScreen() {

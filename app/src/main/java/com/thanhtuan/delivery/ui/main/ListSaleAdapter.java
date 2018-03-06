@@ -2,6 +2,7 @@ package com.thanhtuan.delivery.ui.main;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,35 +11,49 @@ import android.widget.TextView;
 
 import com.thanhtuan.delivery.R;
 import com.thanhtuan.delivery.ui.detail.DetailActivity;
-import com.thanhtuan.delivery.data.model.Item_ChuaGiao;
+import com.thanhtuan.delivery.data.model.ItemChuaGiao;
 import com.thanhtuan.delivery.data.local.prefs.SharePreferenceUtil;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 
 public class ListSaleAdapter extends RecyclerView.Adapter<ListSaleAdapter.SaleViewHolder> {
-    private List<Item_ChuaGiao> mItemChuaGiao;
+    private List<ItemChuaGiao> mItemChuaGiao;
     private Context mContext;
     private LayoutInflater mLayoutInflater;
 
-    public ListSaleAdapter(List<Item_ChuaGiao> mItemChuaGiao, Context mContext) {
-        this.mItemChuaGiao = mItemChuaGiao;
+    ListSaleAdapter(Context mContext) {
         this.mContext = mContext;
+        this.mItemChuaGiao = new ArrayList<>();
         this.mLayoutInflater = LayoutInflater.from(mContext);
     }
 
+    void addList(List<ItemChuaGiao> chuaGiaoList){
+        if (chuaGiaoList == null) return;
+        this.mItemChuaGiao.addAll(chuaGiaoList);
+        notifyDataSetChanged();
+    }
+
+    void clear(){
+        this.mItemChuaGiao.clear();
+        notifyDataSetChanged();
+    }
+
+    @NonNull
     @Override
-    public ListSaleAdapter.SaleViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ListSaleAdapter.SaleViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = mLayoutInflater.inflate(R.layout.item_main, parent, false);
         return new SaleViewHolder(itemView);
     }
 
     @Override
-    public void onBindViewHolder(ListSaleAdapter.SaleViewHolder holder, final int position) {
-        //get song in mSong via position
-        final Item_ChuaGiao itemChuaGiao = mItemChuaGiao.get(position);
+    public void onBindViewHolder(@NonNull ListSaleAdapter.SaleViewHolder holder, final int position) {
+        final ItemChuaGiao itemChuaGiao = mItemChuaGiao.get(position);
 
-        //bind data to viewholder
         holder.txtvDonHang.setText(itemChuaGiao.getSaleReceiptId());
         holder.txtvNameCustomer.setText(itemChuaGiao.getCustomerName());
         holder.txtvPhone.setText(itemChuaGiao.getPhoneNumber());
@@ -62,35 +77,33 @@ public class ListSaleAdapter extends RecyclerView.Adapter<ListSaleAdapter.SaleVi
                 break;
         }
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SharePreferenceUtil.setValueSaleitem(mContext ,itemChuaGiao);
-                SharePreferenceUtil.setValueStatus(mContext, itemChuaGiao.getStatus());
+        holder.itemView.setOnClickListener(v -> {
+            SharePreferenceUtil.setValueSaleitem(mContext ,itemChuaGiao);
+            SharePreferenceUtil.setValueStatus(mContext, itemChuaGiao.getStatus());
 
-                Intent intent = new Intent(mContext, DetailActivity.class);
-                mContext.startActivity(intent);
-                ((MainActivity) mContext).finish();
-            }
+            Intent intent = new Intent(mContext, DetailActivity.class);
+            mContext.startActivity(intent);
+            ((MainActivity) mContext).finish();
         });
     }
 
     @Override
     public int getItemCount() {
+        if (mItemChuaGiao == null) return 0;
         return mItemChuaGiao.size();
     }
 
     class SaleViewHolder extends RecyclerView.ViewHolder {
-        private TextView txtvNameCustomer, txtvPhone, txtvAddress, txtvSl, txtvDonHang, txtvTrangThai;
+        @BindView(R.id.txtvNameCustomer) TextView txtvNameCustomer;
+        @BindView(R.id.txtvPhone) TextView txtvPhone;
+        @BindView(R.id.txtvAddress) TextView txtvAddress;
+        @BindView(R.id.txtvSL) TextView txtvSl;
+        @BindView(R.id.txtvDonHang) TextView txtvDonHang;
+        @BindView(R.id.txtvTrangThai) TextView txtvTrangThai;
 
         SaleViewHolder(final View itemView) {
             super(itemView);
-            txtvNameCustomer = (TextView) itemView.findViewById(R.id.txtvNameCustomer);
-            txtvPhone = (TextView) itemView.findViewById(R.id.txtvPhone);
-            txtvAddress = (TextView) itemView.findViewById(R.id.txtvAddress);
-            txtvSl = (TextView) itemView.findViewById(R.id.txtvSL);
-            txtvDonHang = (TextView) itemView.findViewById(R.id.txtvDonHang);
-            txtvTrangThai = (TextView) itemView.findViewById(R.id.txtvTrangThai);
+            ButterKnife.bind(this,itemView);
         }
     }
 }

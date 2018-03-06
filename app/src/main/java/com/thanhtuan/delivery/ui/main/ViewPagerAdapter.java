@@ -12,7 +12,7 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
 
     private String[] tabTitles = new String[]{"Chưa giao", "Đã giao",};
 
-    public ViewPagerAdapter(FragmentManager fm) {
+    ViewPagerAdapter(FragmentManager fm) {
         super(fm);
     }
 

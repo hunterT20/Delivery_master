@@ -1,12 +1,17 @@
 package com.thanhtuan.delivery.data.model;
 
-public class Product {
-    private String ItemId;
-    private String ItemName;
-    private int Quantity;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
-    public Product() {
-    }
+public class Product {
+    @SerializedName("ItemId")
+    @Expose
+    private String ItemId;
+    @SerializedName("ItemName")
+    @Expose
+    private String ItemName;
+    @SerializedName("Quantity")
+    private int Quantity;
 
     public String getItemId() {
         return ItemId;

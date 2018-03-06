@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 import android.widget.EditText;
 
 import com.google.gson.Gson;
-import com.thanhtuan.delivery.data.model.Item_ChuaGiao;
+import com.thanhtuan.delivery.data.model.ItemChuaGiao;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -64,7 +64,7 @@ public class SharePreferenceUtil {
         edtPassword.setText(PasswordValue);
     }
 
-    public static void setValueSaleitem(Context context, Item_ChuaGiao itemChuaGiao){
+    public static void setValueSaleitem(Context context, ItemChuaGiao itemChuaGiao){
         Gson gson = new Gson();
         SharedPreferences MyPre = context.getSharedPreferences(NAME,MODE_PRIVATE);
         SharedPreferences.Editor prefsEditor = MyPre.edit();
@@ -74,11 +74,11 @@ public class SharePreferenceUtil {
         prefsEditor.apply();
     }
 
-    public static Item_ChuaGiao getValueSaleItem(Context context){
+    public static ItemChuaGiao getValueSaleItem(Context context){
         Gson gson = new Gson();
         SharedPreferences pre = context.getSharedPreferences(NAME, MODE_PRIVATE);
         String json = pre.getString(VALUE_SALEITEM, "");
-        return gson.fromJson(json, Item_ChuaGiao.class);
+        return gson.fromJson(json, ItemChuaGiao.class);
     }
 
     public static void setValueStatus(Context context, int status){

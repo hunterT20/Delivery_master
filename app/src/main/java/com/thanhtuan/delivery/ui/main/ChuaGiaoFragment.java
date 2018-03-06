@@ -1,132 +1,116 @@
 package com.thanhtuan.delivery.ui.main;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.android.volley.Response;
 import com.thanhtuan.delivery.R;
-import com.thanhtuan.delivery.data.remote.ApiHelper;
-import com.thanhtuan.delivery.data.remote.JsonRequest;
-import com.thanhtuan.delivery.data.model.Item_ChuaGiao;
+import com.thanhtuan.delivery.data.model.api.ApiListResult;
+import com.thanhtuan.delivery.data.remote.ApiUtils;
+import com.thanhtuan.delivery.data.model.ItemChuaGiao;
 import com.thanhtuan.delivery.data.local.prefs.SharePreferenceUtil;
-import com.thanhtuan.delivery.utils.AVLoadingUtil;
-import com.wang.avi.AVLoadingIndicatorView;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class ChuaGiaoFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
+    private static final String TAG =  ChuaGiaoFragment.class.getSimpleName();
     @BindView(R.id.rcvDonHang_ChuaGiao)    RecyclerView rcvDonHang;
-    @BindView(R.id.avi_loading)   AVLoadingIndicatorView avi_Loading;
     @BindView(R.id.txtvNoItem_ChuaGiao)    TextView txtvNoItem;
     @BindView(R.id.swipe_refresh_layout) SwipeRefreshLayout swipeRefreshLayout;
 
-    private List<Item_ChuaGiao> mItemChuaGiao;
-    boolean isRefresh = false;
+    private final CompositeDisposable disposable = new CompositeDisposable();
+    private ListSaleAdapter adapter;
 
     public ChuaGiaoFragment() {}
 
-
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_chua_giao, container, false);
         ButterKnife.bind(this,view);
 
+        adapter = new ListSaleAdapter(getActivity());
         swipeRefreshLayout.setOnRefreshListener(this);
-        mItemChuaGiao = new ArrayList<>();
         initReCyclerView();
 
         initData();
         return view;
     }
 
-    private void setListSale() {
-        ListSaleAdapter adapter = new ListSaleAdapter(mItemChuaGiao, getActivity());
-        rcvDonHang.setAdapter(adapter);
+    @Override
+    public void onStop() {
+        super.onStop();
+        disposable.clear();
     }
 
     private void initData() {
         final String Token = SharePreferenceUtil.getValueToken(getActivity());
+        String ID = SharePreferenceUtil.getValueId(getActivity());
 
         txtvNoItem.setVisibility(View.GONE);
-        AVLoadingUtil.startAnim(avi_Loading);
+        swipeRefreshLayout.setRefreshing(true);
 
-        String URL = ApiHelper.ApiListChuaGIao(getActivity());
-        JsonRequest.Request(getActivity(), Token, URL, null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                try {
-                    if(response.getBoolean("Success")){
-                        txtvNoItem.setVisibility(View.GONE);
-                        JSONArray listItem = response.getJSONArray("Data");
+        Observable<ApiListResult<ItemChuaGiao>> getItemChuaGiao = ApiUtils.getAPIservices().getItemChuaGiao(Token,ID);
 
-                        for (int i = 0; i < listItem.length(); i++){
-                            JSONObject object = (JSONObject) listItem.get(i);
+        disposable.add(
+                getItemChuaGiao.subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(new DisposableObserver<ApiListResult<ItemChuaGiao>>() {
+                            @Override
+                            public void onNext(ApiListResult<ItemChuaGiao> result) {
+                                if (result.getSuccess()) {
+                                    txtvNoItem.setVisibility(View.GONE);
+                                    List<ItemChuaGiao> itemChuaGiaoList = result.getData();
 
-                            Item_ChuaGiao itemChuaGiao = new Item_ChuaGiao();
-                            itemChuaGiao.setSaleReceiptId(object.getString("SaleReceiptId"));
-                            itemChuaGiao.setCustomerName(object.getString("CustomerName"));
-                            itemChuaGiao.setPhoneNumber(object.getString("PhoneNumber"));
-                            itemChuaGiao.setAddress(object.getString("AddressFull"));
-                            itemChuaGiao.setDistrict(object.getString("District"));
-                            itemChuaGiao.setProvince(object.getString("Province"));
-                            itemChuaGiao.setQuantity(object.getInt("Quantity"));
-                            itemChuaGiao.setPrice(object.getDouble("Price"));
-                            itemChuaGiao.setNote(object.getString("Note"));
-                            itemChuaGiao.setStatus(object.getInt("Status"));
+                                    adapter.addList(itemChuaGiaoList);
+                                    rcvDonHang.setAdapter(adapter);
+                                }else {
+                                    txtvNoItem.setVisibility(View.VISIBLE);
+                                }
+                            }
 
-                            mItemChuaGiao.add(itemChuaGiao);
-                        }
+                            @Override
+                            public void onError(Throwable e) {
+                                Log.e(TAG, "onError: " + e.getMessage());
+                                swipeRefreshLayout.setRefreshing(false);
+                            }
 
-                        setListSale();
-                        AVLoadingUtil.stopAnim(avi_Loading);
-                        swipeRefreshLayout.setRefreshing(false);
-                    }else {
-                        txtvNoItem.setVisibility(View.VISIBLE);
-                        AVLoadingUtil.stopAnim(avi_Loading);
-                        isRefresh = false;
-                        swipeRefreshLayout.setRefreshing(false);
-                    }
-                } catch (JSONException e) {
-                    isRefresh = false;
-                    swipeRefreshLayout.setRefreshing(false);
-                    e.printStackTrace();
-                }
-            }
-        });
+                            @Override
+                            public void onComplete() {
+                                swipeRefreshLayout.setRefreshing(false);
+                            }
+                        })
+        );
     }
 
     private void initReCyclerView(){
-        rcvDonHang.setAdapter(new ListSaleAdapter(mItemChuaGiao,getActivity()));
+        rcvDonHang.setAdapter(adapter);
         rcvDonHang.setLayoutManager(new LinearLayoutManager(getActivity()));
         rcvDonHang.setHasFixedSize(true);
     }
 
     @Override
     public void onRefresh() {
-        if(!isRefresh){
-            isRefresh = true;
-            mItemChuaGiao.clear();
-            initData();
-        }
+        adapter.clear();
+        initData();
     }
 }

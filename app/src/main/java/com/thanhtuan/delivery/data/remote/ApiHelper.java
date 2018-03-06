@@ -3,7 +3,7 @@ package com.thanhtuan.delivery.data.remote;
 import android.content.Context;
 import android.graphics.Bitmap;
 
-import com.thanhtuan.delivery.data.model.Item_ChuaGiao;
+import com.thanhtuan.delivery.data.model.ItemChuaGiao;
 import com.thanhtuan.delivery.utils.EncodeBitmapUtil;
 import com.thanhtuan.delivery.data.local.prefs.SharePreferenceUtil;
 
@@ -53,7 +53,7 @@ public class ApiHelper {
 
     public static String ApiDetail(Context context){
         String DOMAIN_LISTPRODUCT = "salereceipt/detail/";
-        Item_ChuaGiao item = SharePreferenceUtil.getValueSaleItem(context);
+        ItemChuaGiao item = SharePreferenceUtil.getValueSaleItem(context);
         String ID = item.getSaleReceiptId();
 
         return URL2 + DOMAIN_LISTPRODUCT + ID;
@@ -76,7 +76,7 @@ public class ApiHelper {
         String PARAM4 = "&key=";
         String key = "AIzaSyCueeDritXwUW37E3jH897o9iBHyIMpseE";
 
-        Item_ChuaGiao itemChuaGiao = SharePreferenceUtil.getValueSaleItem(context);
+        ItemChuaGiao itemChuaGiao = SharePreferenceUtil.getValueSaleItem(context);
         String address = itemChuaGiao.getAddress();
         try {
             address = URLEncoder.encode(address, "utf-8");
@@ -116,7 +116,7 @@ public class ApiHelper {
             e.printStackTrace();
         }
 
-        Item_ChuaGiao itemChuaGiao1 = SharePreferenceUtil.getValueSaleItem(context);
+        ItemChuaGiao itemChuaGiao1 = SharePreferenceUtil.getValueSaleItem(context);
         String ID = SharePreferenceUtil.getValueId(context);
         String distance = SharePreferenceUtil.getValueDistance(context);
         HashMap<String, String> params = new HashMap<>();
@@ -129,7 +129,7 @@ public class ApiHelper {
     }
 
     public static HashMap<String,String> paramDone(Context context, String description){
-        Item_ChuaGiao itemChuaGiao1 = SharePreferenceUtil.getValueSaleItem(context);
+        ItemChuaGiao itemChuaGiao1 = SharePreferenceUtil.getValueSaleItem(context);
 
         String ID = SharePreferenceUtil.getValueId(context);
         String distance = SharePreferenceUtil.getValueDistance(context);
@@ -146,7 +146,7 @@ public class ApiHelper {
     public static HashMap<String,String> paramUpload(Context context, Bitmap bitmap){
         String base64Photo = EncodeBitmapUtil.encodeToBase64(bitmap, Bitmap.CompressFormat.JPEG, 100);
 
-        Item_ChuaGiao itemChuaGiao = SharePreferenceUtil.getValueSaleItem(context);
+        ItemChuaGiao itemChuaGiao = SharePreferenceUtil.getValueSaleItem(context);
 
         HashMap<String, String> params = new HashMap<>();
         params.put("ImageBase64String", base64Photo);

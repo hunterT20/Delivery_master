@@ -1,22 +1,41 @@
 package com.thanhtuan.delivery.data.model;
 
-/**
- * Created by Nusib on 5/17/2017.
- */
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
-public class Item_ChuaGiao {
+public class ItemChuaGiao {
+    @SerializedName("SaleReceiptId")
+    @Expose
     private String SaleReceiptId;
+    @SerializedName("CustomerName")
+    @Expose
     private String CustomerName;
+    @SerializedName("PhoneNumber")
+    @Expose
     private String PhoneNumber;
+    @SerializedName("AddressFull")
+    @Expose
     private String Address;
+    @SerializedName("Province")
+    @Expose
     private String Province;
+    @SerializedName("District")
+    @Expose
     private String District;
+    @SerializedName("Quantity")
+    @Expose
     private int Quantity;
+    @SerializedName("Price")
+    @Expose
     private Double Price;
+    @SerializedName("Note")
+    @Expose
     private String Note;
+    @SerializedName("Status")
+    @Expose
     private int Status;
 
-    public Item_ChuaGiao() {
+    public ItemChuaGiao() {
     }
 
     public String getSaleReceiptId() {

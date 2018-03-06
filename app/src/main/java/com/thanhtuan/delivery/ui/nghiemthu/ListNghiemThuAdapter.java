@@ -1,6 +1,7 @@
 package com.thanhtuan.delivery.ui.nghiemthu;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,8 @@ import com.thanhtuan.delivery.data.model.Photo;
 
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import co.dift.ui.SwipeToAction;
 
 public class ListNghiemThuAdapter extends RecyclerView.Adapter<ListNghiemThuAdapter.NghiemThuViewHolder> {
@@ -24,14 +27,15 @@ public class ListNghiemThuAdapter extends RecyclerView.Adapter<ListNghiemThuAdap
         this.mLayoutInflater = LayoutInflater.from(mContext);
     }
 
+    @NonNull
     @Override
-    public ListNghiemThuAdapter.NghiemThuViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ListNghiemThuAdapter.NghiemThuViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = mLayoutInflater.inflate(R.layout.item_nghiemthu, parent, false);
         return new ListNghiemThuAdapter.NghiemThuViewHolder(itemView);
     }
 
     @Override
-    public void onBindViewHolder(final ListNghiemThuAdapter.NghiemThuViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final ListNghiemThuAdapter.NghiemThuViewHolder holder, int position) {
         final Photo photo = photos.get(position);
 
         holder.ibtnIMG.setImageBitmap(photo.getImage());
@@ -45,12 +49,11 @@ public class ListNghiemThuAdapter extends RecyclerView.Adapter<ListNghiemThuAdap
     }
 
     class NghiemThuViewHolder extends SwipeToAction.ViewHolder<Photo> {
-        private ImageView ibtnIMG;
-        private TextView txtvLydo;
+        @BindView(R.id.imgPhoto) ImageView ibtnIMG;
+        @BindView(R.id.txtvMoTa2) TextView txtvLydo;
         NghiemThuViewHolder(View itemView) {
             super(itemView);
-            ibtnIMG = (ImageView) itemView.findViewById(R.id.imgPhoto);
-            txtvLydo = (TextView) itemView.findViewById(R.id.txtvMoTa2);
+            ButterKnife.bind(this,itemView);
         }
     }
 }

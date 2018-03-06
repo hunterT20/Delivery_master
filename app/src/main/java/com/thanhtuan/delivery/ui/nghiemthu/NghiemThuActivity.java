@@ -75,61 +75,41 @@ public class NghiemThuActivity extends AppCompatActivity {
     }
 
     private void addEvents() {
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                cvNghiemThuDisplay();
-            }
-        });
+        fab.setOnClickListener(v -> cvNghiemThuDisplay());
 
-        ibtnPhoto.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                eventAddPhoto();
-            }
-        });
+        ibtnPhoto.setOnClickListener(v -> eventAddPhoto());
 
         final Bitmap bitmap_old = ((BitmapDrawable)ibtnPhoto.getDrawable()).getBitmap();
 
-        btnXacNhan.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                /*Hide keyboard*/
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                assert imm != null;
-                imm.hideSoftInputFromWindow(edtMoTa.getWindowToken(), 0);
+        btnXacNhan.setOnClickListener(v -> {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            assert imm != null;
+            imm.hideSoftInputFromWindow(edtMoTa.getWindowToken(), 0);
 
-                if (((BitmapDrawable)ibtnPhoto.getDrawable()).getBitmap() == bitmap_old){
-                    Snackbar snackbar = Snackbar.make(Root,"Bạn chưa có hình để nghiệm thu!",Snackbar.LENGTH_LONG).setAction("OK", new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                        }
+            if (((BitmapDrawable)ibtnPhoto.getDrawable()).getBitmap() == bitmap_old){
+                Snackbar snackbar = Snackbar.make(Root,"Bạn chưa có hình để nghiệm thu!",Snackbar.LENGTH_LONG).setAction("OK", v1 -> {
+                });
+                snackbar.show();
+            }else {
+                if (edtMoTa.getText().toString().length() < 15){
+                    Snackbar snackbar = Snackbar.make(Root,"Mô tả quá ngắn!",Snackbar.LENGTH_LONG).setAction("OK", v12 -> {
                     });
                     snackbar.show();
                 }else {
-                    if (edtMoTa.getText().toString().length() < 15){
-                        Snackbar snackbar = Snackbar.make(Root,"Mô tả quá ngắn!",Snackbar.LENGTH_LONG).setAction("OK", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                            }
-                        });
-                        snackbar.show();
-                    }else {
-                        String Description = edtMoTa.getText().toString();
+                    String Description = edtMoTa.getText().toString();
 
-                        Photo photo = new Photo();
-                        photo.setDescription(Description);
-                        photo.setImage(photo_taked);
-                        photoList.add(photo);
-                        addControls();
+                    Photo photo = new Photo();
+                    photo.setDescription(Description);
+                    photo.setImage(photo_taked);
+                    photoList.add(photo);
+                    addControls();
 
-                        btnXacNhan.setText("Loading...");
+                    btnXacNhan.setText("Loading...");
 
-                        getPhotoUrl(photo_taked);
+                    getPhotoUrl(photo_taked);
 
-                        edtMoTa.setText("");
-                        ibtnPhoto.setImageDrawable(getResources().getDrawable(R.drawable.ic_add_a_photo_white_24dp));
-                    }
+                    edtMoTa.setText("");
+                    ibtnPhoto.setImageDrawable(getResources().getDrawable(R.drawable.ic_add_a_photo_white_24dp));
                 }
             }
         });
@@ -158,15 +138,12 @@ public class NghiemThuActivity extends AppCompatActivity {
             }
         });
 
-        btnUpload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (photoList.size() == 0){
-                    showErrorDialog("Vui lòng nghiệm thu trước khi update!");
-                    return;
-                }
-                onUpload();
+        btnUpload.setOnClickListener(v -> {
+            if (photoList.size() == 0){
+                showErrorDialog("Vui lòng nghiệm thu trước khi update!");
+                return;
             }
+            onUpload();
         });
     }
 
@@ -251,6 +228,7 @@ public class NghiemThuActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == CODE_PHOTO && resultCode == RESULT_OK){
+            assert data.getExtras() != null;
             Bitmap bitmap = (Bitmap) data.getExtras().get("data");
             photo_taked = bitmap;
             ibtnPhoto.setImageBitmap(bitmap);
@@ -262,19 +240,16 @@ public class NghiemThuActivity extends AppCompatActivity {
         HashMap<String,String> params = ApiHelper.paramUpload(this,bitmap);
         final String Token = SharePreferenceUtil.getValueToken(this);
 
-        JsonRequest.Request(this, Token, API_PHOTO, new JSONObject(params), new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-            try {
-                if (response.getBoolean("Success")){
-                    btnXacNhan.setText("Xác nhận");
-                    cvNghiemThuGONE();
-                    Toast.makeText(NghiemThuActivity.this, "Đã gửi hình lên server!", Toast.LENGTH_SHORT).show();
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
+        JsonRequest.Request(this, Token, API_PHOTO, new JSONObject(params), response -> {
+        try {
+            if (response.getBoolean("Success")){
+                btnXacNhan.setText("Xác nhận");
+                cvNghiemThuGONE();
+                Toast.makeText(NghiemThuActivity.this, "Đã gửi hình lên server!", Toast.LENGTH_SHORT).show();
             }
-            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         });
     }
 
@@ -283,36 +258,30 @@ public class NghiemThuActivity extends AppCompatActivity {
         String URL = ApiHelper.ApiDone();
         final String Token = SharePreferenceUtil.getValueToken(this);
 
-        JsonRequest.Request(this, Token, URL, new JSONObject(params), new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                try {
-                    if (response.getBoolean("Success")){
-                        SharePreferenceUtil.Clean(NghiemThuActivity.this);
+        JsonRequest.Request(this, Token, URL, new JSONObject(params), response -> {
+            try {
+                if (response.getBoolean("Success")){
+                    SharePreferenceUtil.Clean(NghiemThuActivity.this);
 
-                        AlertDialog.Builder builder = new AlertDialog.Builder(NghiemThuActivity.this);
-                        String positiveText = NghiemThuActivity.this.getString(android.R.string.ok);
-                        builder.setCancelable(false)
-                                .setPositiveButton(positiveText,new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        startActivity(new Intent(NghiemThuActivity.this,MainActivity.class));
-                                        finish();
-                                    }
-                                })
-                                .setMessage("Nghiệm thu thành công!")
-                                .setTitle("Thành công!");
+                    AlertDialog.Builder builder = new AlertDialog.Builder(NghiemThuActivity.this);
+                    String positiveText = NghiemThuActivity.this.getString(android.R.string.ok);
+                    builder.setCancelable(false)
+                            .setPositiveButton(positiveText, (dialog, which) -> {
+                                startActivity(new Intent(NghiemThuActivity.this,MainActivity.class));
+                                finish();
+                            })
+                            .setMessage("Nghiệm thu thành công!")
+                            .setTitle("Thành công!");
 
-                        AlertDialog dialog = builder.create();
-                        dialog.show();
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
 
-                    }else {
-                        Snackbar snackbar = Snackbar.make(Root,String.valueOf(response.getBoolean("Nghiệm thu thất bại!")),Snackbar.LENGTH_LONG);
-                        snackbar.show();
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                }else {
+                    Snackbar snackbar = Snackbar.make(Root,String.valueOf(response.getBoolean("Nghiệm thu thất bại!")),Snackbar.LENGTH_LONG);
+                    snackbar.show();
                 }
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
         });
     }
@@ -323,18 +292,8 @@ public class NghiemThuActivity extends AppCompatActivity {
 
         String positiveText = NghiemThuActivity.this.getString(android.R.string.ok);
         builder.setCancelable(false)
-                .setPositiveButton(positiveText,new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        finish();
-                    }
-                })
-                .setNegativeButton(NghiemThuActivity.this.getText(android.R.string.cancel), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                })
+                .setPositiveButton(positiveText, (dialog, which) -> finish())
+                .setNegativeButton(NghiemThuActivity.this.getText(android.R.string.cancel), (dialogInterface, i) -> dialogInterface.dismiss())
                 .setMessage(mess)
                 .setTitle("Cảnh báo!");
 
@@ -347,12 +306,7 @@ public class NghiemThuActivity extends AppCompatActivity {
 
         String positiveText = NghiemThuActivity.this.getString(android.R.string.ok);
         builder.setCancelable(false)
-                .setPositiveButton(positiveText,new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                })
+                .setPositiveButton(positiveText, (dialog, which) -> dialog.dismiss())
                 .setMessage(s)
                 .setTitle("Cảnh báo!");
 

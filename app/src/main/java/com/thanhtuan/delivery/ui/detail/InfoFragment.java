@@ -26,8 +26,10 @@ import android.widget.Toast;
 import com.android.volley.Response;
 import com.rey.material.widget.FloatingActionButton;
 import com.thanhtuan.delivery.R;
+import com.thanhtuan.delivery.data.model.api.ApiResult;
+import com.thanhtuan.delivery.data.remote.ApiUtils;
 import com.thanhtuan.delivery.data.remote.JsonRequest;
-import com.thanhtuan.delivery.data.model.Item_ChuaGiao;
+import com.thanhtuan.delivery.data.model.ItemChuaGiao;
 import com.thanhtuan.delivery.data.model.URL_PhotoUpload;
 import com.thanhtuan.delivery.data.remote.ApiHelper;
 import com.thanhtuan.delivery.data.local.prefs.SharePreferenceUtil;
@@ -44,6 +46,12 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.pedant.SweetAlert.SweetAlertDialog;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
 
 import static android.content.ContentValues.TAG;
 
@@ -62,10 +70,11 @@ public class InfoFragment extends Fragment {
     @BindView(R.id.btnGiaoHang)  Button btnGiaoHang;
     @BindView(R.id.fabPhone)     FloatingActionButton fabPhone;
 
-    private Item_ChuaGiao itemChuaGiao;
+    private ItemChuaGiao itemChuaGiao;
     public List<URL_PhotoUpload> url_photoUploads;
     final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
-    String Token;
+    private String Token = SharePreferenceUtil.getValueToken(getActivity());
+    private CompositeDisposable disposable = new CompositeDisposable();
 
     public InfoFragment() {}
 
@@ -79,6 +88,12 @@ public class InfoFragment extends Fragment {
 
         addViews();
         return view;
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        disposable.clear();
     }
 
     private void addViews() {
@@ -166,17 +181,9 @@ public class InfoFragment extends Fragment {
 
         alertDialogBuilderUserInput
                 .setCancelable(true)
-                .setPositiveButton("Xác nhận hủy", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialogBox, int id) {
-                        onAbort(edtLyDo.getText().toString());
-                    }
-                })
+                .setPositiveButton("Xác nhận hủy", (dialogBox, id) -> onAbort(edtLyDo.getText().toString()))
                 .setNegativeButton("Cancel",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialogBox, int id) {
-                                dialogBox.cancel();
-                            }
-                        });
+                        (dialogBox, id) -> dialogBox.cancel());
 
         AlertDialog alertDialogAndroid = alertDialogBuilderUserInput.create();
         alertDialogAndroid.show();
@@ -192,19 +199,11 @@ public class InfoFragment extends Fragment {
 
         alertDialogBuilderUserInput
                 .setCancelable(false)
-                .setPositiveButton("Xác nhận", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialogBox, int id) {
-                        Log.e(TAG, "onClick: " + "Xác nhận");
-                        eventSentTime(String.valueOf(edtTime.getText()), String.valueOf(txtvSDT.getText()));
-                        dialogBox.dismiss();
-                    }
+                .setPositiveButton("Xác nhận", (dialogBox, id) -> {
+                    eventSentTime(String.valueOf(edtTime.getText()), String.valueOf(txtvSDT.getText()));
+                    dialogBox.dismiss();
                 })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                });
+                .setNegativeButton("Cancel", (dialogInterface, i) -> dialogInterface.dismiss());
 
         AlertDialog alertDialogAndroid = alertDialogBuilderUserInput.create();
         alertDialogAndroid.show();
@@ -215,99 +214,104 @@ public class InfoFragment extends Fragment {
             Toast.makeText(getActivity(), "Lý do quá ngắn!", Toast.LENGTH_SHORT).show();
         }
         else {
-            final String Token = SharePreferenceUtil.getValueToken(getActivity());
-            String URL = ApiHelper.ApiAbort();
             HashMap<String,String> param = ApiHelper.paramAbort(getActivity(),"Default");
-            JsonRequest.Request(getActivity(), Token, URL, new JSONObject(param), new Response.Listener<JSONObject>() {
-                @Override
-                public void onResponse(JSONObject response) {
-                    try {
-                        if (response.getBoolean("Result")) {
-                            JSONObject jsonObject = response.getJSONObject("Data");
-                            setQuaTrinh(jsonObject.getInt("Status"));
 
-                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                            builder.setTitle("Thành công!");
-                            builder.setMessage("Đã hủy giao hàng!");
+            Observable<ApiResult<Integer>> postStatusDelivery = ApiUtils.getAPIservices().huyGiaoHang(Token, param);
+            Disposable disposableObserver =
+                postStatusDelivery.subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(new DisposableObserver<ApiResult<Integer>>() {
+                            @Override
+                            public void onNext(ApiResult<Integer> result) {
+                                if (result.getSuccess()) {
+                                    setQuaTrinh(result.getData());
+                                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                                    builder.setTitle("Thành công!");
+                                    builder.setMessage("Đã hủy giao hàng!");
 
-                            String positiveText = getActivity().getString(android.R.string.ok);
-                            builder.setPositiveButton(positiveText,
-                                    new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            ((DetailActivity)getActivity()).setIntent();
-                                        }
-                                    });
+                                    String positiveText = getActivity().getString(android.R.string.ok);
+                                    builder.setPositiveButton(positiveText,
+                                            (dialog, which) -> ((DetailActivity)getActivity()).setIntent());
 
-                            String negativeText = getActivity().getString(android.R.string.cancel);
-                            builder.setNegativeButton(negativeText,
-                                    new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            dialog.dismiss();
-                                        }
-                                    });
+                                    String negativeText = getActivity().getString(android.R.string.cancel);
+                                    builder.setNegativeButton(negativeText,
+                                            (dialog, which) -> dialog.dismiss());
 
-                            AlertDialog dialog = builder.create();
-                            dialog.show();
-                        } else {
-                            Toast.makeText(getActivity(), response.getString("Message"), Toast.LENGTH_SHORT).show();
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
+                                    AlertDialog dialog = builder.create();
+                                    dialog.show();
+                                }else {
+                                    Toast.makeText(getActivity(), result.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                Log.e(TAG, "onError: " + e.getMessage());
+                            }
+
+                            @Override
+                            public void onComplete() {
+
+                            }
+                        });
+            disposable.add(disposableObserver);
         }
     }
 
     private void eventSentTime(String Time, String Phone){
-        Token = SharePreferenceUtil.getValueToken(getActivity());
+        HashMap<String,String> param = ApiHelper.paramSentSMS("01669384803", "30");
+        Observable<ApiResult<String>> sentSMS = ApiUtils.getAPIservices().sentSMS(Token, param);
 
-        JsonRequest.Request(getActivity(), SharePreferenceUtil.getValueToken(getActivity()), ApiHelper.ApiSentSMS(),
-                new JSONObject(ApiHelper.paramSentSMS("01669384803", "30")),
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            if (response.getBoolean("Success")){
-                                Log.e(TAG, "onResponse: " + response);
-                                //eventTimeRecord("1");
-                            }else {
-                                Log.e(TAG, "onResponse: " + response.getString("Message"));
-                            }
-                        } catch (JSONException e) {
-                            Log.e(TAG, "onResponse: " + e.getMessage());
+        Disposable disposableSMS =
+            sentSMS.subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeWith(new DisposableObserver<ApiResult<String>>() {
+                        @Override
+                        public void onNext(ApiResult<String> result) {
+                            Log.e(TAG, "onNext: " + result.getData());
                         }
-                    }
-                });
+
+                        @Override
+                        public void onError(Throwable e) {
+                            Log.e(TAG, "onError: " + e.getMessage());
+                        }
+
+                        @Override
+                        public void onComplete() {
+
+                        }
+                    });
+        disposable.add(disposableSMS);
     }
 
     private void eventTimeRecord(final String Status){
-        Token = SharePreferenceUtil.getValueToken(getActivity());
-        String URL = ApiHelper.ApiTime();
-
         HashMap<String,String> params = ApiHelper.paramTime(
                 itemChuaGiao.getSaleReceiptId(),
                 Status
         );
 
-        JsonRequest.Request(getActivity(), Token, URL, new JSONObject(params), new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                try {
-                    if(response.getBoolean("Success")){
-                        JSONObject jsonObject = response.getJSONArray("Data").getJSONObject(0);
-                        setQuaTrinh(jsonObject.getInt("Status"));
-                        Log.e(TAG, "onResponse: " + jsonObject.getInt("Status"));
-                    }else {
-                        Log.e("Error Time","ERR");
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+        Observable<ApiResult<Integer>> timeRecord = ApiUtils.getAPIservices().timeRecord(Token, params);
+        Disposable disposableRecord =
+            timeRecord.subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeWith(new DisposableObserver<ApiResult<Integer>>() {
+                        @Override
+                        public void onNext(ApiResult<Integer> result) {
+                            //setQuaTrinh(jsonObject.getInt("Status"));
+                            setQuaTrinh(result.getData());
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            Log.e(TAG, "onError: " + e.getMessage());
+                        }
+
+                        @Override
+                        public void onComplete() {
+
+                        }
+                    });
+        disposable.add(disposableRecord);
     }
 
     @TargetApi(Build.VERSION_CODES.M)
@@ -339,21 +343,13 @@ public class InfoFragment extends Fragment {
                         .setTitleText("Yêu cầu")
                         .setContentText("Bạn cần cấp quyền truy gọi điện để chức năng hoạt động!")
                         .setConfirmText("Bật quyền gọi điện")
-                        .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
-                            @Override
-                            public void onClick(SweetAlertDialog sweetAlertDialog) {
-                                requestPermissions(new String[] {Manifest.permission.CALL_PHONE},
-                                        REQUEST_CODE_ASK_PERMISSIONS);
-                                sweetAlertDialog.dismiss();
-                            }
+                        .setConfirmClickListener(sweetAlertDialog -> {
+                            requestPermissions(new String[] {Manifest.permission.CALL_PHONE},
+                                    REQUEST_CODE_ASK_PERMISSIONS);
+                            sweetAlertDialog.dismiss();
                         })
                         .setCancelText("Không")
-                        .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
-                            @Override
-                            public void onClick(SweetAlertDialog sweetAlertDialog) {
-                                sweetAlertDialog.dismiss();
-                            }
-                        })
+                        .setCancelClickListener(sweetAlertDialog -> sweetAlertDialog.dismiss())
                         .show();
                 return;
             }

@@ -52,30 +52,27 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private void addControls() {
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                FragmentManager fm = getFragmentManager();
-                FragmentTransaction fragmentTransaction = fm.beginTransaction();
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            FragmentManager fm = getFragmentManager();
+            FragmentTransaction fragmentTransaction = fm.beginTransaction();
 
-                switch (item.getItemId()){
-                    case R.id.action_info:
-                        fragmentTransaction.replace(R.id.frmMain, new InfoFragment());
-                        txtvTitleToolbar.setText("Thông tin");
-                        break;
-                    case R.id.action_map:
-                        fragmentTransaction.replace(R.id.frmMain, new MapsFragment());
-                        txtvTitleToolbar.setText("Bản đồ");
-                        break;
-                    case R.id.action_detail:
-                        fragmentTransaction.replace(R.id.frmMain, new DetailFragment());
-                        txtvTitleToolbar.setText("Danh sách sản phẩm");
-                        break;
-                }
-
-                fragmentTransaction.commit();
-                return true;
+            switch (item.getItemId()){
+                case R.id.action_info:
+                    fragmentTransaction.replace(R.id.frmMain, new InfoFragment());
+                    txtvTitleToolbar.setText("Thông tin");
+                    break;
+                case R.id.action_map:
+                    fragmentTransaction.replace(R.id.frmMain, new MapsFragment());
+                    txtvTitleToolbar.setText("Bản đồ");
+                    break;
+                case R.id.action_detail:
+                    fragmentTransaction.replace(R.id.frmMain, new DetailFragment());
+                    txtvTitleToolbar.setText("Danh sách sản phẩm");
+                    break;
             }
+
+            fragmentTransaction.commit();
+            return true;
         });
 
         bottomNavigationView.setSelectedItemId(R.id.action_map);

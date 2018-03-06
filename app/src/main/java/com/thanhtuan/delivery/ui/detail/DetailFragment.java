@@ -3,6 +3,7 @@ package com.thanhtuan.delivery.ui.detail;
 
 import android.os.Bundle;
 import android.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -11,14 +12,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.android.volley.Response;
 import com.thanhtuan.delivery.R;
+import com.thanhtuan.delivery.data.model.api.ApiListResult;
+import com.thanhtuan.delivery.data.remote.ApiUtils;
 import com.thanhtuan.delivery.data.remote.JsonRequest;
 import com.thanhtuan.delivery.utils.AVLoadingUtil;
 import com.thanhtuan.delivery.data.remote.ApiHelper;
 import com.thanhtuan.delivery.data.model.Product;
 import com.thanhtuan.delivery.data.local.prefs.SharePreferenceUtil;
-import com.wang.avi.AVLoadingIndicatorView;
+import com.thanhtuan.delivery.utils.RecyclerViewUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,81 +31,79 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class DetailFragment extends Fragment {
+public class DetailFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
     @BindView(R.id.rcvProduct)    RecyclerView rcvProduct;
-    @BindView(R.id.avi_loading)   AVLoadingIndicatorView avi_Loading;
-    private List<Product> mProduct;
+    @BindView(R.id.swipe_refresh_layout)    SwipeRefreshLayout swipeRefreshLayout;
+
+    private static final String TAG = DetailFragment.class.getSimpleName();
+    private final CompositeDisposable disposable = new CompositeDisposable();
+    private ListProductAdapter adapter;
 
     public DetailFragment() {
-        // Required empty public constructor
     }
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_detail, container, false);
         ButterKnife.bind(this, view);
 
-        mProduct = new ArrayList<>();
-        initReCyclerView();
+        adapter = new ListProductAdapter(getActivity());
+        RecyclerViewUtil.setupRecyclerView(rcvProduct, adapter, getActivity());
+        rcvProduct.setAdapter(adapter);
         initData();
         return view;
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        disposable.clear();
+    }
+
     private void initData() {
         final String Token = SharePreferenceUtil.getValueToken(getActivity());
-        String URL = ApiHelper.ApiDetail(getActivity());
-        Log.e("URL detail", URL);
-        AVLoadingUtil.startAnim(avi_Loading);
+        swipeRefreshLayout.setRefreshing(true);
+        Observable<ApiListResult<Product>> getListProduct = ApiUtils.getAPIservices().getListProduct(Token);
+        Disposable disposableData =
+                getListProduct.subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(new DisposableObserver<ApiListResult<Product>>() {
+                            @Override
+                            public void onNext(ApiListResult<Product> result) {
+                                List<Product> productList = result.getData();
+                                adapter.addList(productList);
+                            }
 
-        JsonRequest.Request(getActivity(), Token, URL, null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                try {
-                    if(response.getBoolean("Success")){
-                        JSONArray listProduct = response.getJSONArray("Data");
+                            @Override
+                            public void onError(Throwable e) {
+                                Log.e(TAG, "onError: " + e.getMessage());
+                                swipeRefreshLayout.setRefreshing(false);
+                            }
 
-                        for (int i = 0; i < listProduct.length(); i++){
-                            JSONObject object = (JSONObject) listProduct.get(i);
+                            @Override
+                            public void onComplete() {
+                                swipeRefreshLayout.setRefreshing(false);
+                            }
+                        });
 
-                            Product product = new Product();
-                            product.setItemId(object.getString("ItemId"));
-                            product.setItemName(object.getString("ItemName"));
-                            product.setQuantity(object.getInt("Quantity"));
-
-                            mProduct.add(product);
-                        }
-                        addControls();
-
-                        //RecyclerView scroll vertical
-                        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
-                        rcvProduct.setLayoutManager(linearLayoutManager);
-                        AVLoadingUtil.stopAnim(avi_Loading);
-                    }else {
-                        Toast.makeText(getActivity(), response.getString("Message"), Toast.LENGTH_SHORT).show();
-                        AVLoadingUtil.stopAnim(avi_Loading);
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
-    private void addControls() {
-        if(getActivity() == null) return;
-        ListProductAdapter adapter = new ListProductAdapter(mProduct, getActivity());
-        rcvProduct.setAdapter(adapter);
+        disposable.add(disposableData);
     }
 
-    private void initReCyclerView(){
-        rcvProduct.setAdapter(new ListProductAdapter(mProduct,getActivity()));
-        rcvProduct.setLayoutManager(new LinearLayoutManager(getActivity()));
-        rcvProduct.setHasFixedSize(true);
+    @Override
+    public void onRefresh() {
+        adapter.reset();
+        initData();
     }
 }
