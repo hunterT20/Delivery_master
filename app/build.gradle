@@ -16,14 +16,12 @@ android {
         debug {
             buildConfigField("String", "BASE_URL", "\"http://dmclwspl_2015.dienmaycholon.com.vn:12341/api/\"")
             buildConfigField("String", "MAP_URL", "\"https://maps.googleapis.com/\"")
-            buildConfigField("String", "DOMAIN_MAP","\"directions/json?\"")
         }
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             buildConfigField("String", "BASE_URL", "\"http://dmclwspl_2015.dienmaycholon.com.vn:12341/api/\"")
             buildConfigField("String", "MAP_URL", "\"https://maps.googleapis.com/\"")
-            buildConfigField("String", "DOMAIN_MAP","\"directions/json?\"")
         }
     }
     compileOptions {
@@ -73,7 +71,6 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.10.2'
     implementation 'com.google.maps.android:android-maps-utils:0.5'
     implementation 'com.skyfishjy.ripplebackground:library:1.0.1'
-    implementation 'cn.pedant.sweetalert:library:1.3'
     implementation 'com.roughike:swipe-selector:1.0.6'
     implementation 'co.dift.ui.swipetoaction:library:1.1'
 

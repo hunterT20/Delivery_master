@@ -44,20 +44,19 @@ import io.reactivex.schedulers.Schedulers;
  * A simple {@link Fragment} subclass.
  */
 public class DaGiaoFragment extends Fragment implements DatePickerDialog.OnDateSetListener, SwipeRefreshLayout.OnRefreshListener {
-    private static final String TAG = DaGiaoFragment.class.getSimpleName();
     @BindView(R.id.rcvDonHang_DaGiao)    RecyclerView rcvDonHang;
     @BindView(R.id.txtvNoItem_DaGiao)    TextView txtvNoItem;
     @BindView(R.id.fabFilter)            FloatingActionButton fabFilter;
     @BindView(R.id.swipe_refresh_layout)    SwipeRefreshLayout swipeRefreshLayout;
     private Button btnBegin, btnEnd;
 
-    private List<ItemDaGiao> mItemDaGiao;
+    private static final String TAG = DaGiaoFragment.class.getSimpleName();
     private final CompositeDisposable disposable = new CompositeDisposable();
+    private List<ItemDaGiao> mItemDaGiao;
     private String beginDate,endDate;
     private ListDaGiaoAdapter adapter;
     private LinearLayoutManager linearLayoutManager;
     private int CURRENT_PAGE = 1;
-
     private int Flag_Time;
 
     public DaGiaoFragment() {}

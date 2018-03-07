@@ -69,6 +69,16 @@ public class ApiHelper {
         return URL2 + DOMAIN_TIME;
     }
 
+    public static String ApiDone(){
+        String DOMAIN_NGHIEMTHU = "salereceipt/salereceiptdone";
+        return URL2 + DOMAIN_NGHIEMTHU;
+    }
+
+    public static String ApiSentSMS(){
+        String DOMAIN_SENTSMS = "salereceipt/sendsmsdelivery";
+        return URL2 + DOMAIN_SENTSMS;
+    }
+
     public static String ApiMap(Context context, double latitudeCurrent, double longitudeCurrent){
         String PARAM1 = "origin=";
         String PARAM2 = "&destination=";
@@ -86,11 +96,6 @@ public class ApiHelper {
 
         return ApiHelper.URL_MAP + ApiHelper.DOMAIN_MAP + PARAM1 + latitudeCurrent + "," + longitudeCurrent +
                 PARAM2 + address + PARAM3 + "vi" + PARAM4 + key;
-    }
-
-    public static String ApiDone(){
-        String DOMAIN_NGHIEMTHU = "salereceipt/salereceiptdone";
-        return URL2 + DOMAIN_NGHIEMTHU;
     }
 
     public static HashMap<String, String> paramLoGin(String username, String password){
@@ -165,10 +170,5 @@ public class ApiHelper {
         params.put("SoPhut", Minutes);
 
         return params;
-    }
-
-    public static String ApiSentSMS(){
-        String DOMAIN_SENTSMS = "salereceipt/sendsmsdelivery";
-        return URL2 + DOMAIN_SENTSMS;
     }
 }

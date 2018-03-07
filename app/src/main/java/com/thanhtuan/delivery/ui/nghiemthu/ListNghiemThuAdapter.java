@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.thanhtuan.delivery.R;
 import com.thanhtuan.delivery.data.model.Photo;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -22,9 +23,15 @@ public class ListNghiemThuAdapter extends RecyclerView.Adapter<ListNghiemThuAdap
     private List<Photo> photos;
     private LayoutInflater mLayoutInflater;
 
-    ListNghiemThuAdapter(List<Photo> photos, Context mContext) {
-        this.photos = photos;
+    ListNghiemThuAdapter(Context mContext) {
+        this.photos = new ArrayList<>();
         this.mLayoutInflater = LayoutInflater.from(mContext);
+    }
+
+    void addList(List<Photo> photoList){
+        if (photoList == null) return;
+        this.photos.addAll(photoList);
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -35,8 +42,8 @@ public class ListNghiemThuAdapter extends RecyclerView.Adapter<ListNghiemThuAdap
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final ListNghiemThuAdapter.NghiemThuViewHolder holder, int position) {
-        final Photo photo = photos.get(position);
+    public void onBindViewHolder(@NonNull ListNghiemThuAdapter.NghiemThuViewHolder holder, int position) {
+        Photo photo = photos.get(position);
 
         holder.ibtnIMG.setImageBitmap(photo.getImage());
         holder.txtvLydo.setText(photo.getDescription());

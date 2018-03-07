@@ -15,6 +15,7 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -27,12 +28,15 @@ import android.widget.Toast;
 import com.android.volley.Response;
 import com.rey.material.widget.FloatingActionButton;
 import com.thanhtuan.delivery.R;
+import com.thanhtuan.delivery.data.model.api.ApiResult;
+import com.thanhtuan.delivery.data.remote.ApiUtils;
 import com.thanhtuan.delivery.data.remote.JsonRequest;
 import com.thanhtuan.delivery.ui.main.MainActivity;
 import com.thanhtuan.delivery.data.remote.ApiHelper;
 import com.thanhtuan.delivery.data.model.Photo;
 import com.thanhtuan.delivery.data.model.URL_PhotoUpload;
 import com.thanhtuan.delivery.data.local.prefs.SharePreferenceUtil;
+import com.thanhtuan.delivery.utils.RecyclerViewUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -43,10 +47,17 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import co.dift.ui.SwipeToAction;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
 
 public class NghiemThuActivity extends AppCompatActivity {
-    @BindView(R.id.fab)             FloatingActionButton fab;
+    @BindView(R.id.fab_Photo)       FloatingActionButton fab;
     @BindView(R.id.cvNghiemThu)     CardView cvNghiemThu;
     @BindView(R.id.rcvNghiemThu)    RecyclerView rcvNghiemThu;
     @BindView(R.id.toolbar)         Toolbar toolbar;
@@ -57,10 +68,13 @@ public class NghiemThuActivity extends AppCompatActivity {
     @BindView(R.id.RootLayout)      ConstraintLayout Root;
     @BindView(R.id.btnUpload)       Button btnUpload;
 
+    private static final String TAG = NghiemThuActivity.class.getSimpleName();
     private final static int CODE_PHOTO = 2002;
+    private final CompositeDisposable disposable = new CompositeDisposable();
+    private final String Token = SharePreferenceUtil.getValueToken(this);
+
     private List<Photo> photoList;
     private ListNghiemThuAdapter adapter;
-    public List<URL_PhotoUpload> url_photoUploads;
     private Boolean flag_back = false;
     private Bitmap photo_taked;
 
@@ -70,50 +84,74 @@ public class NghiemThuActivity extends AppCompatActivity {
         setContentView(R.layout.activity_nghiem_thu);
         ButterKnife.bind(this);
 
+        adapter = new ListNghiemThuAdapter(this);
+        RecyclerViewUtil.setupRecyclerView(rcvNghiemThu,adapter,this);
+        rcvNghiemThu.setAdapter(adapter);
         addViews();
         addEvents();
     }
 
-    private void addEvents() {
-        fab.setOnClickListener(v -> cvNghiemThuDisplay());
+    @Override
+    protected void onStop() {
+        super.onStop();
+        disposable.clear();
+    }
 
-        ibtnPhoto.setOnClickListener(v -> eventAddPhoto());
+    @OnClick(R.id.fab_Photo)
+    public void onPhotoClick(){
+        cvNghiemThuDisplay();
+    }
 
+    @OnClick(R.id.ibtnPhoto)
+    public void onAddPhotoClick(){
+        eventAddPhoto();
+    }
+
+    @OnClick(R.id.btnUpload)
+    public void onUploadClick(){
+        if (photoList.size() == 0){
+            showErrorDialog("Vui lòng nghiệm thu trước khi update!");
+            return;
+        }
+        onUpload();
+    }
+
+    @OnClick(R.id.btnXacNhan)
+    public void onXacNhanClick(){
         final Bitmap bitmap_old = ((BitmapDrawable)ibtnPhoto.getDrawable()).getBitmap();
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        assert imm != null;
+        imm.hideSoftInputFromWindow(edtMoTa.getWindowToken(), 0);
 
-        btnXacNhan.setOnClickListener(v -> {
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            assert imm != null;
-            imm.hideSoftInputFromWindow(edtMoTa.getWindowToken(), 0);
-
-            if (((BitmapDrawable)ibtnPhoto.getDrawable()).getBitmap() == bitmap_old){
-                Snackbar snackbar = Snackbar.make(Root,"Bạn chưa có hình để nghiệm thu!",Snackbar.LENGTH_LONG).setAction("OK", v1 -> {
+        if (((BitmapDrawable)ibtnPhoto.getDrawable()).getBitmap() == bitmap_old){
+            Snackbar snackbar = Snackbar.make(Root,"Bạn chưa có hình để nghiệm thu!",Snackbar.LENGTH_LONG).setAction("OK", v1 -> {
+            });
+            snackbar.show();
+        }else {
+            if (edtMoTa.getText().toString().length() < 15){
+                Snackbar snackbar = Snackbar.make(Root,"Mô tả quá ngắn!",Snackbar.LENGTH_LONG).setAction("OK", v12 -> {
                 });
                 snackbar.show();
             }else {
-                if (edtMoTa.getText().toString().length() < 15){
-                    Snackbar snackbar = Snackbar.make(Root,"Mô tả quá ngắn!",Snackbar.LENGTH_LONG).setAction("OK", v12 -> {
-                    });
-                    snackbar.show();
-                }else {
-                    String Description = edtMoTa.getText().toString();
+                String Description = edtMoTa.getText().toString();
 
-                    Photo photo = new Photo();
-                    photo.setDescription(Description);
-                    photo.setImage(photo_taked);
-                    photoList.add(photo);
-                    addControls();
+                Photo photo = new Photo();
+                photo.setDescription(Description);
+                photo.setImage(photo_taked);
+                photoList.add(photo);
+                adapter.addList(photoList);
 
-                    btnXacNhan.setText("Loading...");
+                btnXacNhan.setText("Loading...");
 
-                    getPhotoUrl(photo_taked);
+                getPhotoUrl(photo_taked);
 
-                    edtMoTa.setText("");
-                    ibtnPhoto.setImageDrawable(getResources().getDrawable(R.drawable.ic_add_a_photo_white_24dp));
-                }
+                edtMoTa.setText("");
+                ibtnPhoto.setImageDrawable(getResources().getDrawable(R.drawable.ic_add_a_photo_white_24dp));
             }
-        });
+        }
+    }
 
+    private void addEvents() {
         new SwipeToAction(rcvNghiemThu, new SwipeToAction.SwipeListener<Photo>() {
 
             @Override
@@ -137,14 +175,6 @@ public class NghiemThuActivity extends AppCompatActivity {
 
             }
         });
-
-        btnUpload.setOnClickListener(v -> {
-            if (photoList.size() == 0){
-                showErrorDialog("Vui lòng nghiệm thu trước khi update!");
-                return;
-            }
-            onUpload();
-        });
     }
 
     private void addViews() {
@@ -157,16 +187,6 @@ public class NghiemThuActivity extends AppCompatActivity {
 
         txtvTitle.setText("Nghiệm Thu");
         photoList = new ArrayList<>();
-        url_photoUploads = new ArrayList<>();
-    }
-
-    private void addControls() {
-        adapter = new ListNghiemThuAdapter(photoList, this);
-        rcvNghiemThu.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
-
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(NghiemThuActivity.this, LinearLayoutManager.VERTICAL, false);
-        rcvNghiemThu.setLayoutManager(linearLayoutManager);
     }
 
     private void cvNghiemThuDisplay(){
@@ -236,54 +256,79 @@ public class NghiemThuActivity extends AppCompatActivity {
     }
 
     public void getPhotoUrl(Bitmap bitmap){
-        String API_PHOTO = ApiHelper.ApiUpload();
         HashMap<String,String> params = ApiHelper.paramUpload(this,bitmap);
-        final String Token = SharePreferenceUtil.getValueToken(this);
 
-        JsonRequest.Request(this, Token, API_PHOTO, new JSONObject(params), response -> {
-        try {
-            if (response.getBoolean("Success")){
-                btnXacNhan.setText("Xác nhận");
-                cvNghiemThuGONE();
-                Toast.makeText(NghiemThuActivity.this, "Đã gửi hình lên server!", Toast.LENGTH_SHORT).show();
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        });
+        Observable<ApiResult<String>> postPhoto = ApiUtils.getAPIservices().postPhoto(Token, params);
+        Disposable disposableObserver =
+                postPhoto.subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(new DisposableObserver<ApiResult<String>>() {
+                            @Override
+                            public void onNext(ApiResult<String> result) {
+                                if (result.getSuccess()){
+                                    btnXacNhan.setText("Xác nhận");
+                                    cvNghiemThuGONE();
+                                    Toast.makeText(NghiemThuActivity.this, "Đã gửi hình lên server!", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                Log.e(TAG, "onError: " + e.getMessage());
+                            }
+
+                            @Override
+                            public void onComplete() {
+
+                            }
+                        });
+
+        disposable.add(disposableObserver);
     }
 
     public void onUpload(){
         HashMap<String, String> params = ApiHelper.paramDone(this,"default");
-        String URL = ApiHelper.ApiDone();
-        final String Token = SharePreferenceUtil.getValueToken(this);
 
-        JsonRequest.Request(this, Token, URL, new JSONObject(params), response -> {
-            try {
-                if (response.getBoolean("Success")){
-                    SharePreferenceUtil.Clean(NghiemThuActivity.this);
+        Observable<ApiResult<String>> done = ApiUtils.getAPIservices().done(Token,params);
+        Disposable disposableDone =
+                done.subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(new DisposableObserver<ApiResult<String>>() {
+                            @Override
+                            public void onNext(ApiResult<String> result) {
+                                if (result.getSuccess()){
+                                    SharePreferenceUtil.Clean(NghiemThuActivity.this);
 
-                    AlertDialog.Builder builder = new AlertDialog.Builder(NghiemThuActivity.this);
-                    String positiveText = NghiemThuActivity.this.getString(android.R.string.ok);
-                    builder.setCancelable(false)
-                            .setPositiveButton(positiveText, (dialog, which) -> {
-                                startActivity(new Intent(NghiemThuActivity.this,MainActivity.class));
-                                finish();
-                            })
-                            .setMessage("Nghiệm thu thành công!")
-                            .setTitle("Thành công!");
+                                    AlertDialog.Builder builder = new AlertDialog.Builder(NghiemThuActivity.this);
+                                    String positiveText = NghiemThuActivity.this.getString(android.R.string.ok);
+                                    builder.setCancelable(false)
+                                            .setPositiveButton(positiveText, (dialog, which) -> {
+                                                startActivity(new Intent(NghiemThuActivity.this,MainActivity.class));
+                                                finish();
+                                            })
+                                            .setMessage("Nghiệm thu thành công!")
+                                            .setTitle("Thành công!");
 
-                    AlertDialog dialog = builder.create();
-                    dialog.show();
+                                    AlertDialog dialog = builder.create();
+                                    dialog.show();
 
-                }else {
-                    Snackbar snackbar = Snackbar.make(Root,String.valueOf(response.getBoolean("Nghiệm thu thất bại!")),Snackbar.LENGTH_LONG);
-                    snackbar.show();
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        });
+                                }else {
+                                    Snackbar snackbar = Snackbar.make(Root,"Nghiệm thu thất bại!",Snackbar.LENGTH_LONG);
+                                    snackbar.show();
+                                }
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                Log.e(TAG, "onError: " + e.getMessage());
+                            }
+
+                            @Override
+                            public void onComplete() {
+
+                            }
+                        });
+        disposable.add(disposableDone);
     }
 
     private void showWarnningActionUploadDialog() {

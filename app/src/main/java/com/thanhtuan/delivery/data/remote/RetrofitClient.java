@@ -15,13 +15,14 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 class RetrofitClient {
-    private static Retrofit retrofit = null;
+    private static Retrofit retrofitClient = null;
+    private static Retrofit retrofitMAP = null;
     private static Gson gson = new GsonBuilder()
             .setLenient()
             .create();
 
     static Retrofit getClient(String baseUrl){
-        if (retrofit == null){
+        if (retrofitClient == null){
             HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
             loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 
@@ -35,7 +36,7 @@ class RetrofitClient {
                     .cookieJar(new JavaNetCookieJar(cookieManager))
                     .addInterceptor(loggingInterceptor);
 
-            retrofit = new Retrofit.Builder()
+            retrofitClient = new Retrofit.Builder()
                     .baseUrl(baseUrl)
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                     .addConverterFactory(GsonConverterFactory.create(gson))
@@ -43,6 +44,32 @@ class RetrofitClient {
                     .build();
         }
 
-        return retrofit;
+        return retrofitClient;
+    }
+
+    static Retrofit getMapApi(String mapURL){
+        if (retrofitMAP == null){
+            HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
+            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+            CookieManager cookieManager = new CookieManager();
+            cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
+
+            OkHttpClient.Builder client = new OkHttpClient.Builder()
+                    .connectTimeout(1, TimeUnit.MINUTES)
+                    .writeTimeout(1, TimeUnit.MINUTES)
+                    .readTimeout(1, TimeUnit.MINUTES)
+                    .cookieJar(new JavaNetCookieJar(cookieManager))
+                    .addInterceptor(loggingInterceptor);
+
+            retrofitMAP = new Retrofit.Builder()
+                    .baseUrl(mapURL)
+                    .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                    .addConverterFactory(GsonConverterFactory.create(gson))
+                    .client(client.build())
+                    .build();
+        }
+
+        return retrofitMAP;
     }
 }

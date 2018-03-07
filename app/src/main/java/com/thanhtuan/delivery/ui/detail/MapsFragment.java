@@ -110,6 +110,9 @@ public class MapsFragment extends Fragment implements GoogleApiClient.Connection
         return view;
     }
 
+    /**
+     * Kiểm tra quyền Location
+     */
     private void requestLocationPermissions() {
         if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -134,17 +137,28 @@ public class MapsFragment extends Fragment implements GoogleApiClient.Connection
         }
     }
 
+    /**
+     * Kiểm tra Google play service có sẵn sàng chưa
+     * @return true/false
+     */
     private boolean isPlayServicesAvailable() {
         return GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(getActivity())
                 == ConnectionResult.SUCCESS;
     }
 
+    /**
+     * Kiểm tra GPS đã bật chưa
+     * @return true/false
+     */
     private boolean isGpsOn() {
         LocationManager manager = (LocationManager) getActivity().getSystemService(LOCATION_SERVICE);
         assert manager != null;
         return manager.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 
+    /**
+     * Khởi tạo Location Client
+     */
     private void setUpLocationClientIfNeeded() {
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
@@ -159,6 +173,9 @@ public class MapsFragment extends Fragment implements GoogleApiClient.Connection
         }
     }
 
+    /**
+     * Cấu hình chất lượng request của Map
+     */
     private void buildLocationRequest() {
         mLocationRequest = LocationRequest.create();
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -166,6 +183,9 @@ public class MapsFragment extends Fragment implements GoogleApiClient.Connection
         mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
     }
 
+    /**
+     * callback trả về Last Location
+     */
     private LocationCallback callback = new LocationCallback() {
         @Override
         public void onLocationResult(LocationResult locationResult) {
@@ -329,9 +349,8 @@ public class MapsFragment extends Fragment implements GoogleApiClient.Connection
     };
 
     private void getLocationSale(final Interface_Location interface_location) {
-        if (getActivity() == null || mLastLocation == null) {
-            return;
-        }
+        assert getActivity() != null;
+        assert mLastLocation != null;
 
         String URL = ApiHelper.ApiMap(getActivity(), mLastLocation.getLatitude(), mLastLocation.getLongitude());
         JsonRequest.Request(getActivity(), null, URL, null, response -> {
@@ -466,7 +485,7 @@ public class MapsFragment extends Fragment implements GoogleApiClient.Connection
 
     private void initGoogleMap() {
         mMapView.getMapAsync(mMap -> {
-            if (getActivity() == null) return;
+            assert getActivity() != null;
 
             googleMap = mMap;
             if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
@@ -479,7 +498,15 @@ public class MapsFragment extends Fragment implements GoogleApiClient.Connection
                 start = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
             }
 
-            getLocationSale(route_point -> googleMap.addMarker(new MarkerOptions().position(route_point.getLatLng()).title("Điểm cuối").snippet("Giao hàng cho khách")));
+            getLocationSale(
+                    route_point ->
+                            googleMap.addMarker(
+                                    new MarkerOptions()
+                                            .position(route_point.getLatLng())
+                                            .title("Điểm cuối")
+                                            .snippet("Giao hàng cho khách")
+                            )
+            );
 
             CameraPosition cameraPosition = new CameraPosition.Builder().target(start).zoom(15).tilt(45).build();
             googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));

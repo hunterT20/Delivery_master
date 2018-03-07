@@ -7,9 +7,13 @@ public class ApiUtils {
     public ApiUtils() {
     }
 
-    private static final String MAP_URL = BuildConfig.MAP_URL + "maps/api/" + BuildConfig.DOMAIN_MAP;
+    private static final String MAP_URL = BuildConfig.MAP_URL + "maps/api/";
 
     public static ApiService getAPIservices(){
         return RetrofitClient.getClient(BuildConfig.BASE_URL).create(ApiService.class);
+    }
+
+    public static ApiService getAPIMap(){
+        return RetrofitClient.getClient(MAP_URL).create(ApiService.class);
     }
 }

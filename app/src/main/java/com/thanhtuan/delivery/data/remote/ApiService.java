@@ -7,6 +7,7 @@ import com.thanhtuan.delivery.data.model.User;
 import com.thanhtuan.delivery.data.model.VersionApp;
 import com.thanhtuan.delivery.data.model.api.ApiListResult;
 import com.thanhtuan.delivery.data.model.api.ApiResult;
+import com.thanhtuan.delivery.data.model.map.Map;
 
 import java.util.HashMap;
 
@@ -18,6 +19,16 @@ import retrofit2.http.POST;
 import retrofit2.http.Query;
 
 public interface ApiService {
+    /*API Google Map*/
+    @GET("directions/json?")
+    Observable<Map> setupMap(
+            @Query("Origin") String origin,
+            @Query("destination") String address,
+            @Query("language") String language,
+            @Query("key") String key
+    );
+
+    /*API Delivery*/
     @POST("accounts/login")
     Observable<ApiResult<User>> login(@Body HashMap<String,String> paramLogin);
 
@@ -58,6 +69,18 @@ public interface ApiService {
 
     @POST("salereceipt/salereceipttime")
     Observable<ApiResult<Integer>> timeRecord(
+            @Header("Authorization") String token,
+            HashMap<String,String> param
+    );
+
+    @POST("salereceipt/photoupload")
+    Observable<ApiResult<String>> postPhoto(
+            @Header("Authorization") String token,
+            HashMap<String,String> param
+    );
+
+    @POST("salereceipt/salereceiptdone")
+    Observable<ApiResult<String>> done(
             @Header("Authorization") String token,
             HashMap<String,String> param
     );
