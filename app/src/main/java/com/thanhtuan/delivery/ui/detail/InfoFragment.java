@@ -3,7 +3,9 @@ package com.thanhtuan.delivery.ui.detail;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.app.Dialog;
 import android.content.DialogInterface;
+
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -26,17 +28,16 @@ import android.widget.Toast;
 import com.android.volley.Response;
 import com.rey.material.widget.FloatingActionButton;
 import com.thanhtuan.delivery.R;
+import com.thanhtuan.delivery.data.model.DataSentSMS;
+import com.thanhtuan.delivery.data.model.DataTimeRecord;
+import com.thanhtuan.delivery.data.model.api.ApiListResult;
 import com.thanhtuan.delivery.data.model.api.ApiResult;
 import com.thanhtuan.delivery.data.remote.ApiUtils;
-import com.thanhtuan.delivery.data.remote.JsonRequest;
 import com.thanhtuan.delivery.data.model.ItemChuaGiao;
 import com.thanhtuan.delivery.data.model.URL_PhotoUpload;
 import com.thanhtuan.delivery.data.remote.ApiHelper;
 import com.thanhtuan.delivery.data.local.prefs.SharePreferenceUtil;
 import com.thanhtuan.delivery.ui.nghiemthu.NghiemThuActivity;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -73,7 +74,7 @@ public class InfoFragment extends Fragment {
     private ItemChuaGiao itemChuaGiao;
     public List<URL_PhotoUpload> url_photoUploads;
     final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
-    private String Token = SharePreferenceUtil.getValueToken(getActivity());
+    private String Token;
     private CompositeDisposable disposable = new CompositeDisposable();
 
     public InfoFragment() {}
@@ -84,8 +85,9 @@ public class InfoFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_info, container, false);
         ButterKnife.bind(this, view);
-        url_photoUploads = new ArrayList<>();
 
+        url_photoUploads = new ArrayList<>();
+        Token = SharePreferenceUtil.getValueToken(getActivity());
         addViews();
         return view;
     }
@@ -113,7 +115,6 @@ public class InfoFragment extends Fragment {
             txtvNote.setText("Không có ghi chú!");
         else
             txtvNote.setText(itemChuaGiao.getNote());
-        eventSentTime("0123","0548");
     }
 
     @OnClick(R.id.btnHuyGiaoHang)
@@ -200,7 +201,8 @@ public class InfoFragment extends Fragment {
         alertDialogBuilderUserInput
                 .setCancelable(false)
                 .setPositiveButton("Xác nhận", (dialogBox, id) -> {
-                    eventSentTime(String.valueOf(edtTime.getText()), String.valueOf(txtvSDT.getText()));
+                    //eventSentTime(String.valueOf(edtTime.getText()), String.valueOf(txtvSDT.getText()));
+                    eventSentTime("30","01669384803");
                     dialogBox.dismiss();
                 })
                 .setNegativeButton("Cancel", (dialogInterface, i) -> dialogInterface.dismiss());
@@ -260,15 +262,15 @@ public class InfoFragment extends Fragment {
 
     private void eventSentTime(String Time, String Phone){
         HashMap<String,String> param = ApiHelper.paramSentSMS("01669384803", "30");
-        Observable<ApiResult<String>> sentSMS = ApiUtils.getAPIservices().sentSMS(Token, param);
+        Observable<ApiListResult<DataSentSMS>> sentSMS = ApiUtils.getAPIservices().sentSMS(Token, param);
 
         Disposable disposableSMS =
             sentSMS.subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeWith(new DisposableObserver<ApiResult<String>>() {
+                    .subscribeWith(new DisposableObserver<ApiListResult<DataSentSMS>>() {
                         @Override
-                        public void onNext(ApiResult<String> result) {
-                            Log.e(TAG, "onNext: " + result.getData());
+                        public void onNext(ApiListResult<DataSentSMS> result) {
+                            eventTimeRecord("1");
                         }
 
                         @Override
@@ -290,15 +292,14 @@ public class InfoFragment extends Fragment {
                 Status
         );
 
-        Observable<ApiResult<Integer>> timeRecord = ApiUtils.getAPIservices().timeRecord(Token, params);
+        Observable<ApiListResult<DataTimeRecord>> timeRecord = ApiUtils.getAPIservices().timeRecord(Token, params);
         Disposable disposableRecord =
             timeRecord.subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeWith(new DisposableObserver<ApiResult<Integer>>() {
+                    .subscribeWith(new DisposableObserver<ApiListResult<DataTimeRecord>>() {
                         @Override
-                        public void onNext(ApiResult<Integer> result) {
-                            //setQuaTrinh(jsonObject.getInt("Status"));
-                            setQuaTrinh(result.getData());
+                        public void onNext(ApiListResult<DataTimeRecord> result) {
+                            setQuaTrinh(result.getData().get(0).getStatus());
                         }
 
                         @Override
@@ -349,7 +350,7 @@ public class InfoFragment extends Fragment {
                             sweetAlertDialog.dismiss();
                         })
                         .setCancelText("Không")
-                        .setCancelClickListener(sweetAlertDialog -> sweetAlertDialog.dismiss())
+                        .setCancelClickListener(Dialog::dismiss)
                         .show();
                 return;
             }

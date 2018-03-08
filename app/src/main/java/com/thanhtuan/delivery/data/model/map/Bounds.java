@@ -6,24 +6,24 @@ import com.google.gson.annotations.SerializedName;
 public class Bounds {
     @SerializedName("northeast")
     @Expose
-    private Location northeast;
+    private LocationMap northeast;
     @SerializedName("southwest")
     @Expose
-    private Location southwest;
+    private LocationMap southwest;
 
-    public Location getNortheast() {
+    public LocationMap getNortheast() {
         return northeast;
     }
 
-    public void setNortheast(Location northeast) {
+    public void setNortheast(LocationMap northeast) {
         this.northeast = northeast;
     }
 
-    public Location getSouthwest() {
+    public LocationMap getSouthwest() {
         return southwest;
     }
 
-    public void setSouthwest(Location southwest) {
+    public void setSouthwest(LocationMap southwest) {
         this.southwest = southwest;
     }
 }

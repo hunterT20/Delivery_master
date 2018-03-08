@@ -3,7 +3,7 @@ package com.thanhtuan.delivery.data.model.map;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Location {
+public class LocationMap {
     @SerializedName("lat")
     @Expose
     private Double lat;
@@ -11,7 +11,7 @@ public class Location {
     @Expose
     private Double lng;
 
-    public Location(Double lat, Double lng) {
+    public LocationMap(Double lat, Double lng) {
         this.lat = lat;
         this.lng = lng;
     }

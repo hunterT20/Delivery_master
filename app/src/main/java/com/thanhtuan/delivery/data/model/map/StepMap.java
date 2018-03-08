@@ -3,7 +3,7 @@ package com.thanhtuan.delivery.data.model.map;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Step {
+public class StepMap {
     @SerializedName("distance")
     @Expose
     private Distance distance;
@@ -12,7 +12,7 @@ public class Step {
     private Duration duration;
     @SerializedName("end_location")
     @Expose
-    private Location endLocation;
+    private LocationMap endLocation;
     @SerializedName("html_instructions")
     @Expose
     private String htmlInstructions;
@@ -21,7 +21,7 @@ public class Step {
     private Point polyline;
     @SerializedName("start_location")
     @Expose
-    private Location startLocation;
+    private LocationMap startLocation;
     @SerializedName("travel_mode")
     @Expose
     private String travelMode;
@@ -45,11 +45,11 @@ public class Step {
         this.duration = duration;
     }
 
-    public Location getEndLocation() {
+    public LocationMap getEndLocation() {
         return endLocation;
     }
 
-    public void setEndLocation(Location endLocation) {
+    public void setEndLocation(LocationMap endLocation) {
         this.endLocation = endLocation;
     }
 
@@ -69,11 +69,11 @@ public class Step {
         this.polyline = polyline;
     }
 
-    public Location getStartLocation() {
+    public LocationMap getStartLocation() {
         return startLocation;
     }
 
-    public void setStartLocation(Location startLocation) {
+    public void setStartLocation(LocationMap startLocation) {
         this.startLocation = startLocation;
     }
 

@@ -33,6 +33,7 @@ import com.thanhtuan.delivery.data.remote.JsonRequest;
 import com.thanhtuan.delivery.data.model.User;
 import com.thanhtuan.delivery.ui.detail.DetailActivity;
 import com.thanhtuan.delivery.data.local.prefs.SharePreferenceUtil;
+import com.thanhtuan.delivery.ui.detail.DetailFragment;
 import com.thanhtuan.delivery.utils.NetworkUtils;
 import com.thanhtuan.delivery.ui.main.MainActivity;
 
@@ -125,9 +126,11 @@ public class LoginActivity extends AppCompatActivity {
                     .subscribeWith(new DisposableObserver<ApiResult<User>>() {
                         @Override
                         public void onNext(ApiResult<User> result) {
-                            User user = result.getData();
-                            SharePreferenceUtil.setValueId(getApplication(),user.getEmployeeId());
-                            SharePreferenceUtil.setValueToken(getApplication(),user.getSessionToken());
+                            if (result.getSuccess()) {
+                                User user = result.getData();
+                                SharePreferenceUtil.setValueId(getApplication(), user.getEmployeeId());
+                                SharePreferenceUtil.setValueToken(getApplication(), user.getSessionToken());
+                            }
                         }
 
                         @Override

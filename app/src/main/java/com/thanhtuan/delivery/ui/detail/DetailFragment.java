@@ -4,29 +4,19 @@ package com.thanhtuan.delivery.ui.detail;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.thanhtuan.delivery.R;
 import com.thanhtuan.delivery.data.model.api.ApiListResult;
 import com.thanhtuan.delivery.data.remote.ApiUtils;
-import com.thanhtuan.delivery.data.remote.JsonRequest;
-import com.thanhtuan.delivery.utils.AVLoadingUtil;
-import com.thanhtuan.delivery.data.remote.ApiHelper;
 import com.thanhtuan.delivery.data.model.Product;
 import com.thanhtuan.delivery.data.local.prefs.SharePreferenceUtil;
 import com.thanhtuan.delivery.utils.RecyclerViewUtil;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -74,8 +64,9 @@ public class DetailFragment extends Fragment implements SwipeRefreshLayout.OnRef
 
     private void initData() {
         final String Token = SharePreferenceUtil.getValueToken(getActivity());
+        String ID = SharePreferenceUtil.getValueSaleItem(getActivity()).getSaleReceiptId();
         swipeRefreshLayout.setRefreshing(true);
-        Observable<ApiListResult<Product>> getListProduct = ApiUtils.getAPIservices().getListProduct(Token);
+        Observable<ApiListResult<Product>> getListProduct = ApiUtils.getAPIservices().getListProduct(Token, ID);
         Disposable disposableData =
                 getListProduct.subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())

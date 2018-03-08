@@ -1,18 +1,18 @@
 package com.thanhtuan.delivery.data.model;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.thanhtuan.delivery.data.model.map.StepMap;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class Route_point {
+public class RoutePoint {
     private String total_distance;
     private String total_duration;
     private LatLng latLng;
     private List<LatLng> overview_polyline;
-    private ArrayList<Steps> stepsArrayList;
+    private List<Steps> stepsArrayList;
 
-    public Route_point() {
+    public RoutePoint() {
     }
 
     public List<LatLng> getOverviewPolyline() {
@@ -47,11 +47,11 @@ public class Route_point {
         this.latLng = latLng;
     }
 
-    public ArrayList<Steps> getStepsArrayList() {
+    public List<Steps> getStepsArrayList() {
         return stepsArrayList;
     }
 
-    public void setStepsArrayList(ArrayList<Steps> stepsArrayList) {
+    public void setStepsArrayList(List<Steps> stepsArrayList) {
         this.stepsArrayList = stepsArrayList;
     }
 }

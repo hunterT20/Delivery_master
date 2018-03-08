@@ -17,16 +17,16 @@ public class Leg {
     private String endAddress;
     @SerializedName("end_location")
     @Expose
-    private Location endLocation;
+    private LocationMap endLocation;
     @SerializedName("start_address")
     @Expose
     private String startAddress;
     @SerializedName("start_location")
     @Expose
-    private Location startLocation;
+    private LocationMap startLocation;
     @SerializedName("steps")
     @Expose
-    private List<Step> steps = null;
+    private List<StepMap> steps = null;
     @SerializedName("traffic_speed_entry")
     @Expose
     private List<Object> trafficSpeedEntry;
@@ -58,11 +58,11 @@ public class Leg {
         this.endAddress = endAddress;
     }
 
-    public Location getEndLocation() {
+    public LocationMap getEndLocation() {
         return endLocation;
     }
 
-    public void setEndLocation(Location endLocation) {
+    public void setEndLocation(LocationMap endLocation) {
         this.endLocation = endLocation;
     }
 
@@ -74,19 +74,19 @@ public class Leg {
         this.startAddress = startAddress;
     }
 
-    public Location getStartLocation() {
+    public LocationMap getStartLocation() {
         return startLocation;
     }
 
-    public void setStartLocation(Location startLocation) {
+    public void setStartLocation(LocationMap startLocation) {
         this.startLocation = startLocation;
     }
 
-    public List<Step> getSteps() {
+    public List<StepMap> getSteps() {
         return steps;
     }
 
-    public void setSteps(List<Step> steps) {
+    public void setSteps(List<StepMap> steps) {
         this.steps = steps;
     }
 

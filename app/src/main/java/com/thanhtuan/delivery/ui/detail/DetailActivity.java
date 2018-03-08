@@ -75,7 +75,7 @@ public class DetailActivity extends AppCompatActivity {
             return true;
         });
 
-        bottomNavigationView.setSelectedItemId(R.id.action_map);
+        bottomNavigationView.setSelectedItemId(R.id.action_info);
     }
 
     @Override

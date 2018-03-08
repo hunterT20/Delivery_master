@@ -11,7 +11,7 @@ public class Map {
     private List<GeocodedWaypoint> geocodedWaypoints;
     @SerializedName("routes")
     @Expose
-    private List<Route> routes;
+    private List<RouteMap> routes;
     @SerializedName("status")
     @Expose
     private String status;
@@ -24,11 +24,11 @@ public class Map {
         this.geocodedWaypoints = geocodedWaypoints;
     }
 
-    public List<Route> getRoutes() {
+    public List<RouteMap> getRoutes() {
         return routes;
     }
 
-    public void setRoutes(List<Route> routes) {
+    public void setRoutes(List<RouteMap> routes) {
         this.routes = routes;
     }
 

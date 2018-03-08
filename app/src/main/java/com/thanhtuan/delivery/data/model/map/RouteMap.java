@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class Route {
+public class RouteMap {
     @SerializedName("bounds")
     @Expose
     private Bounds bounds;

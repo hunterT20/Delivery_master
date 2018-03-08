@@ -14,6 +14,6 @@ public class ApiUtils {
     }
 
     public static ApiService getAPIMap(){
-        return RetrofitClient.getClient(MAP_URL).create(ApiService.class);
+        return RetrofitClient.getMapApi(MAP_URL).create(ApiService.class);
     }
 }

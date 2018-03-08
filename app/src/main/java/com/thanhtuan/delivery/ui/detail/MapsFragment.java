@@ -48,15 +48,20 @@ import com.roughike.swipeselector.SwipeSelector;
 import com.thanhtuan.delivery.R;
 import com.thanhtuan.delivery.data.AppConst;
 import com.thanhtuan.delivery.data.local.prefs.SharePreferenceUtil;
-import com.thanhtuan.delivery.data.model.Route_point;
+import com.thanhtuan.delivery.data.model.ItemChuaGiao;
+import com.thanhtuan.delivery.data.model.RoutePoint;
 import com.thanhtuan.delivery.data.model.Steps;
-import com.thanhtuan.delivery.data.remote.ApiHelper;
-import com.thanhtuan.delivery.data.remote.JsonRequest;
+import com.thanhtuan.delivery.data.model.map.Distance;
+import com.thanhtuan.delivery.data.model.map.Duration;
+import com.thanhtuan.delivery.data.model.map.Leg;
+import com.thanhtuan.delivery.data.model.map.LocationMap;
+import com.thanhtuan.delivery.data.model.map.Map;
+import com.thanhtuan.delivery.data.model.map.Point;
+import com.thanhtuan.delivery.data.model.map.RouteMap;
+import com.thanhtuan.delivery.data.model.map.StepMap;
+import com.thanhtuan.delivery.data.remote.ApiUtils;
 import com.thanhtuan.delivery.interface_delivery.Interface_Location;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.jsoup.Jsoup;
 
 import java.util.ArrayList;
@@ -64,6 +69,12 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
 
 import static android.content.Context.LOCATION_SERVICE;
 
@@ -83,6 +94,7 @@ public class MapsFragment extends Fragment implements GoogleApiClient.Connection
     private static final long UPDATE_INTERVAL = 5000;
     private static final long FASTEST_INTERVAL = 5000;
     private static final int REQUEST_LOCATION_PERMISSION = 100;
+    private final CompositeDisposable disposable = new CompositeDisposable();
 
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
@@ -111,7 +123,7 @@ public class MapsFragment extends Fragment implements GoogleApiClient.Connection
     }
 
     /**
-     * Kiểm tra quyền Location
+     * Kiểm tra quyền LocationMap
      */
     private void requestLocationPermissions() {
         if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
@@ -157,7 +169,7 @@ public class MapsFragment extends Fragment implements GoogleApiClient.Connection
     }
 
     /**
-     * Khởi tạo Location Client
+     * Khởi tạo LocationMap Client
      */
     private void setUpLocationClientIfNeeded() {
         if (mGoogleApiClient == null) {
@@ -184,7 +196,7 @@ public class MapsFragment extends Fragment implements GoogleApiClient.Connection
     }
 
     /**
-     * callback trả về Last Location
+     * callback trả về Last LocationMap
      */
     private LocationCallback callback = new LocationCallback() {
         @Override
@@ -287,7 +299,7 @@ public class MapsFragment extends Fragment implements GoogleApiClient.Connection
         public void onRoutingFailure(RouteException e) {
             if (getActivity() == null) return;
             if (e != null) {
-                Toast.makeText(getActivity(), "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                Log.e(TAG, "onRoutingFailure: " + e.getMessage());
             } else {
                 Toast.makeText(getActivity(), "Something went wrong, Try again", Toast.LENGTH_SHORT).show();
             }
@@ -302,22 +314,22 @@ public class MapsFragment extends Fragment implements GoogleApiClient.Connection
         public void onRoutingSuccess(ArrayList<Route> arrayList, int i) {
             removePoly();
 
-            getLocationSale(route_point -> {
+            getLocationSale(routePoint -> {
                 int current = SharePreferenceUtil.getValueDirection(getActivity());
-                initSwipeItem(route_point, current);
+                initSwipeItem(routePoint, current);
 
                 if (current == -1) {
                 /*set textview tổng quãng đường và thời gian cần đi*/
                     if (getActivity() == null) return;
-                    SharePreferenceUtil.setValueDistance(getActivity(), route_point.getTotalDistance());
-                    SharePreferenceUtil.setValueTime(getActivity(), route_point.getTotalDuration());
+                    SharePreferenceUtil.setValueDistance(getActivity(), routePoint.getTotalDistance());
+                    SharePreferenceUtil.setValueTime(getActivity(), routePoint.getTotalDuration());
 
                     txtvTime.setText(
-                            "Quãng đường: " + route_point.getTotalDistance() +
-                                    "- Thời gian: " + route_point.getTotalDuration()
+                            "Quãng đường: " + routePoint.getTotalDistance() +
+                                    "- Thời gian: " + routePoint.getTotalDuration()
                     );
                 /*set color cho cả đoạn đường*/
-                    getPolyline("#FFFF7700", route_point.getOverviewPolyline());
+                    getPolyline("#FFFF7700", routePoint.getOverviewPolyline());
                 /*event khi click vào button Direction*/
                     btnDirection.setOnClickListener(v -> {
                     /*set visibility cho view direction*/
@@ -325,9 +337,9 @@ public class MapsFragment extends Fragment implements GoogleApiClient.Connection
                         swipeSelector.setVisibility(View.VISIBLE);
 
                     /*set color cho đoạn đường đầu tiên đươc load lên*/
-                        getPolyline("#BABABA", route_point.getOverviewPolyline());
-                        getPolyline("#FFFF7700", route_point.getStepsArrayList().get(0).getPolyline());
-                        updateCamera(route_point.getStepsArrayList().get(0).getStartLocation());
+                        getPolyline("#BABABA", routePoint.getOverviewPolyline());
+                        getPolyline("#FFFF7700", routePoint.getStepsArrayList().get(0).getPolyline());
+                        updateCamera(routePoint.getStepsArrayList().get(0).getStartLocation());
                     });
                 } else {
                 /*set visibility cho view direction*/
@@ -335,9 +347,9 @@ public class MapsFragment extends Fragment implements GoogleApiClient.Connection
                     swipeSelector.setVisibility(View.VISIBLE);
 
                 /*set color cho đoạn đường đầu tiên đươc load lên*/
-                    getPolyline("#BABABA", route_point.getOverviewPolyline());
-                    getPolyline("#FFFF7700", route_point.getStepsArrayList().get(current).getPolyline());
-                    updateCamera(route_point.getStepsArrayList().get(current).getStartLocation());
+                    getPolyline("#BABABA", routePoint.getOverviewPolyline());
+                    getPolyline("#FFFF7700", routePoint.getStepsArrayList().get(current).getPolyline());
+                    updateCamera(routePoint.getStepsArrayList().get(current).getStartLocation());
                 }
             });
         }
@@ -352,64 +364,81 @@ public class MapsFragment extends Fragment implements GoogleApiClient.Connection
         assert getActivity() != null;
         assert mLastLocation != null;
 
-        String URL = ApiHelper.ApiMap(getActivity(), mLastLocation.getLatitude(), mLastLocation.getLongitude());
-        JsonRequest.Request(getActivity(), null, URL, null, response -> {
-            try {
-                if (response.get("status").equals("OK")) {
-                    JSONObject routes = response.getJSONArray("routes").getJSONObject(0);
+        ItemChuaGiao itemChuaGiao = SharePreferenceUtil.getValueSaleItem(getActivity());
+        LocationMap origin = new LocationMap(mLastLocation.getLatitude(),mLastLocation.getLongitude());
+        Observable<Map> setupMap = ApiUtils.getAPIMap().setupMap(
+          origin.getOrigin(),itemChuaGiao.getAddress(),"vi",AppConst.KEY_MAP
+        );
+        Disposable disposableMap =
+                setupMap.subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(new DisposableObserver<Map>() {
+                            @Override
+                            public void onNext(Map map) {
+                                if (map.getStatus().equals("OK")) {
+                                    RouteMap routes = map.getRoutes().get(0);
 
-                    JSONObject legs = routes.getJSONArray("legs").getJSONObject(0);
-                    JSONObject overview_polyline = routes.getJSONObject("overview_polyline");
-                    JSONObject distance = legs.getJSONObject("distance");
-                    JSONObject duration = legs.getJSONObject("duration");
-                    JSONObject end_location = legs.getJSONObject("end_location");
-                    JSONArray step_list = legs.getJSONArray("steps");
+                                    Leg legs = routes.getLegs().get(0);
+                                    Point overviewPolyline = routes.getOverviewPolyline();
+                                    Distance distance = legs.getDistance();
+                                    Duration duration = legs.getDuration();
+                                    LocationMap endLocation = legs.getEndLocation();
+                                    List<StepMap> stepMapList = legs.getSteps();
 
-                    LatLng end = new LatLng(end_location.getDouble("lat"), end_location.getDouble("lng"));
+                                    LatLng end = new LatLng(endLocation.getLat(), endLocation.getLng());
 
-                    Route_point route_point = new Route_point();
-                    route_point.setTotalDistance(distance.getString("text"));
-                    route_point.setTotalDuration(duration.getString("text"));
-                    route_point.setOverviewPolyline(PolyUtil.decode(overview_polyline.getString("points")));
-                    route_point.setLatLng(end);
+                                    RoutePoint routePoint = new RoutePoint();
+                                    routePoint.setTotalDistance(distance.getText());
+                                    routePoint.setTotalDuration(duration.getText());
+                                    routePoint.setOverviewPolyline(PolyUtil.decode(overviewPolyline.getPoints()));
+                                    routePoint.setLatLng(end);
 
-                    ArrayList<Steps> stepsArrayList = new ArrayList<>();
-                    for (int i = 0; i < step_list.length(); i++) {
-                        LatLng latLng_start = new LatLng(step_list.getJSONObject(i).getJSONObject("start_location").getDouble("lat"),
-                                step_list.getJSONObject(i).getJSONObject("start_location").getDouble("lng"));
-                        LatLng latLng_end = new LatLng(step_list.getJSONObject(i).getJSONObject("start_location").getDouble("lat"),
-                                step_list.getJSONObject(i).getJSONObject("end_location").getDouble("lng"));
+                                    ArrayList<Steps> stepsArrayList = new ArrayList<>();
+                                    for (int i = 0; i < stepMapList.size(); i++) {
+                                        LatLng latlngStart = new LatLng(stepMapList.get(i).getStartLocation().getLat(),
+                                                stepMapList.get(i).getStartLocation().getLng());
+                                        LatLng latLng_end = new LatLng(stepMapList.get(i).getEndLocation().getLat(),
+                                                stepMapList.get(i).getEndLocation().getLng());
 
-                        String LINE = step_list.getJSONObject(i).getJSONObject("polyline").getString("points");
-                        List<LatLng> decodedPath = PolyUtil.decode(LINE);
+                                        String LINE = stepMapList.get(i).getPolyline().getPoints();
+                                        List<LatLng> decodedPath = PolyUtil.decode(LINE);
 
 
-                        Steps steps = new Steps();
-                        steps.setDistance(step_list.getJSONObject(i).getJSONObject("distance").getString("text"));
-                        steps.setDuration(step_list.getJSONObject(i).getJSONObject("duration").getString("text"));
-                        steps.setHtmlInstructions(Jsoup.parse(step_list.getJSONObject(i).getString("html_instructions")).text());
-                        steps.setPolyline(decodedPath);
-                        steps.setStartLocation(latLng_start);
-                        steps.setEndLocation(latLng_end);
+                                        Steps steps = new Steps();
+                                        steps.setDistance(stepMapList.get(i).getDistance().getText());
+                                        steps.setDuration(stepMapList.get(i).getDuration().getText());
+                                        steps.setHtmlInstructions(Jsoup.parse(stepMapList.get(i).getHtmlInstructions()).text());
+                                        steps.setPolyline(decodedPath);
+                                        steps.setStartLocation(latlngStart);
+                                        steps.setEndLocation(latLng_end);
 
-                        stepsArrayList.add(steps);
-                    }
+                                        stepsArrayList.add(steps);
+                                    }
 
-                    route_point.setStepsArrayList(stepsArrayList);
+                                    routePoint.setStepsArrayList(stepsArrayList);
 
-                    interface_location.onLocation(route_point);
-                } else {
-                    if (getActivity() != null) {
-                        txtvTime.setText("Không Tìm thấy địa chỉ!");
-                        SharePreferenceUtil.setValueDistance(getActivity(), "");
-                        SharePreferenceUtil.setValueTime(getActivity(), "");
-                        btnDirection.setVisibility(View.GONE);
-                    }
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        });
+                                    interface_location.onLocation(routePoint);
+                                } else {
+                                    if (getActivity() != null) {
+                                        txtvTime.setText("Không Tìm thấy địa chỉ!");
+                                        SharePreferenceUtil.setValueDistance(getActivity(), "");
+                                        SharePreferenceUtil.setValueTime(getActivity(), "");
+                                        btnDirection.setVisibility(View.GONE);
+                                    }
+                                }
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                Log.e(TAG, "onError: " + e.getMessage());
+                            }
+
+                            @Override
+                            public void onComplete() {
+
+                            }
+                        });
+        disposable.add(disposableMap);
     }
 
     public void route() {
@@ -433,11 +462,11 @@ public class MapsFragment extends Fragment implements GoogleApiClient.Connection
         googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(pos));
     }
 
-    private void getPolyline(String color, List<LatLng> overview_polyline) {
+    private void getPolyline(String color, List<LatLng> overviewPolyline) {
         PolylineOptions polyOptions = new PolylineOptions();
         polyOptions.color(Color.parseColor(color));
         polyOptions.width(22);
-        polyOptions.addAll(overview_polyline);
+        polyOptions.addAll(overviewPolyline);
 
         Polyline polyline = googleMap.addPolyline(polyOptions);
         polyline.setGeodesic(true);
@@ -454,12 +483,12 @@ public class MapsFragment extends Fragment implements GoogleApiClient.Connection
         }
     }
 
-    private void initSwipeItem(final Route_point route_point, int current) {
+    private void initSwipeItem(final RoutePoint routePoint, int current) {
         /*danh sách các direction*/
-        SwipeItem[] swipeItems = new SwipeItem[route_point.getStepsArrayList().size()];
-        for (int i = 0; i < route_point.getStepsArrayList().size(); i++) {
-            Steps steps = route_point.getStepsArrayList().get(i);
-            swipeItems[i] = new SwipeItem(i, steps.getDistance() + " - " + steps.getDuration(), steps.getHtmlInstructions());
+        SwipeItem[] swipeItems = new SwipeItem[routePoint.getStepsArrayList().size()];
+        for (int i = 0; i < routePoint.getStepsArrayList().size(); i++) {
+            Steps step = routePoint.getStepsArrayList().get(i);
+            swipeItems[i] = new SwipeItem(i, step.getDistance() + " - " + step.getDuration(), step.getHtmlInstructions());
         }
         /*Khởi tạo swipe Direction*/
         swipeSelector.setItems(
@@ -475,9 +504,9 @@ public class MapsFragment extends Fragment implements GoogleApiClient.Connection
             int current1 = (int) item.value;
             removePoly();
 
-            getPolyline("#BABABA", route_point.getOverviewPolyline());
-            getPolyline("#FFFF7700", route_point.getStepsArrayList().get(current1).getPolyline());
-            updateCamera(route_point.getStepsArrayList().get(current1).getStartLocation());
+            getPolyline("#BABABA", routePoint.getOverviewPolyline());
+            getPolyline("#FFFF7700", routePoint.getStepsArrayList().get(current1).getPolyline());
+            updateCamera(routePoint.getStepsArrayList().get(current1).getStartLocation());
 
             SharePreferenceUtil.setValueDirection(getActivity(), current1);
         });

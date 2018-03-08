@@ -4,10 +4,6 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;
 
-/**
- * Created by Nusib on 5/29/2017.
- */
-
 public class Steps {
     private String distance;
     private String duration;

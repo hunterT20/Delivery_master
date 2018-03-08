@@ -1,5 +1,7 @@
 package com.thanhtuan.delivery.data.remote;
 
+import com.thanhtuan.delivery.data.model.DataSentSMS;
+import com.thanhtuan.delivery.data.model.DataTimeRecord;
 import com.thanhtuan.delivery.data.model.ItemChuaGiao;
 import com.thanhtuan.delivery.data.model.ItemDaGiao;
 import com.thanhtuan.delivery.data.model.Product;
@@ -16,14 +18,15 @@ import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public interface ApiService {
     /*API Google Map*/
-    @GET("directions/json?")
+    @GET("directions/json")
     Observable<Map> setupMap(
-            @Query("Origin") String origin,
-            @Query("destination") String address,
+            @Query("origin") String origin,
+            @Query(value = "destination", encoded = true) String address,
             @Query("language") String language,
             @Query("key") String key
     );
@@ -52,36 +55,37 @@ public interface ApiService {
 
     @GET("salereceipt/detail/{ID}")
     Observable<ApiListResult<Product>> getListProduct(
-            @Header("Authorization") String token
+            @Header("Authorization") String token,
+            @Path("ID") String id
     );
 
     @POST("salereceipt/salereceiptabort")
     Observable<ApiResult<Integer>> huyGiaoHang(
             @Header("Authorization") String token,
-            HashMap<String,String> param
+            @Body HashMap<String,String> param
     );
 
     @POST("salereceipt/sendsmsdelivery")
-    Observable<ApiResult<String>> sentSMS(
+    Observable<ApiListResult<DataSentSMS>> sentSMS(
             @Header("Authorization") String token,
-            HashMap<String, String> param
+            @Body HashMap<String, String> param
     );
 
     @POST("salereceipt/salereceipttime")
-    Observable<ApiResult<Integer>> timeRecord(
+    Observable<ApiListResult<DataTimeRecord>> timeRecord(
             @Header("Authorization") String token,
-            HashMap<String,String> param
+            @Body HashMap<String,String> param
     );
 
     @POST("salereceipt/photoupload")
     Observable<ApiResult<String>> postPhoto(
             @Header("Authorization") String token,
-            HashMap<String,String> param
+            @Body HashMap<String,String> param
     );
 
     @POST("salereceipt/salereceiptdone")
     Observable<ApiResult<String>> done(
             @Header("Authorization") String token,
-            HashMap<String,String> param
+            @Body HashMap<String,String> param
     );
 }

@@ -1,7 +1,6 @@
 package com.thanhtuan.delivery.ui.nghiemthu;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -12,7 +11,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -25,21 +23,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Response;
 import com.rey.material.widget.FloatingActionButton;
 import com.thanhtuan.delivery.R;
 import com.thanhtuan.delivery.data.model.api.ApiResult;
 import com.thanhtuan.delivery.data.remote.ApiUtils;
-import com.thanhtuan.delivery.data.remote.JsonRequest;
 import com.thanhtuan.delivery.ui.main.MainActivity;
 import com.thanhtuan.delivery.data.remote.ApiHelper;
 import com.thanhtuan.delivery.data.model.Photo;
-import com.thanhtuan.delivery.data.model.URL_PhotoUpload;
 import com.thanhtuan.delivery.data.local.prefs.SharePreferenceUtil;
 import com.thanhtuan.delivery.utils.RecyclerViewUtil;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -71,12 +63,13 @@ public class NghiemThuActivity extends AppCompatActivity {
     private static final String TAG = NghiemThuActivity.class.getSimpleName();
     private final static int CODE_PHOTO = 2002;
     private final CompositeDisposable disposable = new CompositeDisposable();
-    private final String Token = SharePreferenceUtil.getValueToken(this);
+    private String Token;
+    private Bitmap bitmapOld;
 
     private List<Photo> photoList;
     private ListNghiemThuAdapter adapter;
-    private Boolean flag_back = false;
-    private Bitmap photo_taked;
+    private Boolean flagBack = false;
+    private Bitmap photoTaked;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,9 +77,12 @@ public class NghiemThuActivity extends AppCompatActivity {
         setContentView(R.layout.activity_nghiem_thu);
         ButterKnife.bind(this);
 
+        bitmapOld = ((BitmapDrawable)ibtnPhoto.getDrawable()).getBitmap();
+        Token = SharePreferenceUtil.getValueToken(this);
         adapter = new ListNghiemThuAdapter(this);
         RecyclerViewUtil.setupRecyclerView(rcvNghiemThu,adapter,this);
         rcvNghiemThu.setAdapter(adapter);
+
         addViews();
         addEvents();
     }
@@ -118,12 +114,11 @@ public class NghiemThuActivity extends AppCompatActivity {
 
     @OnClick(R.id.btnXacNhan)
     public void onXacNhanClick(){
-        final Bitmap bitmap_old = ((BitmapDrawable)ibtnPhoto.getDrawable()).getBitmap();
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         assert imm != null;
         imm.hideSoftInputFromWindow(edtMoTa.getWindowToken(), 0);
 
-        if (((BitmapDrawable)ibtnPhoto.getDrawable()).getBitmap() == bitmap_old){
+        if (((BitmapDrawable)ibtnPhoto.getDrawable()).getBitmap() == bitmapOld){
             Snackbar snackbar = Snackbar.make(Root,"Bạn chưa có hình để nghiệm thu!",Snackbar.LENGTH_LONG).setAction("OK", v1 -> {
             });
             snackbar.show();
@@ -137,13 +132,13 @@ public class NghiemThuActivity extends AppCompatActivity {
 
                 Photo photo = new Photo();
                 photo.setDescription(Description);
-                photo.setImage(photo_taked);
+                photo.setImage(photoTaked);
                 photoList.add(photo);
                 adapter.addList(photoList);
 
                 btnXacNhan.setText("Loading...");
 
-                getPhotoUrl(photo_taked);
+                getPhotoUrl(photoTaked);
 
                 edtMoTa.setText("");
                 ibtnPhoto.setImageDrawable(getResources().getDrawable(R.drawable.ic_add_a_photo_white_24dp));
@@ -194,7 +189,7 @@ public class NghiemThuActivity extends AppCompatActivity {
         fab.setVisibility(View.GONE);
         btnUpload.setVisibility(View.GONE);
         cvNghiemThu.setVisibility(View.VISIBLE);
-        flag_back = true;
+        flagBack = true;
     }
 
     private void cvNghiemThuGONE(){
@@ -202,12 +197,12 @@ public class NghiemThuActivity extends AppCompatActivity {
         fab.setVisibility(View.VISIBLE);
         btnUpload.setVisibility(View.VISIBLE);
         cvNghiemThu.setVisibility(View.GONE);
-        flag_back = false;
+        flagBack = false;
     }
 
     @Override
     public void onBackPressed() {
-        if (flag_back) {
+        if (flagBack) {
             cvNghiemThuGONE();
         } else {
             if (photoList.size() != 0) {
@@ -223,7 +218,7 @@ public class NghiemThuActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                if (flag_back){
+                if (flagBack){
                     cvNghiemThuGONE();
                 }else {
                     if (photoList.size() != 0){
@@ -250,7 +245,7 @@ public class NghiemThuActivity extends AppCompatActivity {
         if (requestCode == CODE_PHOTO && resultCode == RESULT_OK){
             assert data.getExtras() != null;
             Bitmap bitmap = (Bitmap) data.getExtras().get("data");
-            photo_taked = bitmap;
+            photoTaked = bitmap;
             ibtnPhoto.setImageBitmap(bitmap);
         }
     }
