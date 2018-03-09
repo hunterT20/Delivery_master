@@ -25,6 +25,8 @@ import android.widget.Toast;
 
 import com.rey.material.widget.FloatingActionButton;
 import com.thanhtuan.delivery.R;
+import com.thanhtuan.delivery.data.model.DataPostPhoto;
+import com.thanhtuan.delivery.data.model.api.ApiListResult;
 import com.thanhtuan.delivery.data.model.api.ApiResult;
 import com.thanhtuan.delivery.data.remote.ApiUtils;
 import com.thanhtuan.delivery.ui.main.MainActivity;
@@ -137,7 +139,6 @@ public class NghiemThuActivity extends AppCompatActivity {
                 adapter.addList(photoList);
 
                 btnXacNhan.setText("Loading...");
-
                 getPhotoUrl(photoTaked);
 
                 edtMoTa.setText("");
@@ -253,17 +254,18 @@ public class NghiemThuActivity extends AppCompatActivity {
     public void getPhotoUrl(Bitmap bitmap){
         HashMap<String,String> params = ApiHelper.paramUpload(this,bitmap);
 
-        Observable<ApiResult<String>> postPhoto = ApiUtils.getAPIservices().postPhoto(Token, params);
+        Observable<ApiListResult<DataPostPhoto>> postPhoto = ApiUtils.getAPIservices().postPhoto(Token, params);
         Disposable disposableObserver =
                 postPhoto.subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeWith(new DisposableObserver<ApiResult<String>>() {
+                        .subscribeWith(new DisposableObserver<ApiListResult<DataPostPhoto>>() {
                             @Override
-                            public void onNext(ApiResult<String> result) {
+                            public void onNext(ApiListResult<DataPostPhoto> result) {
                                 if (result.getSuccess()){
-                                    btnXacNhan.setText("Xác nhận");
                                     cvNghiemThuGONE();
                                     Toast.makeText(NghiemThuActivity.this, "Đã gửi hình lên server!", Toast.LENGTH_SHORT).show();
+                                }else {
+                                    Toast.makeText(NghiemThuActivity.this, result.getMessage(), Toast.LENGTH_SHORT).show();
                                 }
                             }
 
@@ -274,7 +276,7 @@ public class NghiemThuActivity extends AppCompatActivity {
 
                             @Override
                             public void onComplete() {
-
+                                btnXacNhan.setText("Xác nhận");
                             }
                         });
 
@@ -284,13 +286,13 @@ public class NghiemThuActivity extends AppCompatActivity {
     public void onUpload(){
         HashMap<String, String> params = ApiHelper.paramDone(this,"default");
 
-        Observable<ApiResult<String>> done = ApiUtils.getAPIservices().done(Token,params);
+        Observable<ApiListResult<String>> done = ApiUtils.getAPIservices().done(Token,params);
         Disposable disposableDone =
                 done.subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeWith(new DisposableObserver<ApiResult<String>>() {
+                        .subscribeWith(new DisposableObserver<ApiListResult<String>>() {
                             @Override
-                            public void onNext(ApiResult<String> result) {
+                            public void onNext(ApiListResult<String> result) {
                                 if (result.getSuccess()){
                                     SharePreferenceUtil.Clean(NghiemThuActivity.this);
 

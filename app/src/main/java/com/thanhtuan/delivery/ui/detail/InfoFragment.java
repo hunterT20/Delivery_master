@@ -71,6 +71,9 @@ public class InfoFragment extends Fragment {
     @BindView(R.id.btnGiaoHang)  Button btnGiaoHang;
     @BindView(R.id.fabPhone)     FloatingActionButton fabPhone;
 
+    private final static String STATUS_START = "10";
+    private final static String STATUS_END = "11";
+
     private ItemChuaGiao itemChuaGiao;
     public List<URL_PhotoUpload> url_photoUploads;
     final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
@@ -136,12 +139,9 @@ public class InfoFragment extends Fragment {
                 initDialogSetTime();
                 break;
             case "Kết Thúc":
-                eventTimeRecord("2");
+                eventTimeRecord(STATUS_END);
                 break;
             case "Nghiệm Thu":
-                Intent intent = new Intent(getActivity(), NghiemThuActivity.class);
-                startActivity(intent);
-                getActivity().finish();
                 eventTimeRecord("3");
                 break;
         }
@@ -152,12 +152,12 @@ public class InfoFragment extends Fragment {
             case 0:
                 txtvQuaTrinh.setText("Đang chờ giao hàng");
                 break;
-            case 1:
+            case 10:
                 txtvQuaTrinh.setText("Đang giao hàng");
                 SharePreferenceUtil.setValueStatus(getActivity(),Status);
                 btnGiaoHang.setText("Kết Thúc");
                 break;
-            case 2:
+            case 11:
                 txtvQuaTrinh.setText("Đã giao hàng");
                 SharePreferenceUtil.setValueStatus(getActivity(),Status);
                 btnGiaoHang.setText("Nghiệm Thu");
@@ -174,6 +174,7 @@ public class InfoFragment extends Fragment {
     }
 
     private void initDialogHuy(){
+        if (getActivity() == null) return;
         LayoutInflater layoutInflaterAndroid = LayoutInflater.from(getActivity());
         final View mView = layoutInflaterAndroid.inflate(R.layout.dialog_huy, null);
         final EditText edtLyDo = mView.findViewById(R.id.edtLydo);
@@ -212,6 +213,7 @@ public class InfoFragment extends Fragment {
     }
 
     private void onAbort(String lyDo){
+        if (getActivity() == null) return;
         if (lyDo.length() < 10){
             Toast.makeText(getActivity(), "Lý do quá ngắn!", Toast.LENGTH_SHORT).show();
         }
@@ -270,7 +272,7 @@ public class InfoFragment extends Fragment {
                     .subscribeWith(new DisposableObserver<ApiListResult<DataSentSMS>>() {
                         @Override
                         public void onNext(ApiListResult<DataSentSMS> result) {
-                            eventTimeRecord("1");
+                            eventTimeRecord(STATUS_START);
                         }
 
                         @Override
@@ -300,6 +302,10 @@ public class InfoFragment extends Fragment {
                         @Override
                         public void onNext(ApiListResult<DataTimeRecord> result) {
                             setQuaTrinh(result.getData().get(0).getStatus());
+                            if (Status.equals("3")){
+                                startActivity(new Intent(getActivity(), NghiemThuActivity.class));
+                                getActivity().finish();
+                            }
                         }
 
                         @Override

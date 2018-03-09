@@ -1,6 +1,7 @@
 package com.thanhtuan.delivery.ui.main;
 
 
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -21,6 +22,7 @@ import com.rey.material.widget.FloatingActionButton;
 import com.thanhtuan.delivery.R;
 import com.thanhtuan.delivery.data.model.api.ApiListResult;
 import com.thanhtuan.delivery.data.remote.ApiUtils;
+import com.thanhtuan.delivery.interface_delivery.OnGetList;
 import com.thanhtuan.delivery.utils.EndlessRecyclerViewScrollListener;
 import com.thanhtuan.delivery.data.model.ItemDaGiao;
 import com.thanhtuan.delivery.utils.RecyclerViewUtil;
@@ -52,7 +54,6 @@ public class DaGiaoFragment extends Fragment implements DatePickerDialog.OnDateS
 
     private static final String TAG = DaGiaoFragment.class.getSimpleName();
     private final CompositeDisposable disposable = new CompositeDisposable();
-    private List<ItemDaGiao> mItemDaGiao;
     private String beginDate,endDate;
     private ListDaGiaoAdapter adapter;
     private LinearLayoutManager linearLayoutManager;
@@ -68,10 +69,10 @@ public class DaGiaoFragment extends Fragment implements DatePickerDialog.OnDateS
         ButterKnife.bind(this,view);
         swipeRefreshLayout.setOnRefreshListener(this);
 
-        mItemDaGiao = new ArrayList<>();
         assert getActivity() != null;
         adapter = new ListDaGiaoAdapter(getActivity());
         RecyclerViewUtil.setupRecyclerView(rcvDonHang, adapter, getActivity());
+        rcvDonHang.setAdapter(adapter);
 
         addViews();
         return view;
@@ -86,8 +87,7 @@ public class DaGiaoFragment extends Fragment implements DatePickerDialog.OnDateS
     private void addViews() {
         linearLayoutManager = new LinearLayoutManager(getActivity());
         if (getActivity() == null) return;
-        adapter.addList(getData(getCurrentDate(),getCurrentDate(),CURRENT_PAGE));
-        rcvDonHang.setAdapter(adapter);
+        getData(getCurrentDate(),getCurrentDate(),CURRENT_PAGE, itemDaGiaos -> adapter.addList(itemDaGiaos));
     }
 
     @OnClick(R.id.fabFilter)
@@ -98,6 +98,7 @@ public class DaGiaoFragment extends Fragment implements DatePickerDialog.OnDateS
     private void initDialog(){
         if (getActivity() == null) return;
         LayoutInflater layoutInflaterAndroid = LayoutInflater.from(getActivity());
+        @SuppressLint("InflateParams")
         final View mView = layoutInflaterAndroid.inflate(R.layout.dialog_filter, null);
         btnBegin = mView.findViewById(R.id.btnBegin);
         btnEnd = mView.findViewById(R.id.btnend);
@@ -126,8 +127,7 @@ public class DaGiaoFragment extends Fragment implements DatePickerDialog.OnDateS
                     beginDate = btnBegin.getText().toString();
                     endDate = btnEnd.getText().toString();
 
-                    adapter.clear();
-                    adapter.addList(getData(beginDate,endDate,CURRENT_PAGE));
+                    getData(beginDate,endDate,CURRENT_PAGE, itemDaGiaos -> adapter.addList(itemDaGiaos));
 
                     LoadMore();
                 })
@@ -159,7 +159,7 @@ public class DaGiaoFragment extends Fragment implements DatePickerDialog.OnDateS
         return  month + "/" + day + "/" + year;
     }
 
-    private List<ItemDaGiao> getData(String timeBegin, String timeEnd, int pages){
+    private void getData(String timeBegin, String timeEnd, int pages, final OnGetList onGetList){
         final String Token = SharePreferenceUtil.getValueToken(getActivity());
 
         txtvNoItem.setVisibility(View.GONE);
@@ -176,15 +176,10 @@ public class DaGiaoFragment extends Fragment implements DatePickerDialog.OnDateS
                             @Override
                             public void onNext(ApiListResult<ItemDaGiao> result) {
                                 if (result.getSuccess()) {
-                                    mItemDaGiao.clear();
-                                    mItemDaGiao.addAll(result.getData());
+                                    onGetList.getList(result.getData());
                                 }else {
-                                    if (mItemDaGiao.size() > 0){
-                                        txtvNoItem.setVisibility(View.GONE);
-                                    }else {
-                                        txtvNoItem.setVisibility(View.VISIBLE);
-                                    }
                                     adapter.clear();
+                                    txtvNoItem.setVisibility(View.VISIBLE);
                                 }
                             }
 
@@ -202,18 +197,17 @@ public class DaGiaoFragment extends Fragment implements DatePickerDialog.OnDateS
 
         disposable.add(disposableObserver);
 
-        return mItemDaGiao;
     }
 
     private void LoadMore(){
         EndlessRecyclerViewScrollListener scrollListener = new EndlessRecyclerViewScrollListener(linearLayoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, final RecyclerView view) {
-                final int size = adapter.getItemCount();
+                getData(beginDate,endDate,page + 1, itemDaGiaos -> {
+                    final int size = adapter.getItemCount();
 
-                view.post(() -> adapter.notifyItemRangeInserted(
-                        size,
-                        getData(beginDate,endDate,page + 1).size() - 1));
+                    view.post(() -> adapter.notifyItemRangeInserted(size, itemDaGiaos.size() - 1));
+                });
             }
         };
         rcvDonHang.addOnScrollListener(scrollListener);
@@ -232,6 +226,10 @@ public class DaGiaoFragment extends Fragment implements DatePickerDialog.OnDateS
     @Override
     public void onRefresh() {
         adapter.clear();
-        adapter.addList(getData(getCurrentDate(),getCurrentDate(),CURRENT_PAGE));
+        if (beginDate != null && endDate != null){
+            getData(beginDate, endDate, CURRENT_PAGE, itemDaGiaos -> adapter.addList(itemDaGiaos));
+        }else {
+            getData(getCurrentDate(), getCurrentDate(), CURRENT_PAGE, itemDaGiaos -> adapter.addList(itemDaGiaos));
+        }
     }
 }

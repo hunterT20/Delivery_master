@@ -223,7 +223,7 @@
             android:layout_weight="1"
             android:elevation="8dp"
             android:text="@string/giaohang"
-            android:textStyle="bold" />
+            android:textAllCaps="false" />
 
         <Button
             android:id="@+id/btnHuyGiaoHang"
@@ -232,7 +232,7 @@
             android:layout_weight="1"
             android:elevation="6dp"
             android:text="@string/huy"
-            android:textStyle="bold" />
+            android:textAllCaps="false" />
     </LinearLayout>
 
     <com.rey.material.widget.FloatingActionButton

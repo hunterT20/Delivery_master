@@ -1,5 +1,6 @@
 package com.thanhtuan.delivery.data.remote;
 
+import com.thanhtuan.delivery.data.model.DataPostPhoto;
 import com.thanhtuan.delivery.data.model.DataSentSMS;
 import com.thanhtuan.delivery.data.model.DataTimeRecord;
 import com.thanhtuan.delivery.data.model.ItemChuaGiao;
@@ -78,13 +79,13 @@ public interface ApiService {
     );
 
     @POST("salereceipt/photoupload")
-    Observable<ApiResult<String>> postPhoto(
+    Observable<ApiListResult<DataPostPhoto>> postPhoto(
             @Header("Authorization") String token,
             @Body HashMap<String,String> param
     );
 
     @POST("salereceipt/salereceiptdone")
-    Observable<ApiResult<String>> done(
+    Observable<ApiListResult<String>> done(
             @Header("Authorization") String token,
             @Body HashMap<String,String> param
     );

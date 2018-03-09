@@ -63,10 +63,10 @@ public class ListSaleAdapter extends RecyclerView.Adapter<ListSaleAdapter.SaleVi
             case 0:
                 holder.txtvTrangThai.setText("Đang chờ giao hàng");
                 break;
-            case 1:
+            case 10:
                 holder.txtvTrangThai.setText("Đang giao hàng");
                 break;
-            case 2:
+            case 11:
                 holder.txtvTrangThai.setText("Hoàn tất giao hàng");
                 break;
             case 3:
@@ -75,6 +75,15 @@ public class ListSaleAdapter extends RecyclerView.Adapter<ListSaleAdapter.SaleVi
             case 4:
                 holder.txtvTrangThai.setText("Đã giao hàng");
                 break;
+        }
+
+        if (itemChuaGiao.getStatus() != 0){
+            SharePreferenceUtil.setValueSaleitem(mContext ,itemChuaGiao);
+            SharePreferenceUtil.setValueStatus(mContext, itemChuaGiao.getStatus());
+
+            Intent intent = new Intent(mContext, DetailActivity.class);
+            mContext.startActivity(intent);
+            ((MainActivity) mContext).finish();
         }
 
         holder.itemView.setOnClickListener(v -> {

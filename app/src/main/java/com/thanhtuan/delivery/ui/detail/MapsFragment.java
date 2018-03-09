@@ -126,6 +126,7 @@ public class MapsFragment extends Fragment implements GoogleApiClient.Connection
      * Kiểm tra quyền LocationMap
      */
     private void requestLocationPermissions() {
+        if (getActivity() == null) return;
         if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(getActivity(),
@@ -163,6 +164,7 @@ public class MapsFragment extends Fragment implements GoogleApiClient.Connection
      * @return true/false
      */
     private boolean isGpsOn() {
+        assert getActivity() != null;
         LocationManager manager = (LocationManager) getActivity().getSystemService(LOCATION_SERVICE);
         assert manager != null;
         return manager.isProviderEnabled(LocationManager.GPS_PROVIDER);
@@ -207,6 +209,7 @@ public class MapsFragment extends Fragment implements GoogleApiClient.Connection
     };
 
     protected void startLocationUpdates() {
+        if (getActivity() == null) return;
         if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(getActivity(),
                 Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -241,6 +244,7 @@ public class MapsFragment extends Fragment implements GoogleApiClient.Connection
 
     @Override
     public void onConnected(Bundle bundle) {
+        if (getActivity() == null) return;
         if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(getActivity(),
                 Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -361,10 +365,10 @@ public class MapsFragment extends Fragment implements GoogleApiClient.Connection
     };
 
     private void getLocationSale(final Interface_Location interface_location) {
-        assert getActivity() != null;
-        assert mLastLocation != null;
-
+        if (getActivity() == null) return;
         ItemChuaGiao itemChuaGiao = SharePreferenceUtil.getValueSaleItem(getActivity());
+
+        assert mLastLocation != null;
         LocationMap origin = new LocationMap(mLastLocation.getLatitude(),mLastLocation.getLongitude());
         Observable<Map> setupMap = ApiUtils.getAPIMap().setupMap(
           origin.getOrigin(),itemChuaGiao.getAddress(),"vi",AppConst.KEY_MAP
@@ -514,7 +518,7 @@ public class MapsFragment extends Fragment implements GoogleApiClient.Connection
 
     private void initGoogleMap() {
         mMapView.getMapAsync(mMap -> {
-            assert getActivity() != null;
+            if (getActivity() == null) return;
 
             googleMap = mMap;
             if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED

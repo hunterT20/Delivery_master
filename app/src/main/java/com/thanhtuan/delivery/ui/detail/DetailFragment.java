@@ -52,6 +52,7 @@ public class DetailFragment extends Fragment implements SwipeRefreshLayout.OnRef
         adapter = new ListProductAdapter(getActivity());
         RecyclerViewUtil.setupRecyclerView(rcvProduct, adapter, getActivity());
         rcvProduct.setAdapter(adapter);
+        swipeRefreshLayout.setOnRefreshListener(this);
         initData();
         return view;
     }

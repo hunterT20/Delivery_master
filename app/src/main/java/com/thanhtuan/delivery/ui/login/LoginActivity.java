@@ -130,6 +130,17 @@ public class LoginActivity extends AppCompatActivity {
                                 User user = result.getData();
                                 SharePreferenceUtil.setValueId(getApplication(), user.getEmployeeId());
                                 SharePreferenceUtil.setValueToken(getApplication(), user.getSessionToken());
+
+                                btnLogin.setText("Login");
+                                setToastShow("Đăng nhập thành công!");
+                                SaveLogin();
+
+                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);;
+                                startActivity(intent);
+                                finish();
+                            }else {
+                                setToastShow(result.getMessage());
+                                btnLogin.setText("Login");
                             }
                         }
 
@@ -141,19 +152,7 @@ public class LoginActivity extends AppCompatActivity {
 
                         @Override
                         public void onComplete() {
-                            btnLogin.setText("Login");
-                            setToastShow("Đăng nhập thành công!");
-                            SaveLogin();
 
-                            Intent intent;
-                            if (SharePreferenceUtil.getValueStatus(getApplication()) != 0)
-                            {
-                                intent = new Intent(LoginActivity.this, DetailActivity.class);
-                            }else {
-                                intent = new Intent(LoginActivity.this, MainActivity.class);
-                            }
-                            startActivity(intent);
-                            finish();
                         }
                     })
         );

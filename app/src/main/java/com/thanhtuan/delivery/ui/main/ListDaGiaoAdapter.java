@@ -47,7 +47,6 @@ public class ListDaGiaoAdapter extends RecyclerView.Adapter<ListDaGiaoAdapter.Da
     @Override
     public void onBindViewHolder(@NonNull ListDaGiaoAdapter.DaGiaoViewHolder holder, int position) {
         final ItemDaGiao itemDaGiao = mItemDaGiao.get(position);
-
         holder.txtvDonHang.setText(itemDaGiao.getSaleReceiptId());
         holder.txtvAddress.setText(itemDaGiao.getAddress());
         holder.txtvTrangThai.setText(itemDaGiao.getStatus());
@@ -66,7 +65,7 @@ public class ListDaGiaoAdapter extends RecyclerView.Adapter<ListDaGiaoAdapter.Da
 
         DaGiaoViewHolder(View itemView) {
             super(itemView);
-            ButterKnife.bind(this.itemView);
+            ButterKnife.bind(this,itemView);
         }
     }
 }
